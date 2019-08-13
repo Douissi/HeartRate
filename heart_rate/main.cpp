@@ -5,7 +5,6 @@
 #include <facetracking.hpp>
 #include <signalprocessingfunctions.hpp>
 
-
 using namespace cv;
 
 
@@ -64,11 +63,6 @@ int main(){
    faces[0].x = faces[0].x + 50; // only for manual foreHead detection
    faces[0].width = faces[0].width - 70; // only for manual foreHead detection
 
-//    faces[0].y -= 70;
-//    faces[0].height = faces[0].height/3 ; // only for manualforeHead detection
-//    faces[0].x = faces[0].x + 60; // only for manual foreHead detection
-//    faces[0].width = faces[0].width -140; // only for manual foreHead detection
-
    int x = faces[0].x;
    int y = faces[0].y;
    int h = y+faces[0].height;
@@ -92,8 +86,6 @@ int main(){
      break;
   }
 
-//  saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamplesWithMeanValue.txt");
-
   /******************* Signal Processing *******************/
 
     // remove mean value "offset" of the signal
@@ -112,7 +104,6 @@ int main(){
   bandPassFilterFunction(foreHeadSignalSamples,lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
   saveSigToFile<float>(filteredSig, "filteredSig.txt");
   SignalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
-
 
 
   // When everything done, release the video capture object

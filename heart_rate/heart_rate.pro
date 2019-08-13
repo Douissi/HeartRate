@@ -41,3 +41,6 @@ HEADERS  += mainwindow.h \
     signalprocessingfunctions.hpp
 
 FORMS    += mainwindow.ui
+
+DISTFILES += \
+    ../README.md
