@@ -23,9 +23,17 @@ using namespace sp;
 template <typename T>
 T meanVector(const vector<T>& input)
 {
-   T tmp=0;
-   for (const auto v : input) tmp+=v;
-   return tmp/input.size();
+    T tmp=0;
+    for (const auto v : input) tmp+=v;
+    return tmp/input.size();
+}
+
+template <typename T>
+void removeMeanValue(vector<T>& inputOutput)
+{
+    float meanForeHeadSignal = meanVector<T>(inputOutput);
+    std::transform(inputOutput.begin(), inputOutput.end(),inputOutput.begin(),
+                 [&meanForeHeadSignal](T v) -> T {return v - meanForeHeadSignal;});
 }
 
 

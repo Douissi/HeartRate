@@ -12,12 +12,14 @@ int main(){
 
   float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
   float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
-  int   filterOrder = 30; // Filter Order in BandPass Hanning Window Filter fixed to 30
+  int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
 
   // Create a VideoCapture object and open the input file
   // If the input is the web camera, pass 0 instead of the video file name
-  VideoCapture capture("face.mp4");
+  VideoCapture capture("73BPmin.mp4");
+
   double Fs = (double)(capture.get(CAP_PROP_FPS));
+  unsigned int numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam
 
   // Check if camera opened successfully
   if(!capture.isOpened()){
@@ -36,7 +38,7 @@ int main(){
   }
 
   std::vector <float> foreHeadSignalSamples;
-  foreHeadSignalSamples.reserve(Fs*10);
+  foreHeadSignalSamples.reserve(numberOfFrames);
 
   /******************************* Video Processing ***************************/
 
@@ -59,15 +61,12 @@ int main(){
     /* first param was GreyColorImage */
    faceCascade.detectMultiScale( channels[1], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
 
-   faces[0].height = faces[0].height/3.7; // only for manualforeHead detection
-   faces[0].x = faces[0].x + 50; // only for manual foreHead detection
-   faces[0].width = faces[0].width - 70; // only for manual foreHead detection
+   faces[0].y += 20;
+   faces[0].height = faces[0].height/3.7 - 20; // only for manualforeHead detection
+   faces[0].x += 60; // only for manual foreHead detection
+   faces[0].width -= 130; // only for manual foreHead detection
 
-   int x = faces[0].x;
-   int y = faces[0].y;
-   int h = y+faces[0].height;
-   int w = x+faces[0].width;
-   rectangle(frame, Point (x,y), Point (w,h), Scalar(255,255,255), 2, 8, 0);
+   drawRectangle(frame,faces[0]);
 
    cv::Mat foreHead(channels[1], faces[0]); // new Matrix containing only ForeHead image (in Green Channel)
 
@@ -88,10 +87,10 @@ int main(){
 
   /******************* Signal Processing *******************/
 
-    // remove mean value "offset" of the signal
-  float meanForeHeadSignal = meanVector<float>(foreHeadSignalSamples);
-  std::transform(foreHeadSignalSamples.begin(), foreHeadSignalSamples.end(),foreHeadSignalSamples.begin(),
-                 [&meanForeHeadSignal](float v) -> float {return v - meanForeHeadSignal;});
+  // Illumination Rectification
+
+   // remove mean value "offset" of the signal
+  removeMeanValue<float>(foreHeadSignalSamples);
 
   // print samples from ForeHead signal
   for (auto v : foreHeadSignalSamples) cout << "ForeHead samples are "<< v << endl;

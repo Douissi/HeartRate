@@ -24,4 +24,13 @@ bool faceCascadeLoading(CascadeClassifier& faceCascade,const string& path)
     return true;
 }
 
+void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect)
+{
+    int x = rect.x;
+    int y = rect.y;
+    int h = y + rect.height;
+    int w = x + rect.width;
+    rectangle(inputOutputImage, Point (x,y), Point (w,h), Scalar(255,255,255), 2, 8, 0);
+}
+
 #endif // FACETRACKING_HPP
