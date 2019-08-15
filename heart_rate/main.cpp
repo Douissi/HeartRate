@@ -30,7 +30,7 @@ int main(){
   CascadeClassifier faceCascade;
 
   // Open xml file for face tracking using classification
-  bool ResFaceCascadeLoading = faceCascadeLoading(faceCascade,"/root/opencv/opencv/data/haarcascades/haarcascade_frontalface_alt2.xml");
+  bool ResFaceCascadeLoading = faceCascadeLoading(faceCascade,"/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
 
   if(!ResFaceCascadeLoading){
       cout<<"Error while opening xml file for faceTracking"<<endl;
@@ -39,6 +39,8 @@ int main(){
 
   std::vector <float> foreHeadSignalSamples;
   foreHeadSignalSamples.reserve(numberOfFrames);
+  std::vector<float> backgroundSignalSamples;
+  backgroundSignalSamples.reserve(numberOfFrames);
 
   /******************************* Video Processing ***************************/
 
@@ -57,6 +59,7 @@ int main(){
 
    // Rect for faces
    std::vector<Rect> faces;
+   Rect backgroundRect(5, 116 , 128, 200);
 
     /* first param was GreyColorImage */
    faceCascade.detectMultiScale( channels[1], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
@@ -67,14 +70,23 @@ int main(){
    faces[0].width -= 130; // only for manual foreHead detection
 
    drawRectangle(frame,faces[0]);
+   drawRectangle(frame,backgroundRect);
 
    cv::Mat foreHead(channels[1], faces[0]); // new Matrix containing only ForeHead image (in Green Channel)
+   cv::Mat background(channels[1], backgroundRect); // new Matrix containing only background image (in Green Channel)
 
    Scalar tmpMean = mean(foreHead);
    float meanValue = tmpMean.val[0];
    foreHeadSignalSamples.push_back(meanValue);  // construction of the ForeHead Signal with mean of green Channel each frame
 
+   tmpMean = mean(background);
+   meanValue = tmpMean.val[0];
+   backgroundSignalSamples.push_back(meanValue);
+
+
    imshow( "ROI 1 : forehead", foreHead );
+
+   imshow( "BackGround ", background );
 
     // Display the resulting frame
    imshow( "Frame", frame );
@@ -88,15 +100,16 @@ int main(){
   /******************* Signal Processing *******************/
 
   // Illumination Rectification
+  vector<float> outputEstimation(numberOfFrames, 0.0);
+
+  saveSigToFile<float>(backgroundSignalSamples, "backgroundSignalSamples.txt");
+  saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamples.txt");
 
    // remove mean value "offset" of the signal
   removeMeanValue<float>(foreHeadSignalSamples);
 
-  // print samples from ForeHead signal
-  for (auto v : foreHeadSignalSamples) cout << "ForeHead samples are "<< v << endl;
-
   // Signal filter  ******* TO BE OPTIMIZED *******
-  saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamples.txt");
+  saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamplesMeanValueRemoved.txt");
   SignalFFT(foreHeadSignalSamples, Fs, "FFTResult.txt");
 
   vector<float> filteredSig(foreHeadSignalSamples.size(), 0.0);
