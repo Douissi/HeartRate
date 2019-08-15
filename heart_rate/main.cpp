@@ -35,8 +35,8 @@ int main(){
       return -1;
   }
 
-  //maybe to reserve all memory to optimize running time
   std::vector <float> foreHeadSignalSamples;
+  foreHeadSignalSamples.reserve(Fs*10);
 
   /******************************* Video Processing ***************************/
 
