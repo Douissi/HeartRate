@@ -31,7 +31,7 @@ T meanVector(const vector<T>& input)
 template <typename T>
 void removeMeanValue(vector<T>& inputOutput)
 {
-    float meanForeHeadSignal = meanVector<T>(inputOutput);
+    T meanForeHeadSignal = meanVector<T>(inputOutput);
     std::transform(inputOutput.begin(), inputOutput.end(),inputOutput.begin(),
                  [&meanForeHeadSignal](T v) -> T {return v - meanForeHeadSignal;});
 }
@@ -58,9 +58,9 @@ void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGr
 
 }
 
-
-void bandPassFilterFunction(const vector<float>& inputSig, const float& lowFreqCutOff,
-                            const float& highFreqCutOff, const float& Fs, const int& filterOrder, vector<float>& outputSig)
+template<typename T>
+void bandPassFilterFunction(const vector<T>& inputSig, const float& lowFreqCutOff,
+                            const float& highFreqCutOff, const float& Fs, const int& filterOrder, vector<T>& outputSig)
 {
     int N = inputSig.size();
     vec b;
@@ -75,7 +75,7 @@ void bandPassFilterFunction(const vector<float>& inputSig, const float& lowFreqC
 
 }
 
-int SignalFFT(const vector<float>& inputSignal, const double& Fs, const string& FFTFile)
+void SignalFFT(const vector<float>& inputSignal, const double& Fs, const string& FFTFile)
 {
     int N = inputSignal.size();
     fftw_complex out[N/2 +1];
@@ -104,7 +104,6 @@ int SignalFFT(const vector<float>& inputSignal, const double& Fs, const string& 
     fftw_destroy_plan ( plan_forward );
 //    fftw_free ( in );
 //    fftw_free ( out );
-    return 0;
 
 }
 

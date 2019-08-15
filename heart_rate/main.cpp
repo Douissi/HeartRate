@@ -113,7 +113,7 @@ int main(){
   SignalFFT(foreHeadSignalSamples, Fs, "FFTResult.txt");
 
   vector<float> filteredSig(foreHeadSignalSamples.size(), 0.0);
-  bandPassFilterFunction(foreHeadSignalSamples,lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
+  bandPassFilterFunction<float>(foreHeadSignalSamples,lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
   saveSigToFile<float>(filteredSig, "filteredSig.txt");
   SignalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
 
