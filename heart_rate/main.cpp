@@ -99,23 +99,33 @@ int main(){
 
   /******************* Signal Processing *******************/
 
-  // Illumination Rectification
-  vector<float> outputEstimation(numberOfFrames, 0.0);
-
   saveSigToFile<float>(backgroundSignalSamples, "backgroundSignalSamples.txt");
   saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamples.txt");
+
+
+  // Illumination Rectification
+  vector<float> outputEstimation(numberOfFrames, 0.0);
+  nlmsFilter<float>(backgroundSignalSamples, foreHeadSignalSamples, filterOrder, 0.5, outputEstimation);
+
+  // Avoid first incorrect sample
+  outputEstimation[0] = outputEstimation[1];
+  vector<float> filteredOutputEstimation(outputEstimation.size(), 0.0);
+  bandPassFilterFunction<float>(outputEstimation, lowFreqCutOff, highFreqCutOff, Fs, filterOrder, filteredOutputEstimation);
+  signalFFT(filteredOutputEstimation, Fs, "FFTfilteredOutputEstimation.txt");
+  saveSigToFile<float>(filteredOutputEstimation, "filteredOutputEstimation.txt");
+
 
    // remove mean value "offset" of the signal
   removeMeanValue<float>(foreHeadSignalSamples);
 
   // Signal filter  ******* TO BE OPTIMIZED *******
   saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamplesMeanValueRemoved.txt");
-  SignalFFT(foreHeadSignalSamples, Fs, "FFTResult.txt");
+  signalFFT(foreHeadSignalSamples, Fs, "FFTResult.txt");
 
   vector<float> filteredSig(foreHeadSignalSamples.size(), 0.0);
   bandPassFilterFunction<float>(foreHeadSignalSamples,lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
   saveSigToFile<float>(filteredSig, "filteredSig.txt");
-  SignalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
+  signalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
 
 
   // When everything done, release the video capture object

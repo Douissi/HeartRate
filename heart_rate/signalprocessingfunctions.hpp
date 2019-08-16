@@ -59,6 +59,26 @@ void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGr
 }
 
 template<typename T>
+void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
+{
+    int N = inputSig.size();
+    vector<T> nlmsOutput(N, 0.0);
+    FIR_filt<double,double,double> Ghat;
+    Ghat.setup_nlms(filterOrder, mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
+    // Filter - sample loop
+    for(int n = 0 ; n < N ; n++)
+    {
+        // Apply adaptiv filter
+        nlmsOutput[n] = Ghat(inputSig[n]);
+        // Calc error
+        outputEstimation[n] = originalSig[n]-nlmsOutput[n];
+        Ghat.nlms_adapt(outputEstimation[n]);
+    }
+
+}
+
+
+template<typename T>
 void bandPassFilterFunction(const vector<T>& inputSig, const float& lowFreqCutOff,
                             const float& highFreqCutOff, const float& Fs, const int& filterOrder, vector<T>& outputSig)
 {
@@ -75,7 +95,7 @@ void bandPassFilterFunction(const vector<T>& inputSig, const float& lowFreqCutOf
 
 }
 
-void SignalFFT(const vector<float>& inputSignal, const double& Fs, const string& FFTFile)
+void signalFFT(const vector<float>& inputSignal, const double& Fs, const string& FFTFile)
 {
     int N = inputSignal.size();
     fftw_complex out[N/2 +1];
