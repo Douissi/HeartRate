@@ -37,8 +37,8 @@ SOURCES += main.cpp\
         mainwindow.cpp
 
 HEADERS  += mainwindow.h \
-    facetracking.hpp \
-    signalprocessingfunctions.hpp
+    signalprocessingfunctions.hpp \
+    videoProcessing.hpp
 
 FORMS    += mainwindow.ui
 

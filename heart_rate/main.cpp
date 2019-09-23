@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "mainwindow.h"
 #include <QApplication>
-#include <facetracking.hpp>
+#include <videoProcessing.hpp>
 #include <signalprocessingfunctions.hpp>
 
 using namespace cv;
@@ -16,26 +16,12 @@ int main(){
 
   // Create a VideoCapture object and open the input file
   // If the input is the web camera, pass 0 instead of the video file name
-  VideoCapture capture("73BPmin.mp4");
+  videoProcessing videoObj("73BPmin.mp4");
 
-  double Fs = (double)(capture.get(CAP_PROP_FPS));
-  unsigned int numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam
+  const double& Fs = videoObj.getFs();
+  const unsigned int& numberOfFrames =  videoObj.getNumOfFrames(); // only for videoInput != webcam
 
-  // Check if camera opened successfully
-  if(!capture.isOpened()){
-    cout << "Error opening video stream or file" << endl;
-    return -1;
-  }
-
-  CascadeClassifier faceCascade;
-
-  // Open xml file for face tracking using classification
-  bool ResFaceCascadeLoading = faceCascadeLoading(faceCascade,"/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
-
-  if(!ResFaceCascadeLoading){
-      cout<<"Error while opening xml file for faceTracking"<<endl;
-      return -1;
-  }
+  videoObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
 
   std::vector <float> foreHeadSignalSamples;
   foreHeadSignalSamples.reserve(numberOfFrames);
@@ -46,23 +32,15 @@ int main(){
 
   while(1){
 
-   cv::Mat frame;
-    // Capture frame-by-frame
-   capture >> frame;
+   videoObj.capturingFrames();
+   cv::Mat& frame = videoObj.getframe();
+   if (frame.empty()) break;
 
-    // If the frame is empty, break immediately
-   if (frame.empty())
-     break;
+   videoObj.setbackGroundRect(Rect(5, 116 , 128, 200));
+   const Rect& backgroundRect = videoObj.getbackgroundRect();
 
-   cv::Mat channels[3];   // Channels RGB
-   split(frame, channels); // split source channels[1] is the green one
-
-   // Rect for faces
-   std::vector<Rect> faces;
-   Rect backgroundRect(5, 116 , 128, 200);
-
-    /* first param was GreyColorImage */
-   faceCascade.detectMultiScale( channels[1], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
+   videoObj.detectFacesInVideo();
+   std::vector<Rect>& faces = videoObj.getFaces();
 
    faces[0].y += 20;
    faces[0].height = faces[0].height/3.7 - 20; // only for manualforeHead detection
@@ -72,8 +50,12 @@ int main(){
    drawRectangle(frame,faces[0]);
    drawRectangle(frame,backgroundRect);
 
-   cv::Mat foreHead(channels[1], faces[0]); // new Matrix containing only ForeHead image (in Green Channel)
-   cv::Mat background(channels[1], backgroundRect); // new Matrix containing only background image (in Green Channel)
+   videoObj.creatingForeHeadAndBackGroundMatrix();
+
+   const cv::Mat& foreHead = videoObj.getforeHead(); // new Matrix containing only ForeHead image (in Green Channel)
+   const cv::Mat& background = videoObj.getbackground(); // new Matrix containing only background image (in Green Channel)
+
+
 
    Scalar tmpMean = mean(foreHead);
    float meanValue = tmpMean.val[0];
@@ -99,6 +81,7 @@ int main(){
 
   /******************* Signal Processing *******************/
 
+  cout << "******************* Signal Processing *******************" << endl;
   saveSigToFile<float>(backgroundSignalSamples, "backgroundSignalSamples.txt");
   saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamples.txt");
 
@@ -127,12 +110,7 @@ int main(){
   saveSigToFile<float>(filteredSig, "filteredSig.txt");
   signalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
 
-
-  // When everything done, release the video capture object
-  capture.release();
-
-  // Closes all the frames
-  destroyAllWindows();
+  videoObj.cleanup();
 
   return 0;
 }
