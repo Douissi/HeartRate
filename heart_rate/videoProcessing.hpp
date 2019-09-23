@@ -15,10 +15,10 @@ class videoProcessing
 {
 public :
     videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), background() {}
+        foreHead(), face(), background() {}
 
     videoProcessing(const String& filename) : capture(filename), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), background()
+        foreHead(), face(), background()
     {
         // Check if camera opened successfully
         if(!capture.isOpened()){
@@ -30,7 +30,13 @@ public :
         numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam (filename != 0)
     }
 
-    virtual ~videoProcessing() {}
+    virtual ~videoProcessing()
+    {
+        // When everything done, release the video capture object
+        capture.release();
+        // Closes all the frames
+        destroyAllWindows();
+    }
 
     void faceCascadeLoading(const string& path)
     {
@@ -55,34 +61,34 @@ public :
         split(frame, channels); // split source channels[1] is the green one
     }
 
-    void detectFacesInVideo()
+    void detectFacesFromGreenChannelInVideo()
     {
         /* first param was GreyColorImage */
         faceCascade.detectMultiScale( channels[1], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
     }
 
-    void creatingForeHeadAndBackGroundMatrix()
+    void creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel()
     {
-        foreHead = cv::Mat(channels[1] , faces[0]);
+        face =  cv::Mat(channels[1] , faces[0]);
+        foreHead = cv::Mat(channels[1] , foreHeads[0]);
         background = cv::Mat(channels[1] , backgroundRect);
     }
 
-    void cleanup()
+    static void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect)
     {
-        // When everything done, release the video capture object
-        capture.release();
-        // Closes all the frames
-        destroyAllWindows();
+        rectangle(inputOutputImage, Point (rect.x ,rect.y), Point (rect.x + rect.width, rect.y + rect.height), Scalar(255,255,255), 2, 8, 0);
     }
+
+
+
 
     /************************************** Setters *********************************/
     void setbackGroundRect(const Rect& background) { backgroundRect = background; }
     void setRectFacesVector(const std::vector<Rect>& rectFacesVector) { faces = rectFacesVector; }
+    void setRectForeHeadsVector(const std::vector<Rect>& rectForeHeadsVector) { foreHeads =  rectForeHeadsVector; }
 
-
-
-    /*********************************** Getters ********************************/
-    std::vector<Rect>& getFaces() { return faces; }
+    /************************************** Getters ********************************/
+    const std::vector<Rect>& getFaces() const { return faces; }
     cv::Mat& getframe() { return frame; }
     const Rect& getbackgroundRect() const { return backgroundRect; }
     const cv::Mat& getforeHead() const { return foreHead; }
@@ -98,35 +104,14 @@ private:
     CascadeClassifier faceCascade; // for ROI tracking
     cv::Mat frame; // frame
     cv::Mat channels[3] = {};   // Channels RGB
-    std::vector<Rect> faces = {};
-    Rect backgroundRect;
+    std::vector<Rect> faces = {}; // Rectangles containing faces
+    std::vector<Rect> foreHeads = {}; // Rectangles containing foreHeads
+    Rect backgroundRect; // a rectangle containing background dimension
     cv::Mat foreHead;
+    cv::Mat face;
     cv::Mat background;
 
 };
 
-
-
-bool faceCascadeLoading(CascadeClassifier& faceCascade,const string& path)
-{
-    // Open xml file for face tracking using classification
-    bool faceCascadeLoading =  faceCascade.load(path);
-
-    if(!faceCascadeLoading){
-        cout<<"Error while opening xml file for faceTracking"<<endl;
-        return false;
-    }
-
-    return true;
-}
-
-void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect)
-{
-    int x = rect.x;
-    int y = rect.y;
-    int h = y + rect.height;
-    int w = x + rect.width;
-    rectangle(inputOutputImage, Point (x,y), Point (w,h), Scalar(255,255,255), 2, 8, 0);
-}
 
 #endif // VIDEOPROCESSING_HPP

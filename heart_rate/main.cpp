@@ -36,21 +36,24 @@ int main(){
    cv::Mat& frame = videoObj.getframe();
    if (frame.empty()) break;
 
+   videoObj.detectFacesFromGreenChannelInVideo();
+   const std::vector<Rect>& faces = videoObj.getFaces();
    videoObj.setbackGroundRect(Rect(5, 116 , 128, 200));
    const Rect& backgroundRect = videoObj.getbackgroundRect();
 
-   videoObj.detectFacesInVideo();
-   std::vector<Rect>& faces = videoObj.getFaces();
+   std::vector<Rect> foreHeads = faces;
 
-   faces[0].y += 20;
-   faces[0].height = faces[0].height/3.7 - 20; // only for manualforeHead detection
-   faces[0].x += 60; // only for manual foreHead detection
-   faces[0].width -= 130; // only for manual foreHead detection
+   foreHeads[0].y += 20; // only for manualforeHead detection
+   foreHeads[0].height = foreHeads[0].height/3.7 - 20; // only for manualforeHead detection
+   foreHeads[0].x += 60; // only for manual foreHead detection
+   foreHeads[0].width -= 130; // only for manual foreHead detection
 
-   drawRectangle(frame,faces[0]);
-   drawRectangle(frame,backgroundRect);
+   videoObj.setRectForeHeadsVector(foreHeads);
+   videoProcessing::drawRectangle(frame, faces[0]);
+   videoProcessing::drawRectangle(frame, foreHeads[0]);
+   videoProcessing::drawRectangle(frame, backgroundRect);
 
-   videoObj.creatingForeHeadAndBackGroundMatrix();
+   videoObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
 
    const cv::Mat& foreHead = videoObj.getforeHead(); // new Matrix containing only ForeHead image (in Green Channel)
    const cv::Mat& background = videoObj.getbackground(); // new Matrix containing only background image (in Green Channel)
@@ -109,8 +112,6 @@ int main(){
   bandPassFilterFunction<float>(foreHeadSignalSamples,lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
   saveSigToFile<float>(filteredSig, "filteredSig.txt");
   signalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
-
-  videoObj.cleanup();
 
   return 0;
 }
