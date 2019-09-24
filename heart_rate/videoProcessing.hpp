@@ -11,6 +11,13 @@ using namespace cv;
 using namespace std;
 
 
+void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGreyColor)
+{
+    cvtColor(InputImageColor, OutputGreyColor, COLOR_BGR2GRAY);
+    equalizeHist(OutputGreyColor, OutputGreyColor);
+
+}
+
 class videoProcessing
 {
 public :

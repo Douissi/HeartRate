@@ -1,5 +1,5 @@
-#ifndef SIGNALPROCESSINGFUNCTIONS_HPP
-#define SIGNALPROCESSINGFUNCTIONS_HPP
+#ifndef SIGNALPROCESSING_HPP
+#define SIGNALPROCESSING_HPP
 
 #include <vector>
 #include <iostream>
@@ -51,13 +51,6 @@ void saveSigToFile(const vector<T>& inputSig, const string& inputFile)
 }
 
 
-void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGreyColor)
-{
-    cvtColor(InputImageColor, OutputGreyColor, COLOR_BGR2GRAY);
-    equalizeHist(OutputGreyColor, OutputGreyColor);
-
-}
-
 template<typename T>
 void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
 {
@@ -95,7 +88,9 @@ void bandPassFilterFunction(const vector<T>& inputSig, const float& lowFreqCutOf
 
 }
 
-void signalFFT(const vector<float>& inputSignal, const double& Fs, const string& FFTFile)
+
+template<typename T>
+void signalFFT(const vector<T>& inputSignal, const double& Fs, const string& FFTFile)
 {
     int N = inputSignal.size();
     fftw_complex out[N/2 +1];
@@ -103,7 +98,7 @@ void signalFFT(const vector<float>& inputSignal, const double& Fs, const string&
     double ff[N];
     fftw_plan plan_forward;
 
-    for (int i=0; i < N ; i++) in[i] = inputSignal[i];
+    for (int i=0; i < N ; i++) in[i] = static_cast<double>(inputSignal[i]);
 
     for (int i=0; i<= ((N/2)-1);i++) ff[i]=Fs*i/N;
 
@@ -193,4 +188,4 @@ int fftExemple()
 
 
 
-#endif // SIGNALPROCESSINGFUNCTIONS_HPP
+#endif // SIGNALPROCESSING_HPP

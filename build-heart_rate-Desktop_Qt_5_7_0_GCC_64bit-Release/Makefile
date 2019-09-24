@@ -203,8 +203,8 @@ DIST          = ../README.md \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/yacc.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/lex.prf \
 		../heart_rate/heart_rate.pro ../heart_rate/mainwindow.h \
-		../heart_rate/signalprocessingfunctions.hpp \
-		../heart_rate/videoProcessing.hpp ../heart_rate/main.cpp \
+		../heart_rate/videoProcessing.hpp \
+		../heart_rate/signalProcessing.hpp ../heart_rate/main.cpp \
 		../heart_rate/mainwindow.cpp
 QMAKE_TARGET  = heart_rate
 DESTDIR       = 
@@ -536,7 +536,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../heart_rate/mainwindow.h ../heart_rate/signalprocessingfunctions.hpp ../heart_rate/videoProcessing.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../heart_rate/mainwindow.h ../heart_rate/videoProcessing.hpp ../heart_rate/signalProcessing.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../heart_rate/main.cpp ../heart_rate/mainwindow.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../heart_rate/mainwindow.ui $(DISTDIR)/
 
@@ -799,7 +799,7 @@ main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qguiapplication.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qinputmethod.h \
 		../heart_rate/videoProcessing.hpp \
-		../heart_rate/signalprocessingfunctions.hpp \
+		../heart_rate/signalProcessing.hpp \
 		../../../sigpack/sigpack-1.2.6/sigpack/sigpack.h \
 		../../../sigpack/sigpack-1.2.6/sigpack/base/base.h \
 		../../../sigpack/sigpack-1.2.6/sigpack/window/window.h \

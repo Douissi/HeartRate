@@ -37,8 +37,8 @@ SOURCES += main.cpp\
         mainwindow.cpp
 
 HEADERS  += mainwindow.h \
-    signalprocessingfunctions.hpp \
-    videoProcessing.hpp
+    videoProcessing.hpp \
+    signalProcessing.hpp
 
 FORMS    += mainwindow.ui
 

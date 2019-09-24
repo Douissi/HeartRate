@@ -3,7 +3,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <videoProcessing.hpp>
-#include <signalprocessingfunctions.hpp>
+#include <signalProcessing.hpp>
 
 using namespace cv;
 
