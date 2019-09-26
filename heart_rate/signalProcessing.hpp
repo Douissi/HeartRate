@@ -21,10 +21,62 @@ using namespace sp;
 
 
 template <typename T>
+class signalProcessing
+{
+public :
+    signalProcessing(unsigned int numOfSamples, double Fech) : numberOfSamples(numOfSamples), Fs(Fech)
+    {
+        signalSamples.reserve(numOfSamples);
+    }
+
+    ~signalProcessing(){}
+
+    T meanVector()
+    {
+        T tmp=0;
+        for (const auto& v : signalSamples) tmp += v;
+        return tmp/numberOfSamples;
+    }
+
+    void removeMeanValue()
+    {
+        T meanSignal = meanVector();
+        std::transform(signalSamples.begin(), signalSamples.end(),signalSamples.begin(),
+                       [&meanSignal](T v) -> T {return v - meanSignal;});
+    }
+
+    void fillWithValue(const T& value) { signalSamples.push_back(value); }
+    void fillWithVector(const std::vector<T>& inputVec)
+    {
+        for(const auto& v : inputVec) signalSamples.push_back(v);
+    }
+
+    void saveSigToFile(const string& inputFile)
+    {
+        fstream myfile;
+        myfile.open(inputFile,fstream::out);
+        for(unsigned int i = 0;i< numberOfSamples; i++) myfile << i<< " " << signalSamples[i]<< std::endl;
+        myfile.close();
+    }
+
+
+private:
+
+    std::vector <T> signalSamples;
+    unsigned int numberOfSamples;
+    double Fs;
+
+
+};
+
+
+
+
+template <typename T>
 T meanVector(const vector<T>& input)
 {
     T tmp=0;
-    for (const auto v : input) tmp+=v;
+    for (const auto& v : input) tmp+=v;
     return tmp/input.size();
 }
 
@@ -40,14 +92,10 @@ void removeMeanValue(vector<T>& inputOutput)
 template<typename T>
 void saveSigToFile(const vector<T>& inputSig, const string& inputFile)
 {
-    int N = inputSig.size();
-    int ff[N];
-    for (int i=0; i<N ;i++) ff[i]=i;
     fstream myfile;
     myfile.open(inputFile,fstream::out);
-    for(int i = 0;i< N; i++) myfile << ff[i]<< " " << inputSig[i]<< std::endl;
+    for(int i = 0;i< static_cast<int>(inputSig.size()); i++) myfile << i<< " " << inputSig[i]<< std::endl;
     myfile.close();
-
 }
 
 
@@ -95,12 +143,9 @@ void signalFFT(const vector<T>& inputSignal, const double& Fs, const string& FFT
     int N = inputSignal.size();
     fftw_complex out[N/2 +1];
     double in[N];
-    double ff[N];
     fftw_plan plan_forward;
 
     for (int i=0; i < N ; i++) in[i] = static_cast<double>(inputSignal[i]);
-
-    for (int i=0; i<= ((N/2)-1);i++) ff[i]=Fs*i/N;
 
     plan_forward = fftw_plan_dft_r2c_1d ( N, in, out, FFTW_ESTIMATE );
     fftw_execute ( plan_forward );
@@ -113,7 +158,7 @@ void signalFFT(const vector<T>& inputSignal, const double& Fs, const string& FFT
     fstream myfile;
     myfile.open(FFTFile,fstream::out);
 
-    for(int i = 0;i< ((N/2)-1); i++) myfile << ff[i]<< " " << v[i]<< std::endl;
+    for(int i = 0;i< ((N/2)-1); i++) myfile << Fs*i/N<< " " << v[i]<< std::endl;
 
      myfile.close();
     fftw_destroy_plan ( plan_forward );
