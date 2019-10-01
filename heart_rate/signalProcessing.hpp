@@ -24,12 +24,16 @@ template <typename T>
 class signalProcessing
 {
 public :
+    signalProcessing() : numberOfSamples(0), Fs(0){}
     signalProcessing(unsigned int numOfSamples, double Fech) : numberOfSamples(numOfSamples), Fs(Fech)
     {
         signalSamples.reserve(numOfSamples);
     }
 
-    ~signalProcessing(){}
+    virtual ~signalProcessing()
+    {
+        signalSamples.clear();
+    }
 
     T meanVector()
     {
@@ -55,9 +59,24 @@ public :
     {
         fstream myfile;
         myfile.open(inputFile,fstream::out);
-        for(unsigned int i = 0;i< numberOfSamples; i++) myfile << i<< " " << signalSamples[i]<< std::endl;
+        for(unsigned int i = 0;i < numberOfSamples; i++) myfile << i<< " " << signalSamples[i]<< std::endl;
         myfile.close();
     }
+
+    void reserve(unsigned int size)
+    {
+        signalSamples.reserve(size);
+    }
+
+
+    // ************************************** setters *********************************
+    void setNumberOfSamples(const unsigned int& numOfSamples) { numberOfSamples = numOfSamples; }
+    void setFs(const double& Fech) { Fs = Fech; }
+
+
+
+    //****************************************getters *********************************
+    std::vector <T>& getSignalSamples() { return signalSamples; }
 
 
 private:
@@ -65,7 +84,6 @@ private:
     std::vector <T> signalSamples;
     unsigned int numberOfSamples;
     double Fs;
-
 
 };
 
@@ -85,7 +103,7 @@ void removeMeanValue(vector<T>& inputOutput)
 {
     T meanForeHeadSignal = meanVector<T>(inputOutput);
     std::transform(inputOutput.begin(), inputOutput.end(),inputOutput.begin(),
-                 [&meanForeHeadSignal](T v) -> T {return v - meanForeHeadSignal;});
+                   [&meanForeHeadSignal](T v) -> T {return v - meanForeHeadSignal;});
 }
 
 
@@ -160,10 +178,10 @@ void signalFFT(const vector<T>& inputSignal, const double& Fs, const string& FFT
 
     for(int i = 0;i< ((N/2)-1); i++) myfile << Fs*i/N<< " " << v[i]<< std::endl;
 
-     myfile.close();
+    myfile.close();
     fftw_destroy_plan ( plan_forward );
-//    fftw_free ( in );
-//    fftw_free ( out );
+    //    fftw_free ( in );
+    //    fftw_free ( out );
 
 }
 
@@ -172,7 +190,7 @@ int fftExemple()
     int i;
     int N=550;//Number of points acquired inside the window
     double Fs=200;//sampling frequency
-//    double dF=Fs/N;
+    //    double dF=Fs/N;
     double  T=1/Fs;//sample time
     double f=50;//frequency
     double *in;
@@ -184,16 +202,16 @@ int fftExemple()
     in = (double*) fftw_malloc(sizeof(double) * N);
     out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
 
-     for (int i=0; i<= N;i++)
-     {
-     t[i]=i*T;
+    for (int i=0; i<= N;i++)
+    {
+        t[i]=i*T;
 
-    in[i] =0.7 *sin(2*M_PI*f*t[i]);// generate sine waveform
-    //    double multiplier = 0.5 * (1 - cos(2*M_PI*i/(N-1)));//Hanning Window
-    //    in[i] = multiplier * in[i];
-     }
+        in[i] =0.7 *sin(2*M_PI*f*t[i]);// generate sine waveform
+        //    double multiplier = 0.5 * (1 - cos(2*M_PI*i/(N-1)));//Hanning Window
+        //    in[i] = multiplier * in[i];
+    }
 
-     for (int i=0; i<= ((N/2)-1);i++)
+    for (int i=0; i<= ((N/2)-1);i++)
     {ff[i]=Fs*i/N;
     }
     plan_forward = fftw_plan_dft_r2c_1d ( N, in, out, FFTW_ESTIMATE );
@@ -205,9 +223,9 @@ int fftExemple()
     for (int i = 0; i<= ((N/2)-1); i++)
     {
 
-    v[i]=(20*log(sqrt(out[i][0]*out[i][0]+ out[i][1]*out[i][1])))/N;  //Here   I  have calculated the y axis of the spectrum in dB
+        v[i]=(20*log(sqrt(out[i][0]*out[i][0]+ out[i][1]*out[i][1])))/N;  //Here   I  have calculated the y axis of the spectrum in dB
 
-       }
+    }
 
     fstream myfile;
 
@@ -217,16 +235,16 @@ int fftExemple()
 
     {
 
-    myfile << ff[i]<< " " << v[i]<< std::endl;
+        myfile << ff[i]<< " " << v[i]<< std::endl;
 
     }
 
-     myfile.close();
+    myfile.close();
 
-     fftw_destroy_plan ( plan_forward );
-     fftw_free ( in );
-     fftw_free ( out );
-     return 0;
+    fftw_destroy_plan ( plan_forward );
+    fftw_free ( in );
+    fftw_free ( out );
+    return 0;
 }
 
 

@@ -6,19 +6,21 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
 #include <iostream>
+#include <signalProcessing.hpp>
 
 using namespace cv;
 using namespace std;
+
 
 
 class videoProcessing
 {
 public :
     videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), face(), background() {}
+        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal() {}
 
     videoProcessing(const String& filename) : capture(filename), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), face(), background()
+        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal()
     {
         // Check if camera opened successfully
         if(!capture.isOpened()){
@@ -28,6 +30,13 @@ public :
 
         Fs = (double)(capture.get(CAP_PROP_FPS));
         numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam (filename != 0)
+
+        foreHeadSignal.setFs(Fs);
+        foreHeadSignal.setNumberOfSamples(numberOfFrames);
+        foreHeadSignal.reserve(numberOfFrames);
+        backgroundSignal.setFs(Fs);
+        backgroundSignal.setNumberOfSamples(numberOfFrames);
+        backgroundSignal.reserve(numberOfFrames);
     }
 
     virtual ~videoProcessing()
@@ -85,6 +94,22 @@ public :
         equalizeHist(OutputGreyColor, OutputGreyColor);
     }
 
+    static float meanFrameValue(const cv::Mat& inputFrame)
+    {
+        Scalar tmpMean = mean(inputFrame);
+        return tmpMean.val[0];
+    }
+
+    void fillforeHeadSignal()
+    {
+        foreHeadSignal.fillWithValue(meanFrameValue(foreHead));
+    }
+
+    void fillbackgroundSignal()
+    {
+        backgroundSignal.fillWithValue(meanFrameValue(background));
+    }
+
 
 
     /************************************** Setters *********************************/
@@ -100,13 +125,15 @@ public :
     const cv::Mat& getbackground() const { return background; }
     const double& getFs() const { return Fs; }
     const unsigned int& getNumOfFrames() const { return numberOfFrames; }
+    std::vector<float>& getforeHeadSignal() { return foreHeadSignal.getSignalSamples(); }
+    std::vector<float>& getbackgroundSignal() { return backgroundSignal.getSignalSamples(); }
 
 
 private:
     VideoCapture capture;
     double Fs;
     unsigned int numberOfFrames;
-    CascadeClassifier faceCascade; // for ROI tracking
+    CascadeClassifier faceCascade; // for ROI tracking CascadeClassifier : needs to be improved for tracking ROI
     cv::Mat frame; // frame
     cv::Mat channels[3] = {};   // Channels RGB
     std::vector<Rect> faces = {}; // Rectangles containing faces
@@ -115,6 +142,8 @@ private:
     cv::Mat foreHead;
     cv::Mat face;
     cv::Mat background;
+    signalProcessing<float> foreHeadSignal; // signal samples
+    signalProcessing<float> backgroundSignal; // signal samples
 
 };
 

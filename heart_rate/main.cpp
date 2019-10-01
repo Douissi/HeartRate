@@ -10,26 +10,14 @@ using namespace cv;
 
 int main(){
 
-  float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
-  float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
-  int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
-
   // Create a VideoCapture object and open the input file
   // If the input is the web camera, pass 0 instead of the video file name
   videoProcessing videoObj("73BPmin.mp4");
 
-  const double& Fs = videoObj.getFs();
-  const unsigned int& numberOfFrames =  videoObj.getNumOfFrames(); // only for videoInput != webcam
-
   videoObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
 
-  std::vector <float> foreHeadSignalSamples;
-  foreHeadSignalSamples.reserve(numberOfFrames);
-  std::vector<float> backgroundSignalSamples;
-  backgroundSignalSamples.reserve(numberOfFrames);
 
-  /******************************* Video Processing ***************************/
-
+  /************************************************* Video Processing *************************************************/
   while(1){
 
    videoObj.capturingFrames();
@@ -49,31 +37,19 @@ int main(){
    foreHeads[0].width -= 130; // only for manual foreHead detection
 
    videoObj.setRectForeHeadsVector(foreHeads);
-   videoProcessing::drawRectangle(frame, faces[0]);
-   videoProcessing::drawRectangle(frame, foreHeads[0]);
-   videoProcessing::drawRectangle(frame, backgroundRect);
 
    videoObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
 
-   const cv::Mat& foreHead = videoObj.getforeHead(); // new Matrix containing only ForeHead image (in Green Channel)
-   const cv::Mat& background = videoObj.getbackground(); // new Matrix containing only background image (in Green Channel)
+   videoObj.fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
+   videoObj.fillbackgroundSignal();
 
 
-
-   Scalar tmpMean = mean(foreHead);
-   float meanValue = tmpMean.val[0];
-   foreHeadSignalSamples.push_back(meanValue);  // construction of the ForeHead Signal with mean of green Channel each frame
-
-   tmpMean = mean(background);
-   meanValue = tmpMean.val[0];
-   backgroundSignalSamples.push_back(meanValue);
-
-
-   imshow( "ROI 1 : forehead", foreHead );
-
-   imshow( "BackGround ", background );
-
-    // Display the resulting frame
+   // Display results in frames
+   videoProcessing::drawRectangle(frame, faces[0]);
+   videoProcessing::drawRectangle(frame, foreHeads[0]);
+   videoProcessing::drawRectangle(frame, backgroundRect);
+   imshow( "ROI 1 : forehead", videoObj.getforeHead()); // Matrix containing only ForeHead image (in Green Channel)
+   imshow( "BackGround ", videoObj.getbackground() ); // Matrix containing only background image (in Green Channel)
    imshow( "Frame", frame );
 
     // Press  ESC on keyboard to exit
@@ -82,7 +58,18 @@ int main(){
      break;
   }
 
-  /******************* Signal Processing *******************/
+
+
+  /******************************************** Signal Processing *************************************************/
+  float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
+  float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
+  int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
+
+  const double& Fs = videoObj.getFs();
+  const unsigned int& numberOfFrames =  videoObj.getNumOfFrames(); // only for videoInput != webcam
+
+  std::vector <float>& foreHeadSignalSamples = videoObj.getforeHeadSignal();
+  std::vector<float>&  backgroundSignalSamples = videoObj.getbackgroundSignal();
 
   cout << "******************* Signal Processing *******************" << endl;
   saveSigToFile<float>(backgroundSignalSamples, "backgroundSignalSamples.txt");
