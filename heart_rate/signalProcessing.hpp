@@ -25,10 +25,18 @@ class signalProcessing
 {
 public :
     signalProcessing() : numberOfSamples(0), Fs(0){}
-    signalProcessing(unsigned int numOfSamples, double Fech) : numberOfSamples(numOfSamples), Fs(Fech)
+    signalProcessing(const unsigned int& numOfSamples, const double& Fech) : numberOfSamples(numOfSamples), Fs(Fech)
     {
         signalSamples.reserve(numOfSamples);
     }
+
+    signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(numOfSamples),
+        Fs(Fech)
+    {
+        signalSamples.reserve(numOfSamples);
+        fillWithVector(signalSamplesInput);
+    }
+
 
     virtual ~signalProcessing()
     {
@@ -63,10 +71,56 @@ public :
         myfile.close();
     }
 
-    void reserve(unsigned int size)
+    void reserve(const unsigned int &size)
     {
         signalSamples.reserve(size);
     }
+
+
+    void signalFFT(const string& FFTFile)
+    {
+        fftw_complex out[numberOfSamples/2 +1];
+        double in[numberOfSamples];
+        fftw_plan plan_forward;
+
+        for (unsigned int i=0 ; i < numberOfSamples ; i++) in[i] = static_cast<double>(signalSamples[i]);
+
+        plan_forward = fftw_plan_dft_r2c_1d ( numberOfSamples, in, out, FFTW_ESTIMATE );
+        fftw_execute ( plan_forward );
+
+        double v[numberOfSamples/2 +1];
+
+        for (unsigned int i = 0 ; i<= ((numberOfSamples/2)-1) ; i++)
+        {
+            v[i]=out[i][0]*out[i][0]+ out[i][1]*out[i][1];
+        }
+
+        fstream myfile;
+        myfile.open(FFTFile,fstream::out);
+
+        for(unsigned int i = 0;i< ((numberOfSamples/2)-1); i++) myfile << Fs*i/numberOfSamples<< " " << v[i]<< std::endl; // readble mode by gnuplot
+
+        myfile.close();
+        fftw_destroy_plan ( plan_forward );
+
+    }
+
+
+    // *********** not working for the moment ***********
+//    void bandPassFilterFunction(const float& lowFreqCutOff, const float& highFreqCutOff, const int& filterOrder,
+//                                signalProcessing<T>& outputSig)
+//    {
+//        vec b;
+//        // Create a FIR filter
+//        FIR_filt<double, double, double> fir_filt;
+//        b = fir1_bp(filterOrder, lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2)); // b is filter coeffs cout << b.t()
+//        fir_filt.set_coeffs(b);
+
+//        // Filter - sample loop
+//        for (unsigned int n = 0; n < numberOfSamples; n++) outputSig.fillWithValue(fir_filt(signalSamples[n]));
+
+//    }
+
 
 
     // ************************************** setters *********************************
@@ -86,6 +140,9 @@ private:
     double Fs;
 
 };
+
+
+
 
 
 
@@ -180,8 +237,6 @@ void signalFFT(const vector<T>& inputSignal, const double& Fs, const string& FFT
 
     myfile.close();
     fftw_destroy_plan ( plan_forward );
-    //    fftw_free ( in );
-    //    fftw_free ( out );
 
 }
 

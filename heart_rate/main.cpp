@@ -66,19 +66,19 @@ int main(){
   int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
 
   const double& Fs = videoObj.getFs();
-  const unsigned int& numberOfFrames =  videoObj.getNumOfFrames(); // only for videoInput != webcam
 
-  std::vector <float>& foreHeadSignalSamples = videoObj.getforeHeadSignal();
-  std::vector<float>&  backgroundSignalSamples = videoObj.getbackgroundSignal();
+  signalProcessing<float>& foreHeadSignal = videoObj.getforeHeadSignal();
+  signalProcessing<float>& backgroundSignal = videoObj.getbackgroundSignal();
+
 
   cout << "******************* Signal Processing *******************" << endl;
-  saveSigToFile<float>(backgroundSignalSamples, "backgroundSignalSamples.txt");
-  saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamples.txt");
+  backgroundSignal.saveSigToFile("backgroundSignalSamples.txt");
+  foreHeadSignal.saveSigToFile("foreHeadSignalSamples.txt");
 
 
   // Illumination Rectification
-  vector<float> outputEstimation(numberOfFrames, 0.0);
-  nlmsFilter<float>(backgroundSignalSamples, foreHeadSignalSamples, filterOrder, 0.5, outputEstimation);
+  vector<float> outputEstimation(videoObj.getNumOfFrames(), 0.0);
+  nlmsFilter<float>(backgroundSignal.getSignalSamples(), foreHeadSignal.getSignalSamples(), filterOrder, 0.5, outputEstimation);
 
   // Avoid first incorrect sample
   outputEstimation[0] = outputEstimation[1];
@@ -89,14 +89,15 @@ int main(){
 
 
    // remove mean value "offset" of the signal
-  removeMeanValue<float>(foreHeadSignalSamples);
+  foreHeadSignal.removeMeanValue();
 
   // Signal filter  ******* TO BE OPTIMIZED *******
-  saveSigToFile<float>(foreHeadSignalSamples, "foreHeadSignalSamplesMeanValueRemoved.txt");
-  signalFFT(foreHeadSignalSamples, Fs, "FFTResult.txt");
+  foreHeadSignal.saveSigToFile("foreHeadSignalSamplesMeanValueRemoved.txt");
+  foreHeadSignal.signalFFT("FFTResult.txt");
 
-  vector<float> filteredSig(foreHeadSignalSamples.size(), 0.0);
-  bandPassFilterFunction<float>(foreHeadSignalSamples,lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
+
+  vector<float> filteredSig(foreHeadSignal.getSignalSamples().size(), 0.0);
+  bandPassFilterFunction<float>(foreHeadSignal.getSignalSamples(),lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
   saveSigToFile<float>(filteredSig, "filteredSig.txt");
   signalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
 

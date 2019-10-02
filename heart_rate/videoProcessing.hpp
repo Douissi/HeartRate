@@ -125,8 +125,8 @@ public :
     const cv::Mat& getbackground() const { return background; }
     const double& getFs() const { return Fs; }
     const unsigned int& getNumOfFrames() const { return numberOfFrames; }
-    std::vector<float>& getforeHeadSignal() { return foreHeadSignal.getSignalSamples(); }
-    std::vector<float>& getbackgroundSignal() { return backgroundSignal.getSignalSamples(); }
+    signalProcessing<float>& getforeHeadSignal() { return foreHeadSignal; }
+    signalProcessing<float>& getbackgroundSignal() { return backgroundSignal; }
 
 
 private:
