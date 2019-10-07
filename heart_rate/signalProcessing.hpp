@@ -115,8 +115,6 @@ public :
 
     }
 
-
-    // *********** not working for the moment ***********
     void bandPassFilterFunction(const float& lowFreqCutOff, const float& highFreqCutOff, const int& filterOrder,
                                 signalProcessing<T>& outputSig)
     {
@@ -130,6 +128,25 @@ public :
         for (unsigned int n = 0; n < numberOfSamples; n++) outputSig.fillWithValue(fir_filt(signalSamples[n]));
     }
 
+
+    static void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
+    {
+        int N = inputSig.size();
+        vector<T> nlmsOutput(N, 0.0);
+        FIR_filt<double,double,double> Ghat;
+        Ghat.setup_nlms(filterOrder, mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
+        // Filter - sample loop
+        for(int n = 0 ; n < N ; n++)
+        {
+            // Apply adaptiv filter
+            nlmsOutput[n] = Ghat(inputSig[n]);
+            // Calc error
+            outputEstimation[n] = originalSig[n]-nlmsOutput[n];
+            Ghat.nlms_adapt(outputEstimation[n]);
+        }
+        // Avoid first incorrect sample
+        outputEstimation[0] = outputEstimation[1];
+    }
 
     //****************************************getters *********************************
     std::vector <T>& getSignalSamples() { return signalSamples; }
@@ -155,24 +172,23 @@ void saveSigToFile(const vector<T>& inputSig, const string& inputFile)
 }
 
 
-template<typename T>
-void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
-{
-    int N = inputSig.size();
-    vector<T> nlmsOutput(N, 0.0);
-    FIR_filt<double,double,double> Ghat;
-    Ghat.setup_nlms(filterOrder, mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
-    // Filter - sample loop
-    for(int n = 0 ; n < N ; n++)
-    {
-        // Apply adaptiv filter
-        nlmsOutput[n] = Ghat(inputSig[n]);
-        // Calc error
-        outputEstimation[n] = originalSig[n]-nlmsOutput[n];
-        Ghat.nlms_adapt(outputEstimation[n]);
-    }
+//void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
+//{
+//    int N = inputSig.size();
+//    vector<T> nlmsOutput(N, 0.0);
+//    FIR_filt<double,double,double> Ghat;
+//    Ghat.setup_nlms(filterOrder, mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
+//    // Filter - sample loop
+//    for(int n = 0 ; n < N ; n++)
+//    {
+//        // Apply adaptiv filter
+//        nlmsOutput[n] = Ghat(inputSig[n]);
+//        // Calc error
+//        outputEstimation[n] = originalSig[n]-nlmsOutput[n];
+//        Ghat.nlms_adapt(outputEstimation[n]);
+//    }
 
-}
+//}
 
 
 template<typename T>

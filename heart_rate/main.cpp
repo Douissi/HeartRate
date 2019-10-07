@@ -77,15 +77,15 @@ int main(){
 
 
   // Illumination Rectification
-  vector<float> outputEstimation(videoObj.getNumOfFrames(), 0.0);
-  nlmsFilter<float>(backgroundSignal.getSignalSamples(), foreHeadSignal.getSignalSamples(), filterOrder, 0.5, outputEstimation);
+  signalProcessing<float> ouputEstimationSignal(videoObj.getNumOfFrames(), Fs);
+  signalProcessing<float>::nlmsFilter(backgroundSignal.getSignalSamples(), foreHeadSignal.getSignalSamples(),
+                                      filterOrder, 0.5, ouputEstimationSignal.getSignalSamples());
 
-  // Avoid first incorrect sample
-  outputEstimation[0] = outputEstimation[1];
-  vector<float> filteredOutputEstimation(outputEstimation.size(), 0.0);
-  bandPassFilterFunction<float>(outputEstimation, lowFreqCutOff, highFreqCutOff, Fs, filterOrder, filteredOutputEstimation);
-  signalFFT(filteredOutputEstimation, Fs, "FFTfilteredOutputEstimation.txt");
-  saveSigToFile<float>(filteredOutputEstimation, "filteredOutputEstimation.txt");
+
+  signalProcessing<float> filteredOutputEstimationSignal(videoObj.getNumOfFrames(), Fs);
+  ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
+  filteredOutputEstimationSignal.signalFFT("FFTfilteredOutputEstimation.txt");
+  filteredOutputEstimationSignal.saveSigToFile("filteredOutputEstimation.txt");
 
 
    // remove mean value "offset" of the signal
