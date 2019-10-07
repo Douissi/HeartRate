@@ -19,6 +19,16 @@ using namespace std;
 using namespace arma;
 using namespace sp;
 
+void ASSERT(bool condition,const std::string& str)
+{
+    if (!condition)
+    {
+        std::cerr << "ASSERT FAIL WITH MSG " << str << '\n';
+        abort();
+    }
+}
+
+
 
 template <typename T>
 class signalProcessing
@@ -27,7 +37,7 @@ public :
     signalProcessing() : numberOfSamples(0), Fs(0){}
     signalProcessing(const unsigned int& numOfSamples, const double& Fech) : numberOfSamples(numOfSamples), Fs(Fech)
     {
-        signalSamples.reserve(numOfSamples);
+        signalSamples.reserve(numOfSamples); // WRN = please make sure when calling size() on this vector
     }
 
     signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(numOfSamples),
@@ -107,26 +117,18 @@ public :
 
 
     // *********** not working for the moment ***********
-//    void bandPassFilterFunction(const float& lowFreqCutOff, const float& highFreqCutOff, const int& filterOrder,
-//                                signalProcessing<T>& outputSig)
-//    {
-//        vec b;
-//        // Create a FIR filter
-//        FIR_filt<double, double, double> fir_filt;
-//        b = fir1_bp(filterOrder, lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2)); // b is filter coeffs cout << b.t()
-//        fir_filt.set_coeffs(b);
+    void bandPassFilterFunction(const float& lowFreqCutOff, const float& highFreqCutOff, const int& filterOrder,
+                                signalProcessing<T>& outputSig)
+    {
+        vec b;
+        // Create a FIR filter
+        FIR_filt<double, double, double> fir_filt;
+        b = fir1_bp(filterOrder, lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2)); // b is filter coeffs cout << b.t()
+        fir_filt.set_coeffs(b);
 
-//        // Filter - sample loop
-//        for (unsigned int n = 0; n < numberOfSamples; n++) outputSig.fillWithValue(fir_filt(signalSamples[n]));
-
-//    }
-
-
-
-    // ************************************** setters *********************************
-    void setNumberOfSamples(const unsigned int& numOfSamples) { numberOfSamples = numOfSamples; }
-    void setFs(const double& Fech) { Fs = Fech; }
-
+        // Filter - sample loop
+        for (unsigned int n = 0; n < numberOfSamples; n++) outputSig.fillWithValue(fir_filt(signalSamples[n]));
+    }
 
 
     //****************************************getters *********************************
@@ -141,27 +143,6 @@ private:
 
 };
 
-
-
-
-
-
-
-template <typename T>
-T meanVector(const vector<T>& input)
-{
-    T tmp=0;
-    for (const auto& v : input) tmp+=v;
-    return tmp/input.size();
-}
-
-template <typename T>
-void removeMeanValue(vector<T>& inputOutput)
-{
-    T meanForeHeadSignal = meanVector<T>(inputOutput);
-    std::transform(inputOutput.begin(), inputOutput.end(),inputOutput.begin(),
-                   [&meanForeHeadSignal](T v) -> T {return v - meanForeHeadSignal;});
-}
 
 
 template<typename T>

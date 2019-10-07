@@ -24,19 +24,13 @@ public :
     {
         // Check if camera opened successfully
         if(!capture.isOpened()){
-            cout << "Error opening video stream or file" << endl;
-            assert(0);
+            ASSERT(0, "Error opening video stream or file");
         }
 
         Fs = (double)(capture.get(CAP_PROP_FPS));
         numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam (filename != 0)
-
-        foreHeadSignal.setFs(Fs);
-        foreHeadSignal.setNumberOfSamples(numberOfFrames);
-        foreHeadSignal.reserve(numberOfFrames);
-        backgroundSignal.setFs(Fs);
-        backgroundSignal.setNumberOfSamples(numberOfFrames);
-        backgroundSignal.reserve(numberOfFrames);
+        foreHeadSignal = signalProcessing<float>(numberOfFrames, Fs);
+        backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
     }
 
     virtual ~videoProcessing()
@@ -51,8 +45,7 @@ public :
     {
         if(!faceCascade.load(path))
         {
-            cout<<"Error while opening xml file for faceTracking"<<endl;
-            assert(0);
+            ASSERT(0, "Error while opening xml file for faceTracking");
         }
     }
 

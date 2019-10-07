@@ -96,10 +96,10 @@ int main(){
   foreHeadSignal.signalFFT("FFTResult.txt");
 
 
-  vector<float> filteredSig(foreHeadSignal.getSignalSamples().size(), 0.0);
-  bandPassFilterFunction<float>(foreHeadSignal.getSignalSamples(),lowFreqCutOff ,highFreqCutOff, Fs, filterOrder, filteredSig);
-  saveSigToFile<float>(filteredSig, "filteredSig.txt");
-  signalFFT(filteredSig, Fs, "FFTFilteredResult.txt");
+  signalProcessing<float> filtredSig(videoObj.getNumOfFrames(), Fs);
+  foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
+  filtredSig.saveSigToFile("filteredSig.txt");
+  filtredSig.signalFFT("FFTFilteredResult.txt");
 
   return 0;
 }
