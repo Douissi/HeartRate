@@ -59,7 +59,6 @@ int main(){
   }
 
 
-
   /******************************************** Signal Processing *************************************************/
   float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
   float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
@@ -69,23 +68,22 @@ int main(){
 
   signalProcessing<float>& foreHeadSignal = videoObj.getforeHeadSignal();
   signalProcessing<float>& backgroundSignal = videoObj.getbackgroundSignal();
+  signalProcessing<float> ouputEstimationSignal(videoObj.getNumOfFrames(), Fs);
+  signalProcessing<float> filteredOutputEstimationSignal(videoObj.getNumOfFrames(), Fs);
+  signalProcessing<float> filtredSig(videoObj.getNumOfFrames(), Fs);
 
-
-  cout << "******************* Signal Processing *******************" << endl;
   backgroundSignal.saveSigToFile("backgroundSignalSamples.txt");
   foreHeadSignal.saveSigToFile("foreHeadSignalSamples.txt");
 
+  cout << "******************* Signal Processing *******************" << endl;
 
   // Illumination Rectification
-  signalProcessing<float> ouputEstimationSignal(videoObj.getNumOfFrames(), Fs);
   signalProcessing<float>::nlmsFilter(backgroundSignal.getSignalSamples(), foreHeadSignal.getSignalSamples(),
                                       filterOrder, 0.5, ouputEstimationSignal.getSignalSamples());
 
-
-  signalProcessing<float> filteredOutputEstimationSignal(videoObj.getNumOfFrames(), Fs);
   ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
-  filteredOutputEstimationSignal.signalFFT("FFTfilteredOutputEstimation.txt");
   filteredOutputEstimationSignal.saveSigToFile("filteredOutputEstimation.txt");
+  filteredOutputEstimationSignal.signalFFT("FFTfilteredOutputEstimation.txt");
 
 
    // remove mean value "offset" of the signal
@@ -96,7 +94,6 @@ int main(){
   foreHeadSignal.signalFFT("FFTResult.txt");
 
 
-  signalProcessing<float> filtredSig(videoObj.getNumOfFrames(), Fs);
   foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
   filtredSig.saveSigToFile("filteredSig.txt");
   filtredSig.signalFFT("FFTFilteredResult.txt");
