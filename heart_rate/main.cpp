@@ -9,7 +9,6 @@ using namespace cv;
 
 
 int main(){
-
   // Create a VideoCapture object and open the input file
   // If the input is the web camera, pass 0 instead of the video file name
   videoProcessing videoObj("73BPmin.mp4");
@@ -26,8 +25,8 @@ int main(){
 
    videoObj.detectFacesFromGreenChannelInVideo();
    const std::vector<Rect>& faces = videoObj.getFaces();
-   videoObj.setbackGroundRect(Rect(5, 116 , 128, 200));
-   const Rect& backgroundRect = videoObj.getbackgroundRect();
+   const Rect backgroundRect = Rect(5, 116 , 128, 200);
+   videoObj.setbackGroundRect(backgroundRect);
 
    std::vector<Rect> foreHeads = faces;
 
