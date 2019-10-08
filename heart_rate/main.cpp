@@ -11,7 +11,7 @@ using namespace cv;
 int main(){
   // Create a VideoCapture object and open the input file
   // If the input is the web camera, pass 0 instead of the video file name
-  videoProcessing videoObj("73BPmin.mp4");
+  videoProcessing videoObj("face.mp4");
 
   videoObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
 
@@ -25,15 +25,15 @@ int main(){
 
    videoObj.detectFacesFromGreenChannelInVideo();
    const std::vector<Rect>& faces = videoObj.getFaces();
-   const Rect backgroundRect = Rect(5, 116 , 128, 200);
+   const Rect backgroundRect = Rect(420, 400 , 90, 180);
    videoObj.setbackGroundRect(backgroundRect);
 
    std::vector<Rect> foreHeads = faces;
 
-   foreHeads[0].y += 20; // only for manualforeHead detection
-   foreHeads[0].height = foreHeads[0].height/3.7 - 20; // only for manualforeHead detection
-   foreHeads[0].x += 60; // only for manual foreHead detection
-   foreHeads[0].width -= 130; // only for manual foreHead detection
+
+   foreHeads[0].height = foreHeads[0].height/3.7; // only for manualforeHead detection
+   foreHeads[0].x = foreHeads[0].x + 50; // only for manual foreHead detection
+   foreHeads[0].width = foreHeads[0].width - 70; // only for manual foreHead detection
 
    videoObj.setRectForeHeadsVector(foreHeads);
 
