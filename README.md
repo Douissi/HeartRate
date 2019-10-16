@@ -12,13 +12,6 @@ For Manual foreHead detection for face.mp4 video file
 //  faces[0].width = faces[0].width - 70; // only for manual foreHead detection
 
 
-For Manual foreHead detection for 73BPmin.mp4  background is Rect(5, 116 , 128, 200);
-foreHeads[0].y += 20; // only for manualforeHead detection
-foreHeads[0].height = foreHeads[0].height/3.7 - 20; // only for manualforeHead detection
-foreHeads[0].x += 60; // only for manual foreHead detection
-foreHeads[0].width -= 130; // only for manual foreHead detection
-
-
 For Manual foreHead detection for face2.mp4 video file
 //    faces[0].y -= 70;
 //    faces[0].height = faces[0].height/3 ; // only for manualforeHead detection
