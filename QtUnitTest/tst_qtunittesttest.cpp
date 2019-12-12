@@ -1,5 +1,7 @@
 #include <QString>
 #include <QtTest>
+#include "videoProcessing.hpp"
+#include "signalProcessing.hpp"
 
 class QtUnitTestTest : public QObject
 {

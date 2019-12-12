@@ -4,17 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-TARGET = heart_rate
-TEMPLATE = app
-
-INCLUDEPATH += .
-INCLUDEPATH += /usr/local/include
-INCLUDEPATH += /usr/local/include/opencv4
-INCLUDEPATH += /root/sigpack/sigpack-1.2.6/sigpack
 #INCLUDEPATH += /root/fftw/fftw-3.3.8
 #INCLUDEPATH += /usr/local/include/opencv4/opencv2
 #INCLUDEPATH += /usr/local/include/opencv4/opencv2/core
@@ -28,6 +18,18 @@ INCLUDEPATH += /root/sigpack/sigpack-1.2.6/sigpack
 #INCLUDEPATH += /usr/local/include/opencv4/opencv2/calib3d
 #INCLUDEPATH += /usr/local/include/opencv4/opencv2/ml
 #INCLUDEPATH += /usr/local/include/opencv4/opencv2/contrib
+
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = heart_rate
+TEMPLATE = app
+
+INCLUDEPATH += .
+INCLUDEPATH += /usr/local/include
+INCLUDEPATH += /usr/local/include/opencv4
+INCLUDEPATH += /usr/local/include/sigpack-1.2.6/sigpack
 
 
 LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_objdetect -lfftw3 -lm -larmadillo
