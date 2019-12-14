@@ -3,26 +3,70 @@
 #include "videoProcessing.hpp"
 #include "signalProcessing.hpp"
 
-class QtUnitTestTest : public QObject
+class TestVideoProcessing : public QObject
 {
     Q_OBJECT
 
 public:
-    QtUnitTestTest();
+    TestVideoProcessing(){}
+    virtual ~TestVideoProcessing() {}
 
 private Q_SLOTS:
-    void testCase1();
+    void testVideo1();
 };
 
-QtUnitTestTest::QtUnitTestTest()
+class TestSignalProcessing : public QObject
 {
-}
+    Q_OBJECT
 
-void QtUnitTestTest::testCase1()
+public:
+    TestSignalProcessing(){}
+    virtual ~TestSignalProcessing() {}
+
+private Q_SLOTS:
+    void testSignal1();
+
+};
+
+
+
+/********************************************* Testing methods *****************************************/
+
+void TestVideoProcessing::testVideo1()
 {
     QVERIFY2(true, "Failure");
 }
 
-QTEST_APPLESS_MAIN(QtUnitTestTest)
+void TestSignalProcessing::testSignal1()
+{
+     QVERIFY2(true, "Failure");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/********************************************** Main function, running unit tests ***************************/
+//QTEST_APPLESS_MAIN(TestVideoProcessing)
+int main(int argc, char *argv[])
+{
+    TestVideoProcessing tc;
+    TestSignalProcessing tc2;
+    QTEST_SET_MAIN_SOURCE_PATH
+    int resTc1 = QTest::qExec(&tc, argc, argv);
+    int resTc2 = QTest::qExec(&tc2, argc, argv);
+    return resTc1 || resTc2;
+}
+
 
 #include "tst_qtunittesttest.moc"

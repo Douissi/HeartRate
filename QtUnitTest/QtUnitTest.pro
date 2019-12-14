@@ -26,3 +26,5 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 
 SOURCES += tst_qtunittesttest.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
+
+HEADERS +=
