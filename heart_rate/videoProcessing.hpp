@@ -12,14 +12,15 @@ using namespace cv;
 using namespace std;
 
 
-
 class videoProcessing
 {
+    friend class TestVideoProcessing;
+
 public :
     videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
         foreHead(), face(), background(), foreHeadSignal(), backgroundSignal() {}
 
-    videoProcessing(const String& filename) : capture(filename), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
+    videoProcessing(const String& filename) : capture(filename), Fs (0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
         foreHead(), face(), background(), foreHeadSignal(), backgroundSignal()
     {
         // Check if camera opened successfully

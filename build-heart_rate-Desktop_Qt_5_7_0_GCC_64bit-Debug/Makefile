@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I../heart_rate -I. -I../heart_rate -isystem /usr/local/include -isystem /usr/local/include/opencv4 -I../../../sigpack/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I. -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++
+INCPATH       = -I../heart_rate -I. -I../heart_rate -isystem /usr/local/include -isystem /usr/local/include/opencv4 -isystem /usr/local/include/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I. -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++
 QMAKE         = /opt/Qt/5.7/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -672,7 +672,7 @@ moc_mainwindow.cpp: /opt/Qt/5.7/gcc_64/include/QtWidgets/QMainWindow \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qicon.h \
 		../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/bin/moc
-	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/heart_rate -I/root/Projet_heart_rate/HeartRate/heart_rate -I/usr/local/include -I/usr/local/include/opencv4 -I/root/sigpack/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../heart_rate/mainwindow.h -o moc_mainwindow.cpp
+	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/heart_rate -I/root/Projet_heart_rate/HeartRate/heart_rate -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../heart_rate/mainwindow.h -o moc_mainwindow.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -802,19 +802,7 @@ main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qguiapplication.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qinputmethod.h \
 		../heart_rate/videoProcessing.hpp \
-		../heart_rate/signalProcessing.hpp \
-		../../../sigpack/sigpack-1.2.6/sigpack/sigpack.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/base/base.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/window/window.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/filter/filter.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/resampling/resampling.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/spectrum/spectrum.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/timing/timing.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/gplot/gplot.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/parser/parser.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/fftw/fftw.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/image/image.h \
-		../../../sigpack/sigpack-1.2.6/sigpack/kalman/kalman.h
+		../heart_rate/signalProcessing.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../heart_rate/main.cpp
 
 mainwindow.o: ../heart_rate/mainwindow.cpp ../heart_rate/mainwindow.h \
