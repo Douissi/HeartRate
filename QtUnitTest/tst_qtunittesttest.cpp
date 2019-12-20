@@ -27,7 +27,7 @@ class TestVideoProcessing : public QObject
     Q_OBJECT
 
 public:
-    TestVideoProcessing() : videoProcessingObj("../build-heart_rate-Desktop_Qt_5_7_0_GCC_64bit-Release/73BPmin.mp4") {}
+    TestVideoProcessing() : videoProcessingObj("73BPmin.mp4") {}
     virtual ~TestVideoProcessing() {}
 
 private:
