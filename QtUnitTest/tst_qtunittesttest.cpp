@@ -105,22 +105,22 @@ void TestVideoProcessing::testCapturingFrames()
 
 void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
 {
-//    // check cascadeClassifier is not empty and has been corrreclty loaded
-//    QVERIFY(!videoProcessingObj.faceCascade.empty());
+    // check cascadeClassifier is not empty and has been corrreclty loaded
+    QVERIFY(!videoProcessingObj.faceCascade.empty());
 
-//    // check frames and channels are not empty
-//    QVERIFY(!videoProcessingObj.frame.empty());
-//    QVERIFY(!videoProcessingObj.channels[BLEUE].empty());
-//    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
-//    QVERIFY(!videoProcessingObj.channels[RED].empty());
+    // check frames and channels are not empty
+    QVERIFY(!videoProcessingObj.frame.empty());
+    QVERIFY(!videoProcessingObj.channels[BLEUE].empty());
+    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
+    QVERIFY(!videoProcessingObj.channels[RED].empty());
 
-//    // check vector containing faces does not contain any rect for any face
-//    QVERIFY(videoProcessingObj.faces.size() == 0);
+    // check vector containing faces does not contain any rect for any face
+    QVERIFY(videoProcessingObj.faces.size() == 0);
 
-//    videoProcessingObj.detectFacesFromGreenChannelInVideo();
+    videoProcessingObj.detectFacesFromGreenChannelInVideo();
 
-//    // check vector containing faces contains at least one face detected
-//    QVERIFY(videoProcessingObj.faces.size() > 0);
+    // check vector containing faces contains at least one face detected
+    QVERIFY(videoProcessingObj.faces.size() > 0);
 }
 
 
