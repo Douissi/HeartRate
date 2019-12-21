@@ -67,14 +67,14 @@ public :
     void detectFacesFromGreenChannelInVideo()
     {
         /* first param was GreyColorImage */
-        faceCascade.detectMultiScale( channels[1], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
+        faceCascade.detectMultiScale( channels[GREEN], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
     }
 
     void creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel()
     {
-        face =  cv::Mat(channels[1] , faces[0]);
-        foreHead = cv::Mat(channels[1] , foreHeads[0]);
-        background = cv::Mat(channels[1] , backgroundRect);
+        face =  cv::Mat(channels[GREEN] , faces[0]);
+        foreHead = cv::Mat(channels[GREEN] , foreHeads[0]);
+        background = cv::Mat(channels[GREEN] , backgroundRect);
     }
 
     static void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect)

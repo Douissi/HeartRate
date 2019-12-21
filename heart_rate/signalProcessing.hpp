@@ -14,6 +14,10 @@
 #include <sigpack.h>
 #include "fftw3.h"
 
+#define BLEUE 0
+#define GREEN 1
+#define RED 2
+
 using namespace cv;
 using namespace std;
 using namespace arma;

@@ -3,9 +3,7 @@
 #include "videoProcessing.hpp"
 #include "signalProcessing.hpp"
 
-#define BLEUE 0
-#define GREEN 1
-#define RED 2
+
 
 template <class T>
 void resetObj(T& v)
@@ -39,6 +37,7 @@ private Q_SLOTS:
     void testFaceCascadeLoading();
     void testCapturingFrames();
     void testDetectFacesFromGreenChannelInVideo();
+    void testFaceForeHeadAndBackgroundMatrixCreation();
 
 };
 
@@ -80,6 +79,7 @@ void TestVideoProcessing::testVideoObjCreation()
 
 void TestVideoProcessing::testFaceCascadeLoading()
 {
+    QVERIFY(videoProcessingObj.faceCascade.empty());
     videoProcessingObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
     QVERIFY(!videoProcessingObj.faceCascade.empty());
 }
@@ -105,13 +105,54 @@ void TestVideoProcessing::testCapturingFrames()
 
 void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
 {
-//    resetObj(videoProcessingObj);
+    // check cascadeClassifier is not empty and has been corrreclty loaded
+    QVERIFY(!videoProcessingObj.faceCascade.empty());
+
+    // check frames and channels are not empty
+    QVERIFY(!videoProcessingObj.frame.empty());
+    QVERIFY(!videoProcessingObj.channels[BLEUE].empty());
+    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
+    QVERIFY(!videoProcessingObj.channels[RED].empty());
+
+    // check vector containing faces does not contain any rect for any face
+    QVERIFY(videoProcessingObj.faces.size() == 0);
+
+    videoProcessingObj.detectFacesFromGreenChannelInVideo();
+
+    // check vector containing faces contains at least one face detected
+    QVERIFY(videoProcessingObj.faces.size() > 0);
 }
 
 
+void TestVideoProcessing::testFaceForeHeadAndBackgroundMatrixCreation()
+{
+    // Check CV::Mat Faces / foreHead / background are empty
+    QVERIFY(videoProcessingObj.face.elemSize() == 0);
+    QVERIFY(videoProcessingObj.background.elemSize() == 0);
+    QVERIFY(videoProcessingObj.foreHead.elemSize() == 0);
+
+    // Check channel green is not empty
+    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
+
+    // Load rectangles for background and foreHeads
+    videoProcessingObj.backgroundRect = Rect(5, 116 , 128, 200);
+    videoProcessingObj.foreHeads.push_back(Rect(5, 116 , 128, 200));
+    /******* Face has been set in previous test ******/
+
+    QVERIFY(videoProcessingObj.faces.size() > 0);
+    QVERIFY(videoProcessingObj.foreHeads.size() > 0);
+
+    videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+
+    // Check CV::Mat Faces / foreHead / background are not empty any more
+    QVERIFY(videoProcessingObj.face.elemSize() != 0);
+    QVERIFY(videoProcessingObj.background.elemSize() != 0);
+    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
+}
+
 void TestSignalProcessing::testSignal1()
 {
-     QVERIFY2(true, "Failure");
+    QVERIFY2(true, "Failure");
 }
 
 
@@ -135,7 +176,7 @@ int main(int argc, char *argv[])
     TestVideoProcessing tc;
     TestSignalProcessing tc2;
     QTEST_SET_MAIN_SOURCE_PATH
-    int resTc1 = QTest::qExec(&tc, argc, argv);
+            int resTc1 = QTest::qExec(&tc, argc, argv);
     int resTc2 = QTest::qExec(&tc2, argc, argv);
     return resTc1 || resTc2;
 }
