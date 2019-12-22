@@ -25,6 +25,7 @@ int rand()
     return std::rand()%1000;
 }
 
+
 }
 
 
@@ -67,6 +68,9 @@ private Q_SLOTS:
     void testSignalConstruct2();
     void testSignalConstruct3();
     void testSignalMeanValue();
+    void testRemoveMeanValue();
+    void testFillWithValue();
+    void testFillWithVector();
 };
 
 
@@ -206,28 +210,60 @@ void TestSignalProcessing::testSignalConstruct3()
     QVERIFY(signalProcessingObj.Fs == 10.0);
     QVERIFY(signalProcessingObj.numberOfSamples == signalVector.size());
     QVERIFY(signalProcessingObj.signalSamples.size() == signalVector.size());
+    QVERIFY(std::equal(signalVector.begin(), signalVector.end(), signalProcessingObj.signalSamples.begin()));
 }
 
 void TestSignalProcessing::testSignalMeanValue()
 {
     std::vector<float> signalVector(1000);
-    std::generate(signalVector.begin(), signalVector.end(), ut::rand);
-
+    std::generate(signalVector.begin(), signalVector.end(), ut::rand); // generate rand values less then 1000
     signalProcessing<float> signalProcessingObj(signalVector, signalVector.size(), 10.0);
 
     float meanValue = signalProcessingObj.meanVector();
-
     float average = accumulate( signalVector.begin(), signalVector.end(), 0.0)/signalVector.size();
 
     QVERIFY(average == meanValue);
 }
 
+void TestSignalProcessing::testRemoveMeanValue()
+{
+    std::vector<float> signalVector(1000);
+    std::generate(signalVector.begin(), signalVector.end(), ut::rand); // generate rand values less then 1000
+    signalProcessing<float> signalProcessingObj(signalVector, signalVector.size(), 10.0);
+
+    QVERIFY(signalProcessingObj.meanVector() != 0);
+
+    signalProcessingObj.removeMeanValue();
+    QVERIFY(std::fabs(signalProcessingObj.meanVector()) < 0.00005);
+}
 
 
+void TestSignalProcessing::testFillWithValue()
+{
+    signalProcessing<float> signal;
+    QVERIFY(signal.Fs == 0.0);
+    QVERIFY(signal.numberOfSamples == 0);
+    QVERIFY(signal.signalSamples.size() == 0);
+    float value = static_cast<float>(ut::rand());
+    signal.fillWithValue(value);
+    QVERIFY(signal.signalSamples.size() == 1);
+    QVERIFY(signal.signalSamples.back() == value);
+}
 
+void TestSignalProcessing::testFillWithVector()
+{
+    signalProcessing<float> signal(500, 10.5);
+    QVERIFY(signal.Fs == 10.5);
+    QVERIFY(signal.numberOfSamples == 500);
+    QVERIFY(signal.signalSamples.size() == 0);
 
+    std::vector<float> signalVector(500);
+    std::generate(signalVector.begin(), signalVector.end(), std::rand);
 
-
+    signal.fillWithVector(signalVector);
+    QVERIFY(signal.signalSamples.size() == 500);
+    QVERIFY(std::equal(signalVector.begin(), signalVector.end(), signal.signalSamples.begin()));
+}
 
 
 

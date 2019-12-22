@@ -52,6 +52,7 @@ public :
     signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(numOfSamples),
         Fs(Fech)
     {
+        ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect ");
         signalSamples.reserve(numOfSamples);
         fillWithVector(signalSamplesInput);
     }
