@@ -87,8 +87,15 @@ public :
     {
         fstream myfile;
         myfile.open(inputFile,fstream::out);
-        for(unsigned int i = 0;i < numberOfSamples; i++) myfile << i<< " " << signalSamples[i]<< std::endl;
-        myfile.close();
+        if(myfile.is_open())
+        {
+            for(unsigned int i = 0;i < numberOfSamples; i++) myfile << i<< " " << signalSamples[i]<< std::endl;
+            myfile.close();
+        }
+        else
+        {
+            ASSERT(false, "could not open the file in saveSigToFile fct");
+        }
     }
 
     void reserve(const unsigned int &size)

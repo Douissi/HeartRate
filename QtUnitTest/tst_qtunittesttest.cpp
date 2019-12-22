@@ -25,10 +25,33 @@ int rand()
     return std::rand()%1000;
 }
 
+template <typename T>
+void loadSignalFromFile(const string& myFileString, vector<T>& signalVector)
+{
+    T values;
+    fstream myfile;
+    myfile.open(myFileString,fstream::in);
 
+    if(myfile.is_open())
+    {
+        string line;
+        while(myfile)
+        {
+            getline(myfile, line , ' ');
+            myfile >> values;
+            myfile.get();
+            if(!myfile) break;
+            signalVector.push_back(values);
+        }
+        myfile.close();
+    }
+    else
+    {
+        ASSERT(false, "Enable to open in reading mode the file testSaveSigToFile.txt");
+    }
 }
 
-
+}
 
 
 class TestVideoProcessing : public QObject
@@ -71,6 +94,7 @@ private Q_SLOTS:
     void testRemoveMeanValue();
     void testFillWithValue();
     void testFillWithVector();
+    void testSaveSigToFile();
 };
 
 
@@ -258,14 +282,35 @@ void TestSignalProcessing::testFillWithVector()
     QVERIFY(signal.signalSamples.size() == 0);
 
     std::vector<float> signalVector(500);
-    std::generate(signalVector.begin(), signalVector.end(), std::rand);
+    std::generate(signalVector.begin(), signalVector.end(), ut::rand);
 
     signal.fillWithVector(signalVector);
     QVERIFY(signal.signalSamples.size() == 500);
     QVERIFY(std::equal(signalVector.begin(), signalVector.end(), signal.signalSamples.begin()));
 }
 
+void TestSignalProcessing::testSaveSigToFile()
+{
+    unsigned int size = 1000;
+    std::vector<float> signalVector(size);
+    std::generate(signalVector.begin(), signalVector.end(), ut::rand);
 
+    signalProcessing<float> signalProcessingObj(signalVector, signalVector.size(), 10.0);
+
+    QVERIFY(signalProcessingObj.Fs == 10.0);
+    QVERIFY(signalProcessingObj.numberOfSamples == signalVector.size());
+    QVERIFY(signalProcessingObj.signalSamples.size() == signalVector.size());
+    QVERIFY(std::equal(signalVector.begin(), signalVector.end(), signalProcessingObj.signalSamples.begin()));
+
+    signalProcessingObj.saveSigToFile("testSaveSigToFile.txt");
+
+    std::vector<float> signalVectorVerification;
+    signalVectorVerification.reserve(size);
+
+    ut::loadSignalFromFile<float>("testSaveSigToFile.txt", signalVectorVerification);
+
+    QVERIFY(std::equal(signalVectorVerification.begin(), signalVectorVerification.end(), signalProcessingObj.signalSamples.begin()));
+}
 
 
 
