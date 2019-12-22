@@ -34,11 +34,13 @@ void ASSERT(bool condition,const std::string& str)
 
 
 class TestVideoProcessing;
+class TestSignalProcessing;
 
 template <typename T>
 class signalProcessing
 {
     friend class TestVideoProcessing;
+    friend class TestSignalProcessing;
 
 public :
     signalProcessing() : numberOfSamples(0), Fs(0){}

@@ -2,8 +2,9 @@
 #include <QtTest>
 #include "videoProcessing.hpp"
 #include "signalProcessing.hpp"
+#include <numeric>
 
-
+namespace  ut {
 
 template <class T>
 void resetObj(T& v)
@@ -18,6 +19,15 @@ void resetObj(T& v, const std::string& fileName)
     v.~T();
     new (&v) T(fileName);
 }
+
+int rand()
+{
+    return std::rand()%1000;
+}
+
+}
+
+
 
 
 class TestVideoProcessing : public QObject
@@ -41,6 +51,9 @@ private Q_SLOTS:
 
 };
 
+
+
+
 class TestSignalProcessing : public QObject
 {
     Q_OBJECT
@@ -50,8 +63,23 @@ public:
     virtual ~TestSignalProcessing() {}
 
 private Q_SLOTS:
-    void testSignal1();
+    void testSignalConstruct();
+    void testSignalConstruct2();
+    void testSignalConstruct3();
+    void testSignalMeanValue();
 };
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -117,46 +145,82 @@ void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
     // check vector containing faces does not contain any rect for any face
     QVERIFY(videoProcessingObj.faces.size() == 0);
 
-//    videoProcessingObj.detectFacesFromGreenChannelInVideo();
+    //    videoProcessingObj.detectFacesFromGreenChannelInVideo();
 
     // check vector containing faces contains at least one face detected
-//    QVERIFY(videoProcessingObj.faces.size() > 0);
+    //    QVERIFY(videoProcessingObj.faces.size() > 0);
 }
 
 
 void TestVideoProcessing::testFaceForeHeadAndBackgroundMatrixCreation()
 {
     // Check CV::Mat Faces / foreHead / background are empty
-//    QVERIFY(videoProcessingObj.face.elemSize() == 0);
-//    QVERIFY(videoProcessingObj.background.elemSize() == 0);
-//    QVERIFY(videoProcessingObj.foreHead.elemSize() == 0);
+    //    QVERIFY(videoProcessingObj.face.elemSize() == 0);
+    //    QVERIFY(videoProcessingObj.background.elemSize() == 0);
+    //    QVERIFY(videoProcessingObj.foreHead.elemSize() == 0);
 
-//    // Check channel green is not empty
-//    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
+    //    // Check channel green is not empty
+    //    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
 
-//    // Load rectangles for background and foreHeads
-//    videoProcessingObj.backgroundRect = Rect(5, 116 , 128, 200);
-//    videoProcessingObj.foreHeads.push_back(Rect(5, 116 , 128, 200));
-//    /******* Face has been set in previous test ******/
+    //    // Load rectangles for background and foreHeads
+    //    videoProcessingObj.backgroundRect = Rect(5, 116 , 128, 200);
+    //    videoProcessingObj.foreHeads.push_back(Rect(5, 116 , 128, 200));
+    //    /******* Face has been set in previous test ******/
 
-//    QVERIFY(videoProcessingObj.faces.size() > 0);
-//    QVERIFY(videoProcessingObj.foreHeads.size() > 0);
+    //    QVERIFY(videoProcessingObj.faces.size() > 0);
+    //    QVERIFY(videoProcessingObj.foreHeads.size() > 0);
 
-//    videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+    //    videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
 
-//    // Check CV::Mat Faces / foreHead / background are not empty any more
-//    QVERIFY(videoProcessingObj.face.elemSize() != 0);
-//    QVERIFY(videoProcessingObj.background.elemSize() != 0);
-//    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
+    //    // Check CV::Mat Faces / foreHead / background are not empty any more
+    //    QVERIFY(videoProcessingObj.face.elemSize() != 0);
+    //    QVERIFY(videoProcessingObj.background.elemSize() != 0);
+    //    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
 }
 
-void TestSignalProcessing::testSignal1()
+void TestSignalProcessing::testSignalConstruct()
 {
-    QVERIFY2(true, "Failure");
+    signalProcessing<float> signal;
+    QVERIFY(signal.Fs == 0.0);
+    QVERIFY(signal.numberOfSamples == 0);
+    QVERIFY(signal.signalSamples.size() == 0);
+
 }
 
 
+void TestSignalProcessing::testSignalConstruct2()
+{
+    signalProcessing<float> signal(50, 10.5);
+    QVERIFY(signal.Fs == 10.5);
+    QVERIFY(signal.numberOfSamples == 50);
+    QVERIFY(signal.signalSamples.size() == 0);
+}
 
+void TestSignalProcessing::testSignalConstruct3()
+{
+    std::vector<float> signalVector(1000);
+    std::generate(signalVector.begin(), signalVector.end(), std::rand);
+
+    signalProcessing<float> signalProcessingObj(signalVector, signalVector.size(), 10.0);
+
+    QVERIFY(signalProcessingObj.Fs == 10.0);
+    QVERIFY(signalProcessingObj.numberOfSamples == signalVector.size());
+    QVERIFY(signalProcessingObj.signalSamples.size() == signalVector.size());
+}
+
+void TestSignalProcessing::testSignalMeanValue()
+{
+    std::vector<float> signalVector(1000);
+    std::generate(signalVector.begin(), signalVector.end(), ut::rand);
+
+    signalProcessing<float> signalProcessingObj(signalVector, signalVector.size(), 10.0);
+
+    float meanValue = signalProcessingObj.meanVector();
+
+    float average = accumulate( signalVector.begin(), signalVector.end(), 0.0)/signalVector.size();
+
+    QVERIFY(average == meanValue);
+}
 
 
 
@@ -176,7 +240,7 @@ int main(int argc, char *argv[])
     TestVideoProcessing tc;
     TestSignalProcessing tc2;
     QTEST_SET_MAIN_SOURCE_PATH
-            int resTc1 = QTest::qExec(&tc, argc, argv);
+    int resTc1 = QTest::qExec(&tc, argc, argv);
     int resTc2 = QTest::qExec(&tc2, argc, argv);
     return resTc1 || resTc2;
 }
