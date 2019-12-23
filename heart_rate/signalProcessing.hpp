@@ -118,7 +118,7 @@ public :
         plan_forward = fftw_plan_dft_r2c_1d ( numberOfSamples, in, out, FFTW_ESTIMATE );
         fftw_execute ( plan_forward );
 
-        double v[numberOfSamples/2 +1];
+        vector<float> v(numberOfSamples/2 +1); // to be taken out from this fct in the future
 
         for (unsigned int i = 0 ; i<= ((numberOfSamples/2)-1) ; i++)
         {
