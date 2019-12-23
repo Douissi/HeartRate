@@ -18,6 +18,9 @@
 #define GREEN 1
 #define RED 2
 
+#define SIG 1
+#define FFT 2
+
 using namespace cv;
 using namespace std;
 using namespace arma;
@@ -176,6 +179,37 @@ private:
     double Fs;
 
 };
+
+
+void plotWithGNUPLOT(const string& nameSig, const unsigned int& type)
+{
+    if(type == SIG)
+    {
+        string cmd = "gnuplot -e \""
+                     "set xlabel 'Samples in frames' ;"
+                     "set ylabel 'Amplitude of the signal' ;"
+                     "plot '";
+        cmd += nameSig;
+        cmd += "' using 1:2 with lines\" -p";
+        system(cmd.c_str());
+    }
+    else if (type == FFT)
+    {
+        string cmd = "gnuplot -e \""
+                     "set xlabel 'Frequencies in Hz' ;"
+                     "set ylabel 'Amplitude of the FFT' ;"
+                     "set xrange [0:6] ;"
+                     "plot '";
+        cmd += nameSig;
+        cmd += "' using 1:2 with lines\" -p";
+        system(cmd.c_str());
+    }
+    else
+    {
+        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
+    }
+
+}
 
 
 

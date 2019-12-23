@@ -59,6 +59,7 @@ int main(){
 
 
   /******************************************** Signal Processing *************************************************/
+
   float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
   float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
   int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
@@ -71,31 +72,43 @@ int main(){
   signalProcessing<float> filteredOutputEstimationSignal(videoObj.getNumOfFrames(), Fs);
   signalProcessing<float> filtredSig(videoObj.getNumOfFrames(), Fs);
 
-  backgroundSignal.saveSigToFile("backgroundSignalSamples.txt");
-  foreHeadSignal.saveSigToFile("foreHeadSignalSamples.txt");
+  backgroundSignal.saveSigToFile("backgroundSignal.txt");
+  foreHeadSignal.saveSigToFile("foreHeadSignal.txt");
 
-  cout << "******************* Signal Processing *******************" << endl;
+  cout << "************************** Signal Processing *************************" << endl;
 
   // Illumination Rectification
   signalProcessing<float>::nlmsFilter(backgroundSignal.getSignalSamples(), foreHeadSignal.getSignalSamples(),
                                       filterOrder, 0.5, ouputEstimationSignal.getSignalSamples());
 
   ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
-  filteredOutputEstimationSignal.saveSigToFile("filteredOutputEstimation.txt");
-  filteredOutputEstimationSignal.signalFFT("FFTfilteredOutputEstimation.txt");
+  filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");
+  filteredOutputEstimationSignal.signalFFT("FFTnlmsOutputEstimation.txt");
 
 
    // remove mean value "offset" of the signal
   foreHeadSignal.removeMeanValue();
 
-  // Signal filter  ******* TO BE OPTIMIZED *******
-  foreHeadSignal.saveSigToFile("foreHeadSignalSamplesMeanValueRemoved.txt");
-  foreHeadSignal.signalFFT("FFTResult.txt");
+  // Signal filter  ******************** TO BE OPTIMIZED **************************
+  foreHeadSignal.saveSigToFile("foreHeadMeanValueRemoved.txt");
+  foreHeadSignal.signalFFT("FFTforeHeadMeanValueRemoved.txt");
 
 
   foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
-  filtredSig.saveSigToFile("filteredSig.txt");
-  filtredSig.signalFFT("FFTFilteredResult.txt");
+  filtredSig.saveSigToFile("filteredForeHeadBandPass.txt");
+  filtredSig.signalFFT("FFTfiltredForeHead.txt");
+
+  // ************************************ plotting the signals **********************
+
+//  plotWithGNUPLOT("foreHeadSignal.txt", SIG);
+//  plotWithGNUPLOT("backgroundSignal.txt", SIG);
+//  plotWithGNUPLOT("nlmsOutputEstimation.txt", SIG);
+//  plotWithGNUPLOT("FFTnlmsOutputEstimation.txt", FFT);
+//  plotWithGNUPLOT("foreHeadMeanValueRemoved.txt", SIG);
+//  plotWithGNUPLOT("FFTforeHeadMeanValueRemoved.txt", FFT);
+//  plotWithGNUPLOT("filteredForeHeadBandPass.txt", SIG);
+//  plotWithGNUPLOT("FFTfiltredForeHead.txt", FFT);
+
 
   return 0;
 }
