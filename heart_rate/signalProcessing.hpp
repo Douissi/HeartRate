@@ -21,6 +21,9 @@
 #define SIG 1
 #define FFT 2
 
+#define SAVE_FFT 1
+#define DO_NOT_SAVE_FFT 0
+
 using namespace cv;
 using namespace std;
 using namespace arma;
@@ -97,7 +100,7 @@ public :
         }
         else
         {
-            ASSERT(false, "could not open the file in saveSigToFile fct");
+            ASSERT(false, "Could not open the file in saveSigToFile fct");
         }
     }
 
@@ -106,8 +109,13 @@ public :
         signalSamples.reserve(size);
     }
 
+    void resize(const unsigned int &size)
+    {
+        signalSamples.resize(size);
+    }
 
-    void signalFFT(const string& FFTFile)
+
+    void signalFFT(signalProcessing<T>& FFTOutput, const bool& save = DO_NOT_SAVE_FFT, const string& FFTFile = " ")
     {
         fftw_complex out[numberOfSamples/2 +1];
         double in[numberOfSamples];
@@ -118,21 +126,32 @@ public :
         plan_forward = fftw_plan_dft_r2c_1d ( numberOfSamples, in, out, FFTW_ESTIMATE );
         fftw_execute ( plan_forward );
 
-        vector<float> v(numberOfSamples/2 +1); // to be taken out from this fct in the future
+        FFTOutput.resize(0);
+        FFTOutput.reserve(numberOfSamples/2 +1);
 
         for (unsigned int i = 0 ; i<= ((numberOfSamples/2)-1) ; i++)
         {
-            v[i]=out[i][0]*out[i][0]+ out[i][1]*out[i][1];
+            FFTOutput.fillWithValue(out[i][0]*out[i][0]+ out[i][1]*out[i][1]);
         }
 
-        fstream myfile;
-        myfile.open(FFTFile,fstream::out);
+        if(save)
+        {
+            fstream myfile;
+            myfile.open(FFTFile,fstream::out);
 
-        for(unsigned int i = 0;i< ((numberOfSamples/2)-1); i++) myfile << Fs*i/numberOfSamples<< " " << v[i]<< std::endl; // readble mode by gnuplot
+            if(myfile.is_open())
+            {
+                std::vector<T>& v = FFTOutput.getSignalSamples();
+                for(unsigned int i = 0;i< ((numberOfSamples/2)-1); i++) myfile << Fs*i/numberOfSamples<< " " << v[i]<< std::endl; // readble mode by gnuplot
+                myfile.close();
+            }
+            else
+            {
+                ASSERT(false, "Could not open the file in signalFFT fct");
+            }
+        }
 
-        myfile.close();
         fftw_destroy_plan ( plan_forward );
-
     }
 
     void bandPassFilterFunction(const float& lowFreqCutOff, const float& highFreqCutOff, const int& filterOrder,

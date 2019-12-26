@@ -71,6 +71,7 @@ int main(){
   signalProcessing<float> ouputEstimationSignal(videoObj.getNumOfFrames(), Fs);
   signalProcessing<float> filteredOutputEstimationSignal(videoObj.getNumOfFrames(), Fs);
   signalProcessing<float> filtredSig(videoObj.getNumOfFrames(), Fs);
+  signalProcessing<float> FFTOutput;
 
   backgroundSignal.saveSigToFile("backgroundSignal.txt");
   foreHeadSignal.saveSigToFile("foreHeadSignal.txt");
@@ -83,7 +84,7 @@ int main(){
 
   ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
   filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");
-  filteredOutputEstimationSignal.signalFFT("FFTnlmsOutputEstimation.txt");
+  filteredOutputEstimationSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTnlmsOutputEstimation.txt");
 
 
    // remove mean value "offset" of the signal
@@ -91,12 +92,12 @@ int main(){
 
   // Signal filter  ******************** TO BE OPTIMIZED **************************
   foreHeadSignal.saveSigToFile("foreHeadMeanValueRemoved.txt");
-  foreHeadSignal.signalFFT("FFTforeHeadMeanValueRemoved.txt");
+  foreHeadSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTforeHeadMeanValueRemoved.txt");
 
 
   foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
   filtredSig.saveSigToFile("filteredForeHeadBandPass.txt");
-  filtredSig.signalFFT("FFTfiltredForeHead.txt");
+  filtredSig.signalFFT(FFTOutput, SAVE_FFT, "FFTfiltredForeHead.txt");
 
   // ************************************ plotting the signals **********************
 
