@@ -64,11 +64,9 @@ int main(){
   float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
   int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
 
-  const double& Fs = videoObj.getFs();
-
   signalProcessing<float>& foreHeadSignal = videoObj.getforeHeadSignal();
   signalProcessing<float>& backgroundSignal = videoObj.getbackgroundSignal();
-  signalProcessing<float> ouputEstimationSignal(videoObj.getNumOfFrames(), Fs);
+  signalProcessing<float> ouputEstimationSignal;
   signalProcessing<float> filteredOutputEstimationSignal;
   signalProcessing<float> filtredSig;
   signalProcessing<float> FFTOutput;
@@ -79,8 +77,7 @@ int main(){
   cout << "************************** Signal Processing *************************" << endl;
 
   // Illumination Rectification
-  signalProcessing<float>::nlmsFilter(backgroundSignal.getSignalSamples(), foreHeadSignal.getSignalSamples(),
-                                      filterOrder, 0.5, ouputEstimationSignal.getSignalSamples());
+  signalProcessing<float>::nlmsFilter(backgroundSignal, foreHeadSignal, filterOrder, 0.5, ouputEstimationSignal);
 
   ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
   filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");

@@ -50,12 +50,12 @@ class signalProcessing
 
 public :
     signalProcessing() : numberOfSamples(0), Fs(0){}
-    signalProcessing(const unsigned int& numOfSamples, const double& Fech) : numberOfSamples(numOfSamples), Fs(Fech)
+    signalProcessing(const unsigned int& numOfSamples, const double& Fech) : numberOfSamples(0), Fs(Fech)
     {
         signalSamples.reserve(numOfSamples); // WRN = please make sure when calling size() on this vector
     }
 
-    signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(numOfSamples),
+    signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(0),
         Fs(Fech)
     {
         ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect ");
@@ -83,10 +83,16 @@ public :
                        [&meanSignal](T v) -> T {return v - meanSignal;});
     }
 
-    void fillWithValue(const T& value) { signalSamples.push_back(value); }
+    void fillWithValue(const T& value)
+    {
+        signalSamples.push_back(value);
+        numberOfSamples++;
+    }
+
     void fillWithVector(const std::vector<T>& inputVec)
     {
         for(const auto& v : inputVec) signalSamples.push_back(v);
+        numberOfSamples += inputVec.size();
     }
 
     void reserve(const unsigned int &size)
@@ -127,6 +133,7 @@ public :
 
         FFTOutput.resize(0);
         FFTOutput.reserve(numberOfSamples/2 +1);
+        FFTOutput.setFs(Fs);
 
         for (unsigned int i = 0 ; i<= ((numberOfSamples/2)-1) ; i++)
         {
@@ -165,17 +172,24 @@ public :
         outputSig.resize(0);
         outputSig.reserve(numberOfSamples);
         outputSig.setFs(Fs);
-        outputSig.setNbOfSamples(numberOfSamples);
 
         // Filter - sample loop
         for (unsigned int n = 0; n < numberOfSamples; n++) outputSig.fillWithValue(fir_filt(signalSamples[n]));
     }
 
 
-    static void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
+    static void nlmsFilter(signalProcessing<T>& inputSignal, signalProcessing<T>& originalSignal, const int& filterOrder,
+                           const float& mu, signalProcessing<T>& outputSignalEstimation)
     {
+        const std::vector<T>& inputSig = inputSignal.getSignalSamples();
+        const std::vector<T>& originalSig = originalSignal.getSignalSamples();
         unsigned int N = inputSig.size();
-        ASSERT(N == originalSig.size(), "Failure when calling nlmsFilter:: Noise Sig and Input Sig do not have the same size");
+        ASSERT(N == originalSig.size(), "Failure when calling nlmsFilter:: Noise Signal and Input Signal do not have the same size");
+
+        outputSignalEstimation.resize(N);
+        outputSignalEstimation.setFs(inputSignal.getFs());
+        outputSignalEstimation.setNbOfSamples(inputSignal.getNbOfSamples());
+        std::vector<T>& outputEstimation = outputSignalEstimation.getSignalSamples();
 
         vector<T> nlmsOutput(N, 0.0);
         FIR_filt<double,double,double> Ghat;
@@ -197,9 +211,10 @@ public :
 
     //****************************************getters *********************************
     std::vector <T>& getSignalSamples() { return signalSamples; }
+    const double& getFs() { return Fs; }
+    const unsigned int& getNbOfSamples() { return numberOfSamples; }
 
     //***************************************setters ********************************
-
     void setFs(const double& Fech) { Fs = Fech; }
     void setNbOfSamples(const unsigned int& nbOfSamples) { numberOfSamples = nbOfSamples; }
 
@@ -239,7 +254,6 @@ void plotWithGNUPLOT(const string& nameSig, const unsigned int& type)
     {
         ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
     }
-
 }
 
 

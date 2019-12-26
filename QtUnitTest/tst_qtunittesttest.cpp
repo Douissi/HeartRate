@@ -128,9 +128,9 @@ void TestVideoProcessing::testVideoObjCreation()
     QVERIFY(videoProcessingObj.Fs == 30.0);
     QVERIFY(videoProcessingObj.numberOfFrames == 338);
     QVERIFY(videoProcessingObj.foreHeadSignal.Fs == 30.0);
-    QVERIFY(videoProcessingObj.foreHeadSignal.numberOfSamples == 338);
+    QVERIFY(videoProcessingObj.foreHeadSignal.numberOfSamples == 0);
     QVERIFY(videoProcessingObj.backgroundSignal.Fs == 30.0);
-    QVERIFY(videoProcessingObj.backgroundSignal.numberOfSamples == 338);
+    QVERIFY(videoProcessingObj.backgroundSignal.numberOfSamples == 0);
 }
 
 
@@ -221,7 +221,7 @@ void TestSignalProcessing::testSignalConstruct2()
 {
     signalProcessing<float> signal(50, 10.5);
     QVERIFY(signal.Fs == 10.5);
-    QVERIFY(signal.numberOfSamples == 50);
+    QVERIFY(signal.numberOfSamples == 0);
     QVERIFY(signal.signalSamples.size() == 0);
 }
 
@@ -279,7 +279,7 @@ void TestSignalProcessing::testFillWithVector()
 {
     signalProcessing<float> signal(500, 10.5);
     QVERIFY(signal.Fs == 10.5);
-    QVERIFY(signal.numberOfSamples == 500);
+    QVERIFY(signal.numberOfSamples == 0);
     QVERIFY(signal.signalSamples.size() == 0);
 
     std::vector<float> signalVector(500);
