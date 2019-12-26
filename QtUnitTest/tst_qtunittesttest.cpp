@@ -316,10 +316,11 @@ void TestSignalProcessing::testSaveSigToFile()
 
 void TestSignalProcessing::testFFTfunction()
 {
+    unsigned int size = 338;
     std::vector<float> signalInput;
-    signalInput.reserve(338);
+    signalInput.reserve(size);
     std::vector<float> FFTSignalExpectedOutput;
-    FFTSignalExpectedOutput.reserve(168);
+    FFTSignalExpectedOutput.reserve(size/2 -1);
 
     ut::loadSignalFromFile<float>("testSignalInput.txt", signalInput);
     ut::loadSignalFromFile<float>("TestFFTexpectedResult.txt", FFTSignalExpectedOutput);
@@ -327,11 +328,11 @@ void TestSignalProcessing::testFFTfunction()
     signalProcessing<float> signalProcessingObj(signalInput, signalInput.size(), 30.0);
     signalProcessing<float> FFTSignalOutput;
 
-    signalProcessingObj.signalFFT(FFTSignalOutput, SAVE_FFT, "TestFFTAcutalResult.txt");
+    signalProcessingObj.signalFFT(FFTSignalOutput, DO_NOT_SAVE_FFT);
 
     // Issue with precision in float coming from *FFT result
     //QVERIFY(std::equal(FFTSignalExpectedOutput.begin(), FFTSignalExpectedOutput.end(), FFTSignalOutput.begin()));
-    for(unsigned int i = 0; i < 168 ; i++)
+    for(unsigned int i = 0; i < size/2 -1 ; i++)
     {
         QVERIFY(std::fabs(FFTSignalOutput.getSignalSamples()[i] - FFTSignalExpectedOutput[i]) < 0.05);
     }
