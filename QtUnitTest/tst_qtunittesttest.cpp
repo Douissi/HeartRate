@@ -95,6 +95,7 @@ private Q_SLOTS:
     void testFillWithValue();
     void testFillWithVector();
     void testSaveSigToFile();
+    void testFFTfunction();
 };
 
 
@@ -313,6 +314,28 @@ void TestSignalProcessing::testSaveSigToFile()
 }
 
 
+void TestSignalProcessing::testFFTfunction()
+{
+    std::vector<float> signalInput; signalInput.reserve(338);
+    std::vector<float> FFTSignalOutput; FFTSignalOutput.reserve(168);
+    std::vector<float> FFTSignalExpectedOutput; FFTSignalExpectedOutput.reserve(168);
+
+    ut::loadSignalFromFile<float>("testSignalInput.txt", signalInput);
+    ut::loadSignalFromFile<float>("TestFFTexpectedResult.txt", FFTSignalExpectedOutput);
+
+    signalProcessing<float> signalProcessingObj(signalInput, signalInput.size(), 30.0);
+
+    signalProcessingObj.signalFFT("TestFFTAcutalResult.txt");
+    ut::loadSignalFromFile<float>("TestFFTAcutalResult.txt", FFTSignalOutput);
+
+    // Issue with precision in float coming from *FFT result
+    //QVERIFY(std::equal(FFTSignalExpectedOutput.begin(), FFTSignalExpectedOutput.end(), FFTSignalOutput.begin()));
+    for(unsigned int i = 0; i < 168 ; i++)
+    {
+        QVERIFY(std::fabs(FFTSignalOutput[i] - FFTSignalExpectedOutput[i]) < 0.05);
+    }
+}
+
 
 /********************************************** Main function, running unit tests ***************************/
 //QTEST_APPLESS_MAIN(TestVideoProcessing)
@@ -321,7 +344,7 @@ int main(int argc, char *argv[])
     TestVideoProcessing tc;
     TestSignalProcessing tc2;
     QTEST_SET_MAIN_SOURCE_PATH
-    int resTc1 = QTest::qExec(&tc, argc, argv);
+            int resTc1 = QTest::qExec(&tc, argc, argv);
     int resTc2 = QTest::qExec(&tc2, argc, argv);
     return resTc1 || resTc2;
 }
