@@ -69,8 +69,8 @@ int main(){
   signalProcessing<float>& foreHeadSignal = videoObj.getforeHeadSignal();
   signalProcessing<float>& backgroundSignal = videoObj.getbackgroundSignal();
   signalProcessing<float> ouputEstimationSignal(videoObj.getNumOfFrames(), Fs);
-  signalProcessing<float> filteredOutputEstimationSignal(videoObj.getNumOfFrames(), Fs);
-  signalProcessing<float> filtredSig(videoObj.getNumOfFrames(), Fs);
+  signalProcessing<float> filteredOutputEstimationSignal;
+  signalProcessing<float> filtredSig;
   signalProcessing<float> FFTOutput;
 
   backgroundSignal.saveSigToFile("backgroundSignal.txt");

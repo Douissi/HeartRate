@@ -89,6 +89,16 @@ public :
         for(const auto& v : inputVec) signalSamples.push_back(v);
     }
 
+    void reserve(const unsigned int &size)
+    {
+        signalSamples.reserve(size);
+    }
+
+    void resize(const unsigned int &size)
+    {
+        signalSamples.resize(size);
+    }
+
     void saveSigToFile(const string& inputFile)
     {
         fstream myfile;
@@ -103,17 +113,6 @@ public :
             ASSERT(false, "Could not open the file in saveSigToFile fct");
         }
     }
-
-    void reserve(const unsigned int &size)
-    {
-        signalSamples.reserve(size);
-    }
-
-    void resize(const unsigned int &size)
-    {
-        signalSamples.resize(size);
-    }
-
 
     void signalFFT(signalProcessing<T>& FFTOutput, const bool& save = DO_NOT_SAVE_FFT, const string& FFTFile = " ")
     {
@@ -163,6 +162,11 @@ public :
         b = fir1_bp(filterOrder, lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2)); // b is filter coeffs cout << b.t()
         fir_filt.set_coeffs(b);
 
+        outputSig.resize(0);
+        outputSig.reserve(numberOfSamples);
+        outputSig.setFs(Fs);
+        outputSig.setNbOfSamples(numberOfSamples);
+
         // Filter - sample loop
         for (unsigned int n = 0; n < numberOfSamples; n++) outputSig.fillWithValue(fir_filt(signalSamples[n]));
     }
@@ -170,12 +174,14 @@ public :
 
     static void nlmsFilter(const vector<T>& inputSig, const vector<T>& originalSig, const int& filterOrder, const float& mu, vector<T>& outputEstimation)
     {
-        int N = inputSig.size();
+        unsigned int N = inputSig.size();
+        ASSERT(N == originalSig.size(), "Failure when calling nlmsFilter:: Noise Sig and Input Sig do not have the same size");
+
         vector<T> nlmsOutput(N, 0.0);
         FIR_filt<double,double,double> Ghat;
         Ghat.setup_nlms(filterOrder, mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
         // Filter - sample loop
-        for(int n = 0 ; n < N ; n++)
+        for(unsigned int n = 0 ; n < N ; n++)
         {
             // Apply adaptiv filter
             nlmsOutput[n] = Ghat(inputSig[n]);
@@ -183,13 +189,19 @@ public :
             outputEstimation[n] = originalSig[n]-nlmsOutput[n];
             Ghat.nlms_adapt(outputEstimation[n]);
         }
+
         // Avoid first incorrect sample
         outputEstimation[0] = outputEstimation[1];
     }
 
+
     //****************************************getters *********************************
     std::vector <T>& getSignalSamples() { return signalSamples; }
 
+    //***************************************setters ********************************
+
+    void setFs(const double& Fech) { Fs = Fech; }
+    void setNbOfSamples(const unsigned int& nbOfSamples) { numberOfSamples = nbOfSamples; }
 
 private:
 
