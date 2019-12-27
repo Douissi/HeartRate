@@ -58,7 +58,7 @@ public :
     signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(0),
         Fs(Fech)
     {
-        ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect ");
+        ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect and not equal to size of input vector ");
         signalSamples.reserve(numOfSamples);
         fillWithVector(signalSamplesInput);
     }
@@ -116,7 +116,7 @@ public :
         }
         else
         {
-            ASSERT(false, "Could not open the file in saveSigToFile fct");
+            ASSERT(false, "Could not open the file : " + inputFile + " in saveSigToFile fct");
         }
     }
 
@@ -153,7 +153,7 @@ public :
             }
             else
             {
-                ASSERT(false, "Could not open the file in signalFFT fct");
+                ASSERT(false, "Could not open the file : " + FFTFile + " in signalFFT fct");
             }
         }
 
