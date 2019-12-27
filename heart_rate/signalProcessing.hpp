@@ -226,7 +226,6 @@ private:
 
 };
 
-
 void plotWithGNUPLOT(const string& nameSig, const unsigned int& type)
 {
     if(type == SIG)
@@ -234,9 +233,7 @@ void plotWithGNUPLOT(const string& nameSig, const unsigned int& type)
         string cmd = "gnuplot -e \""
                      "set xlabel 'Samples in frames' ;"
                      "set ylabel 'Amplitude of the signal' ;"
-                     "plot '";
-        cmd += nameSig;
-        cmd += "' using 1:2 with lines\" -p";
+                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
         system(cmd.c_str());
     }
     else if (type == FFT)
@@ -245,9 +242,7 @@ void plotWithGNUPLOT(const string& nameSig, const unsigned int& type)
                      "set xlabel 'Frequencies in Hz' ;"
                      "set ylabel 'Amplitude of the FFT' ;"
                      "set xrange [0:6] ;"
-                     "plot '";
-        cmd += nameSig;
-        cmd += "' using 1:2 with lines\" -p";
+                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
         system(cmd.c_str());
     }
     else

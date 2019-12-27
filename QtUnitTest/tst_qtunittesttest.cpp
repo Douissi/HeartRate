@@ -96,6 +96,7 @@ private Q_SLOTS:
     void testFillWithVector();
     void testSaveSigToFile();
     void testFFTfunction();
+    void testBandPassFilterFunction();
 };
 
 
@@ -337,6 +338,34 @@ void TestSignalProcessing::testFFTfunction()
         QVERIFY(std::fabs(FFTSignalOutput.getSignalSamples()[i] - FFTSignalExpectedOutput[i]) < 0.05);
     }
 }
+
+void TestSignalProcessing::testBandPassFilterFunction()
+{
+    float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
+    float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
+    int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
+
+    unsigned int size = 338;
+    std::vector<float> signalInput;
+    signalInput.reserve(size);
+    std::vector<float> signalOutPutExpected;
+    signalOutPutExpected.reserve(size);
+
+    ut::loadSignalFromFile<float>("testSignalInput.txt", signalInput);
+    ut::loadSignalFromFile<float>("testFiltredBandPassInputSignal.txt", signalOutPutExpected);
+
+    signalProcessing<float> signalProcessingObj(signalInput, signalInput.size(), 30.0);
+    signalProcessing<float> signalOutputFiltred;
+    signalProcessingObj.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, signalOutputFiltred);
+
+    for(unsigned int i = 0; i < size ; i++)
+    {
+        QVERIFY(std::fabs(signalOutputFiltred.getSignalSamples()[i] - signalOutPutExpected[i]) < 0.00001);
+    }
+}
+
+
+
 
 
 /********************************************** Main function, running unit tests ***************************/
