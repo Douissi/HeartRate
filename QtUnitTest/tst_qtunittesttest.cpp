@@ -97,6 +97,7 @@ private Q_SLOTS:
     void testSaveSigToFile();
     void testFFTfunction();
     void testBandPassFilterFunction();
+    void testNLMSfilter();
 };
 
 
@@ -364,7 +365,32 @@ void TestSignalProcessing::testBandPassFilterFunction()
     }
 }
 
+void TestSignalProcessing::testNLMSfilter()
+{
+    unsigned int size = 338;
+    std::vector<float> signalInput1;
+    signalInput1.reserve(size);
+    std::vector<float> signalInput2;
+    signalInput2.reserve(size);
+    std::vector<float> signalExpectedOutput;
+    signalExpectedOutput.reserve(size);
 
+    ut::loadSignalFromFile<float>("testInput1.txt", signalInput1);
+    ut::loadSignalFromFile<float>("testInput2.txt", signalInput2);
+    ut::loadSignalFromFile<float>("testExpectedNLMSoutput.txt", signalExpectedOutput);
+
+    signalProcessing<float> signalProcessingInput1(signalInput1, signalInput1.size(), 30.0);
+    signalProcessing<float> signalProcessingInput2(signalInput2, signalInput2.size(), 30.0);
+    signalProcessing<float> signalProcessingOutput;
+
+    signalProcessing<float>::nlmsFilter(signalProcessingInput1, signalProcessingInput2, 40, 0.5, signalProcessingOutput);
+
+    for(unsigned int i = 0; i < size ; i++)
+    {
+        QVERIFY(std::fabs(signalProcessingOutput.getSignalSamples()[i] - signalExpectedOutput[i]) < 0.001);
+    }
+
+}
 
 
 
