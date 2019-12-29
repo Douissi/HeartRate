@@ -18,10 +18,11 @@ class videoProcessing
 
 public :
     videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal() {}
+        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), width(0), height(0) {}
 
-    videoProcessing(const String& filename) : capture(filename), Fs (0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal()
+    videoProcessing(const String& filename) : capture(filename), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
+        backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(),
+        width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
     {
         // Check if camera opened successfully
         if(!capture.isOpened()){
@@ -67,7 +68,7 @@ public :
     void detectFacesFromGreenChannelInVideo()
     {
         /* first param was GreyColorImage */
-        faceCascade.detectMultiScale( channels[GREEN], faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
+        faceCascade.detectMultiScale(frame, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
     }
 
     void creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel()
@@ -138,6 +139,10 @@ private:
     cv::Mat background;
     signalProcessing<float> foreHeadSignal; // signal samples
     signalProcessing<float> backgroundSignal; // signal samples
+
+public:
+    const unsigned int width;
+    const unsigned int height;
 
 };
 

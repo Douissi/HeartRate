@@ -11,50 +11,51 @@ using namespace cv;
 int main(){
   // Create a VideoCapture object and open the input file
   // If the input is the web camera, pass 0 instead of the video file name
-  videoProcessing videoObj("73BPmin.mp4");
+  videoProcessing videoObj("face.mp4");
 
   videoObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
 
 
   /************************************************* Video Processing *************************************************/
-  while(1){
+  while(1)
+  {
+      videoObj.capturingFrames();
+      cv::Mat& frame = videoObj.getframe();
+      if (frame.empty()) break;
 
-   videoObj.capturingFrames();
-   cv::Mat& frame = videoObj.getframe();
-   if (frame.empty()) break;
+      videoObj.detectFacesFromGreenChannelInVideo();
+      const std::vector<Rect>& faces = videoObj.getFaces();
+      const Rect backgroundRect = Rect(faces[0].x + faces[0].width, faces[0].y + faces[0].height,
+              videoObj.width - (faces[0].x + faces[0].width), videoObj.height -(faces[0].y + faces[0].height));
 
-   videoObj.detectFacesFromGreenChannelInVideo();
-   const std::vector<Rect>& faces = videoObj.getFaces();
-   const Rect backgroundRect = Rect(5, 116 , 128, 200);
-   videoObj.setbackGroundRect(backgroundRect);
+      videoObj.setbackGroundRect(backgroundRect);
 
-   std::vector<Rect> foreHeads = faces;
+      std::vector<Rect> foreHeads = faces;
 
-   foreHeads[0].y += 20; // only for manualforeHead detection
-   foreHeads[0].height = foreHeads[0].height/3.7 - 20; // only for manualforeHead detection
-   foreHeads[0].x += 60; // only for manual foreHead detection
-   foreHeads[0].width -= 130; // only for manual foreHead detection
+      foreHeads[0].height = foreHeads[0].height/3.7; // only for manualforeHead detection
+      foreHeads[0].x = foreHeads[0].x + 50; // only for manual foreHead detection
+      foreHeads[0].width = foreHeads[0].width - 70; // only for manual foreHead detection
 
-   videoObj.setRectForeHeadsVector(foreHeads);
+      videoObj.setRectForeHeadsVector(foreHeads);
 
-   videoObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+      videoObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
 
-   videoObj.fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
-   videoObj.fillbackgroundSignal();
+      videoObj.fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
+      videoObj.fillbackgroundSignal();
 
 
-   // Display results in frames
-   videoProcessing::drawRectangle(frame, faces[0]);
-   videoProcessing::drawRectangle(frame, foreHeads[0]);
-   videoProcessing::drawRectangle(frame, backgroundRect);
-   imshow( "ROI 1 : forehead", videoObj.getforeHead()); // Matrix containing only ForeHead image (in Green Channel)
-   imshow( "BackGround ", videoObj.getbackground() ); // Matrix containing only background image (in Green Channel)
-   imshow( "Frame", frame );
+      // Display results in frames
+      videoProcessing::drawRectangle(frame, faces[0]);
+      videoProcessing::drawRectangle(frame, foreHeads[0]);
+      videoProcessing::drawRectangle(frame, backgroundRect);
+      imshow( "ROI 1 : forehead", videoObj.getforeHead()); // Matrix containing only ForeHead image (in Green Channel)
+      imshow( "BackGround ", videoObj.getbackground() ); // Matrix containing only background image (in Green Channel)
+      imshow( "Frame", frame );
 
-    // Press  ESC on keyboard to exit
-   char c=(char)waitKey(25);
-   if(c==27)
-     break;
+      // Press  ESC on keyboard to exit
+      char c=(char)waitKey(25);
+      if(c==27)
+          break;
   }
 
 

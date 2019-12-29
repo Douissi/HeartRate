@@ -109,12 +109,15 @@ private Q_SLOTS:
 void TestVideoProcessing::testVideoObjCreation()
 {
     videoProcessing videoObj;
+    QVERIFY(!videoObj.capture.isOpened());
     QVERIFY(videoObj.Fs == 0.0);
     QVERIFY(videoObj.numberOfFrames == 0);
     QVERIFY(videoObj.foreHeadSignal.Fs == 0.0);
     QVERIFY(videoObj.foreHeadSignal.numberOfSamples == 0);
     QVERIFY(videoObj.backgroundSignal.Fs == 0.0);
     QVERIFY(videoObj.backgroundSignal.numberOfSamples == 0);
+    QVERIFY(videoObj.width == 0);
+    QVERIFY(videoObj.height == 0);
 
     videoProcessing videoProcessingObj("73BPmin.mp4");
     QVERIFY(videoProcessingObj.capture.isOpened());
@@ -124,6 +127,8 @@ void TestVideoProcessing::testVideoObjCreation()
     QVERIFY(videoProcessingObj.foreHeadSignal.numberOfSamples == 0);
     QVERIFY(videoProcessingObj.backgroundSignal.Fs == 30.0);
     QVERIFY(videoProcessingObj.backgroundSignal.numberOfSamples == 0);
+    QVERIFY(videoProcessingObj.width == 640);
+    QVERIFY(videoProcessingObj.height == 480);
 }
 
 
