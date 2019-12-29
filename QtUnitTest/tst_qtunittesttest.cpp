@@ -59,12 +59,8 @@ class TestVideoProcessing : public QObject
     Q_OBJECT
 
 public:
-    TestVideoProcessing() : videoProcessingObj("73BPmin.mp4") {}
+    TestVideoProcessing(){}
     virtual ~TestVideoProcessing() {}
-
-private:
-
-    videoProcessing videoProcessingObj;
 
 private Q_SLOTS:
     void testVideoObjCreation();
@@ -102,19 +98,13 @@ private Q_SLOTS:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/********************************************* Testing methods *****************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**************************************** Test Video Processing class *************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
 
 void TestVideoProcessing::testVideoObjCreation()
 {
@@ -126,6 +116,7 @@ void TestVideoProcessing::testVideoObjCreation()
     QVERIFY(videoObj.backgroundSignal.Fs == 0.0);
     QVERIFY(videoObj.backgroundSignal.numberOfSamples == 0);
 
+    videoProcessing videoProcessingObj("73BPmin.mp4");
     QVERIFY(videoProcessingObj.capture.isOpened());
     QVERIFY(videoProcessingObj.Fs == 30.0);
     QVERIFY(videoProcessingObj.numberOfFrames == 338);
@@ -138,6 +129,7 @@ void TestVideoProcessing::testVideoObjCreation()
 
 void TestVideoProcessing::testFaceCascadeLoading()
 {
+    videoProcessing videoProcessingObj("73BPmin.mp4");
     QVERIFY(videoProcessingObj.faceCascade.empty());
     videoProcessingObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
     QVERIFY(!videoProcessingObj.faceCascade.empty());
@@ -146,6 +138,7 @@ void TestVideoProcessing::testFaceCascadeLoading()
 
 void TestVideoProcessing::testCapturingFrames()
 {
+    videoProcessing videoProcessingObj("73BPmin.mp4");
     QVERIFY(videoProcessingObj.capture.isOpened());
     QVERIFY(videoProcessingObj.frame.empty());
     QVERIFY(videoProcessingObj.channels[BLEUE].empty());
@@ -164,6 +157,10 @@ void TestVideoProcessing::testCapturingFrames()
 
 void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
 {
+    videoProcessing videoProcessingObj("73BPmin.mp4");
+    videoProcessingObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
+    videoProcessingObj.capturingFrames();
+
     // check cascadeClassifier is not empty and has been corrreclty loaded
     QVERIFY(!videoProcessingObj.faceCascade.empty());
 
@@ -176,10 +173,10 @@ void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
     // check vector containing faces does not contain any rect for any face
     QVERIFY(videoProcessingObj.faces.size() == 0);
 
-    //    videoProcessingObj.detectFacesFromGreenChannelInVideo();
+    videoProcessingObj.detectFacesFromGreenChannelInVideo();
 
     // check vector containing faces contains at least one face detected
-    //    QVERIFY(videoProcessingObj.faces.size() > 0);
+    QVERIFY(videoProcessingObj.faces.size() > 0);
 }
 
 
@@ -208,6 +205,20 @@ void TestVideoProcessing::testFaceForeHeadAndBackgroundMatrixCreation()
     //    QVERIFY(videoProcessingObj.background.elemSize() != 0);
     //    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
 }
+
+
+
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/******************************************** Test Signal Processing class ********************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+
+
 
 void TestSignalProcessing::testSignalConstruct()
 {
@@ -393,8 +404,14 @@ void TestSignalProcessing::testNLMSfilter()
 }
 
 
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/************************************** Main function, running unit tests *********************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+/**********************************************************************************************************/
 
-/********************************************** Main function, running unit tests ***************************/
 //QTEST_APPLESS_MAIN(TestVideoProcessing)
 int main(int argc, char *argv[])
 {
