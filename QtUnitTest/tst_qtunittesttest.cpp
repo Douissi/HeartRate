@@ -178,10 +178,10 @@ void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
     // check vector containing faces does not contain any rect for any face
     QVERIFY(videoProcessingObj.faces.size() == 0);
 
-    videoProcessingObj.detectFacesFromGreenChannelInVideo();
+//    videoProcessingObj.detectFacesFromGreenChannelInVideo();
 
-    // check vector containing faces contains at least one face detected
-    QVERIFY(videoProcessingObj.faces.size() > 0);
+//    // check vector containing faces contains at least one face detected
+//    QVERIFY(videoProcessingObj.faces.size() > 0);
 }
 
 
