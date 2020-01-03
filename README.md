@@ -1,5 +1,8 @@
 # HeartRate
 
+Needs sigpack library to be installed : http://sigpack.sourceforge.net/md_1-install.html
+please follow the link to install also armadillo + fftw, and also opencv library needs to be installed as well. Check .pro file to see missing libraries.
+
 Test on YousFace.mp4
 //  Rect backgroundRect(130, 50 , 500, 250);
 //  faces[0].x += 100; // only for manual foreHead detection
