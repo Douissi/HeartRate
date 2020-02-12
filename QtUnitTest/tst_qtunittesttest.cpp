@@ -1,8 +1,6 @@
 #include <QString>
 #include <QtTest>
 #include "videoProcessing.hpp"
-#include "signalProcessing.hpp"
-#include <numeric>
 
 namespace  ut {
 
@@ -178,37 +176,42 @@ void TestVideoProcessing::testDetectFacesFromGreenChannelInVideo()
     // check vector containing faces does not contain any rect for any face
     QVERIFY(videoProcessingObj.faces.size() == 0);
 
-//    videoProcessingObj.detectFacesFromGreenChannelInVideo();
+    videoProcessingObj.detectFacesFromGreenChannelInVideo(); // this is generating Valgrind issue in Jenkins !!!!
 
-//    // check vector containing faces contains at least one face detected
-//    QVERIFY(videoProcessingObj.faces.size() > 0);
+    // check vector containing faces contains at least one face detected
+    QVERIFY(videoProcessingObj.faces.size() > 0);
 }
 
 
 void TestVideoProcessing::testFaceForeHeadAndBackgroundMatrixCreation()
 {
-    // Check CV::Mat Faces / foreHead / background are empty
-    //    QVERIFY(videoProcessingObj.face.elemSize() == 0);
-    //    QVERIFY(videoProcessingObj.background.elemSize() == 0);
-    //    QVERIFY(videoProcessingObj.foreHead.elemSize() == 0);
+    videoProcessing videoProcessingObj("73BPmin.mp4");
+    videoProcessingObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
+    videoProcessingObj.capturingFrames();
+    videoProcessingObj.detectFacesFromGreenChannelInVideo();
 
-    //    // Check channel green is not empty
-    //    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
+    //    Check CV::Mat Faces / foreHead / background are empty
+    QVERIFY(videoProcessingObj.face.elemSize() == 0);
+    QVERIFY(videoProcessingObj.background.elemSize() == 0);
+    QVERIFY(videoProcessingObj.foreHead.elemSize() == 0);
 
-    //    // Load rectangles for background and foreHeads
-    //    videoProcessingObj.backgroundRect = Rect(5, 116 , 128, 200);
-    //    videoProcessingObj.foreHeads.push_back(Rect(5, 116 , 128, 200));
-    //    /******* Face has been set in previous test ******/
+    // Check channel green is not empty
+    QVERIFY(!videoProcessingObj.channels[GREEN].empty());
 
-    //    QVERIFY(videoProcessingObj.faces.size() > 0);
-    //    QVERIFY(videoProcessingObj.foreHeads.size() > 0);
+    // Load rectangles for background and foreHeads
+    videoProcessingObj.backgroundRect = Rect(5, 116 , 128, 200);
+    videoProcessingObj.foreHeads.push_back(Rect(5, 116 , 128, 200));
+    /******* Face has been set in previous test ******/
 
-    //    videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+    QVERIFY(videoProcessingObj.faces.size() > 0);
+    QVERIFY(videoProcessingObj.foreHeads.size() > 0);
 
-    //    // Check CV::Mat Faces / foreHead / background are not empty any more
-    //    QVERIFY(videoProcessingObj.face.elemSize() != 0);
-    //    QVERIFY(videoProcessingObj.background.elemSize() != 0);
-    //    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
+    videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+
+    // Check CV::Mat Faces / foreHead / background are not empty any more
+    QVERIFY(videoProcessingObj.face.elemSize() != 0);
+    QVERIFY(videoProcessingObj.background.elemSize() != 0);
+    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
 }
 
 

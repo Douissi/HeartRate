@@ -1,15 +1,16 @@
 #ifndef SIGNALPROCESSING_HPP
 #define SIGNALPROCESSING_HPP
 
+#include <opencv2/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+
 #include <vector>
 #include <iostream>
 #include <cmath>
 #include <fstream>
 #include <time.h>
-#include <opencv2/highgui.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
 #include <armadillo>
 #include <sigpack.h>
 #include "fftw3.h"

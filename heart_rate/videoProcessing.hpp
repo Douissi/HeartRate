@@ -1,11 +1,6 @@
 #ifndef VIDEOPROCESSING_HPP
 #define VIDEOPROCESSING_HPP
 
-#include <opencv2/highgui.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
-#include <iostream>
 #include <signalProcessing.hpp>
 
 using namespace cv;
