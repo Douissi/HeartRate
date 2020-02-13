@@ -4,22 +4,9 @@
 #
 #-------------------------------------------------
 
-
-#INCLUDEPATH += /root/fftw/fftw-3.3.8
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/core
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/highgui
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/imgproc
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/flann
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/photo
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/video
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/features2d
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/objdetect
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/calib3d
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/ml
-#INCLUDEPATH += /usr/local/include/opencv4/opencv2/contrib
-
 QT       += core gui
+
+CONFIG += c++14
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

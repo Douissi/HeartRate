@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = -DSRCDIR=\"/root/Projet_heart_rate/HeartRate/QtUnitTest/\" -DQT_NO_DEBUG -DQT_TESTLIB_LIB -DQT_CORE_LIB -DQT_TESTCASE_BUILDDIR='"/root/Projet_heart_rate/HeartRate/build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Release"'
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -O2 -std=gnu++11 -Wall -W -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -O2 -std=gnu++1y -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 INCPATH       = -I../QtUnitTest -I. -I../QtUnitTest -isystem /usr/local/include -isystem /usr/local/include/opencv4 -isystem /usr/local/include/sigpack-1.2.6/sigpack -I../heart_rate -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtTest -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++
 QMAKE         = /opt/Qt/5.7/gcc_64/bin/qmake
 DEL_FILE      = rm -f
