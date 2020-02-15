@@ -15,20 +15,26 @@
 #include <sigpack.h>
 #include "fftw3.h"
 
-#define BLEUE 0
-#define GREEN 1
-#define RED 2
-
-#define SIG 1
-#define FFT 2
-
-#define SAVE_FFT 1
-#define DO_NOT_SAVE_FFT 0
-
 using namespace cv;
 using namespace std;
 using namespace arma;
 using namespace sp;
+
+constexpr float lowFreqCutOff = 0.5f; // in Hz, corresponding to 30Bp/min
+constexpr float highFreqCutOff = 4.5f; // in Hz, corresponding to 270 Bp/min
+constexpr int filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
+constexpr float mu = 0.5f;
+
+constexpr unsigned char BLEUE = 0;
+constexpr unsigned char GREEN = 1;
+constexpr unsigned char RED = 2;
+
+constexpr unsigned char SIG = 1;
+constexpr unsigned char FFT = 2;
+
+constexpr bool SAVE_FFT = 1;
+constexpr bool DO_NOT_SAVE_FFT = 0;
+
 
 void ASSERT(bool condition,const std::string& str)
 {
@@ -38,6 +44,33 @@ void ASSERT(bool condition,const std::string& str)
         abort();
     }
 }
+
+
+void plotWithGNUPLOT(const string& nameSig, const unsigned char& type)
+{
+    if(type == SIG)
+    {
+        string cmd = "gnuplot -e \""
+                     "set xlabel 'Samples in frames' ;"
+                     "set ylabel 'Amplitude of the signal' ;"
+                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
+        system(cmd.c_str());
+    }
+    else if (type == FFT)
+    {
+        string cmd = "gnuplot -e \""
+                     "set xlabel 'Frequencies in Hz' ;"
+                     "set ylabel 'Amplitude of the FFT' ;"
+                     "set xrange [0:6] ;"
+                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
+        system(cmd.c_str());
+    }
+    else
+    {
+        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
+    }
+}
+
 
 
 class TestVideoProcessing;
@@ -226,32 +259,6 @@ private:
     double Fs;
 
 };
-
-void plotWithGNUPLOT(const string& nameSig, const unsigned int& type)
-{
-    if(type == SIG)
-    {
-        string cmd = "gnuplot -e \""
-                     "set xlabel 'Samples in frames' ;"
-                     "set ylabel 'Amplitude of the signal' ;"
-                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
-        system(cmd.c_str());
-    }
-    else if (type == FFT)
-    {
-        string cmd = "gnuplot -e \""
-                     "set xlabel 'Frequencies in Hz' ;"
-                     "set ylabel 'Amplitude of the FFT' ;"
-                     "set xrange [0:6] ;"
-                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
-        system(cmd.c_str());
-    }
-    else
-    {
-        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
-    }
-}
-
 
 
 

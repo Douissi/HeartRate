@@ -100,6 +100,15 @@ public :
         backgroundSignal.fillWithValue(meanFrameValue(background));
     }
 
+    void displayFrame()
+    {
+        drawRectangle(frame, faces[0]);
+        drawRectangle(frame, foreHeads[0]);
+        drawRectangle(frame, backgroundRect);
+        imshow( "Frame", frame );
+    }
+
+    bool isFrameEmpty() { return frame.empty(); }
 
 
     /************************************** Setters *********************************/

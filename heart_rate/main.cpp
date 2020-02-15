@@ -20,8 +20,7 @@ int main(){
   while(1)
   {
       videoObj.capturingFrames();
-      cv::Mat& frame = videoObj.getframe();
-      if (frame.empty()) break;
+      if(videoObj.isFrameEmpty()) break;
 
       videoObj.detectFacesFromGreenChannelInVideo();
       const std::vector<Rect>& faces = videoObj.getFaces();
@@ -45,12 +44,7 @@ int main(){
 
 
       // Display results in frames
-      videoProcessing::drawRectangle(frame, faces[0]);
-      videoProcessing::drawRectangle(frame, foreHeads[0]);
-      videoProcessing::drawRectangle(frame, backgroundRect);
-      imshow( "ROI 1 : forehead", videoObj.getforeHead()); // Matrix containing only ForeHead image (in Green Channel)
-      imshow( "BackGround ", videoObj.getbackground() ); // Matrix containing only background image (in Green Channel)
-      imshow( "Frame", frame );
+      videoObj.displayFrame();
 
       // Press  ESC on keyboard to exit
       char c=(char)waitKey(25);
@@ -60,10 +54,6 @@ int main(){
 
 
   /******************************************** Signal Processing *************************************************/
-
-  float lowFreqCutOff = 0.5; // in Hz, corresponding to 30Bp/min
-  float highFreqCutOff = 4.5; // in Hz, corresponding to 270 Bp/min
-  int   filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
 
   signalProcessing<float>& foreHeadSignal = videoObj.getforeHeadSignal();
   signalProcessing<float>& backgroundSignal = videoObj.getbackgroundSignal();
@@ -78,7 +68,7 @@ int main(){
   cout << "************************** Signal Processing *************************" << endl;
 
   // Illumination Rectification
-  signalProcessing<float>::nlmsFilter(backgroundSignal, foreHeadSignal, filterOrder, 0.5, ouputEstimationSignal);
+  signalProcessing<float>::nlmsFilter(backgroundSignal, foreHeadSignal, filterOrder, mu, ouputEstimationSignal);
 
   ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
   filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");
