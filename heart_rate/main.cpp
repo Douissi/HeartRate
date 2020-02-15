@@ -69,11 +69,9 @@ int main(){
 
   // Illumination Rectification
   signalProcessing<float>::nlmsFilter(backgroundSignal, foreHeadSignal, filterOrder, mu, ouputEstimationSignal);
-
   ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
   filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");
   filteredOutputEstimationSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTnlmsOutputEstimation.txt");
-
 
    // remove mean value "offset" of the signal
   foreHeadSignal.removeMeanValue();
@@ -86,6 +84,7 @@ int main(){
   foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
   filtredSig.saveSigToFile("filteredForeHeadBandPass.txt");
   filtredSig.signalFFT(FFTOutput, SAVE_FFT, "FFTfiltredForeHead.txt");
+
 
   // ************************************ plotting the signals **********************
 

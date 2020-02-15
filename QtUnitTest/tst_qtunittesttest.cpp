@@ -357,6 +357,9 @@ void TestSignalProcessing::testFFTfunction()
     {
         QVERIFY(std::fabs(FFTSignalOutput.getSignalSamples()[i] - FFTSignalExpectedOutput[i]) < 0.05);
     }
+
+    FFTSignalOutput.resize(350);
+    QVERIFY(FFTSignalOutput.numberOfSamples == 350);
 }
 
 void TestSignalProcessing::testBandPassFilterFunction()

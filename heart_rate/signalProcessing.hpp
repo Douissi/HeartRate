@@ -137,6 +137,7 @@ public :
     void resize(const unsigned int &size)
     {
         signalSamples.resize(size);
+        numberOfSamples = size;
     }
 
     void saveSigToFile(const string& inputFile)
@@ -242,6 +243,11 @@ public :
         outputEstimation[0] = outputEstimation[1];
     }
 
+    float getFrequencyOfMaxFFT()
+    {
+       return static_cast<float>(distance(signalSamples.begin(), max_element(signalSamples.begin(), signalSamples.end()))) * Fs/
+               (2.0f * static_cast<float>(numberOfSamples));
+    }
 
     //****************************************getters *********************************
     std::vector <T>& getSignalSamples() { return signalSamples; }
