@@ -1,6 +1,9 @@
 #ifndef SIGNALPROCESSING_HPP
 #define SIGNALPROCESSING_HPP
 
+#include <QObject>
+#include <QImage>
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>

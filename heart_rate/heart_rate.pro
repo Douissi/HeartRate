@@ -23,13 +23,16 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 #LIBS += -L/root/fftw/fftw-3.3.8/.libs -lfftw3 -lm
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    qcvwidget.cpp
 
 HEADERS  += mainwindow.h \
     videoProcessing.hpp \
-    signalProcessing.hpp
+    signalProcessing.hpp \
+    qcvwidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    qcvwidget.ui
 
 
 DISTFILES += \

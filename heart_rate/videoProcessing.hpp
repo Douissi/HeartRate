@@ -7,6 +7,13 @@ using namespace cv;
 using namespace std;
 
 
+//***************************************************************************************************//
+//***************************************************************************************************//
+//***************************************************************************************************//
+//**************************************** videoProcessing Class ************************************//
+//***************************************************************************************************//
+//***************************************************************************************************//
+//***************************************************************************************************//
 class videoProcessing
 {
     friend class TestVideoProcessing;
@@ -118,7 +125,7 @@ public :
 
     /************************************** Getters ********************************/
     const std::vector<Rect>& getFaces() const { return faces; }
-    cv::Mat& getframe() { return frame; }
+    const cv::Mat& getframe() const { return frame; }
     const Rect& getbackgroundRect() const { return backgroundRect; }
     const cv::Mat& getforeHead() const { return foreHead; }
     const cv::Mat& getbackground() const { return background; }
@@ -149,6 +156,101 @@ public:
     const unsigned int height;
 
 };
+
+
+
+//********************************************************************************************************//
+//********************************************************************************************************//
+//********************************************************************************************************//
+//********************************************************************************************************//
+//************************************* Interface for GUI with QT ****************************************//
+//********************************************************************************************************//
+//********************************************************************************************************//
+//********************************************************************************************************//
+//********************************************************************************************************//
+
+
+// Interface for GUI with QT
+class IvideoProcessing : public QObject
+{
+    Q_OBJECT
+
+
+private :
+
+    videoProcessing* videoObj;
+    bool toggleStream;
+
+public :
+
+    explicit IvideoProcessing(QObject *parent = 0) : QObject(parent), toggleStream(false)
+    {
+        videoObj = new videoProcessing("face.mp4");
+        videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
+    }
+
+    ~IvideoProcessing()
+    {
+        delete videoObj;
+    }
+
+
+signals:
+
+    void sendFrame(QImage frameProcessed);
+
+public slots:
+
+    void receiveGrabFrame()
+    {
+        if(!toggleStream) return;
+        videoObj->capturingFrames();
+        if(videoObj->isFrameEmpty()) return;
+
+        processVideoStream();
+
+        // check colors ??
+        QImage output((const unsigned char *)videoObj->getframe().data, videoObj->getframe().cols, videoObj->getframe().rows, QImage::Format_Indexed8);
+
+        emit sendFrame(output);
+    }
+
+    void receiveToggleStream()
+    {
+        toggleStream = !toggleStream;
+    }
+
+private :
+
+    void processVideoStream()
+    {
+        videoObj->detectFacesFromGreenChannelInVideo();
+        const std::vector<Rect>& faces = videoObj->getFaces();
+
+        // Background detection deduced from face detection
+        const Rect backgroundRect = Rect(faces[0].x + faces[0].width, faces[0].y + faces[0].height,
+                videoObj->width - (faces[0].x + faces[0].width), videoObj->height -(faces[0].y + faces[0].height));
+
+        videoObj->setbackGroundRect(backgroundRect);
+
+        std::vector<Rect> foreHeads = faces;
+
+        foreHeads[0].height = foreHeads[0].height/3.7; // only for manualforeHead detection
+        foreHeads[0].x = foreHeads[0].x + 50; // only for manual foreHead detection
+        foreHeads[0].width = foreHeads[0].width - 70; // only for manual foreHead detection
+
+        videoObj->setRectForeHeadsVector(foreHeads);
+
+        videoObj->creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+
+        videoObj->fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
+        videoObj->fillbackgroundSignal();// construction of the background Signal with mean of green Channel each frame
+    }
+
+};
+
+
+
 
 
 #endif // VIDEOPROCESSING_HPP
