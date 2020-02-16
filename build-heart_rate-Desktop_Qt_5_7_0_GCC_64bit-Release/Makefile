@@ -51,11 +51,13 @@ OBJECTS_DIR   = ./
 SOURCES       = ../heart_rate/main.cpp \
 		../heart_rate/mainwindow.cpp \
 		../heart_rate/qcvwidget.cpp moc_mainwindow.cpp \
+		moc_videoProcessing.cpp \
 		moc_qcvwidget.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		qcvwidget.o \
 		moc_mainwindow.o \
+		moc_videoProcessing.o \
 		moc_qcvwidget.o
 DIST          = ../README.md \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/spec_pre.prf \
@@ -570,9 +572,9 @@ benchmark: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_qcvwidget.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_videoProcessing.cpp moc_qcvwidget.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_qcvwidget.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_videoProcessing.cpp moc_qcvwidget.cpp
 moc_mainwindow.cpp: /opt/Qt/5.7/gcc_64/include/QtWidgets/QMainWindow \
 		/opt/Qt/5.7/gcc_64/include/QtWidgets/qmainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtWidgets/qwidget.h \
@@ -677,6 +679,81 @@ moc_mainwindow.cpp: /opt/Qt/5.7/gcc_64/include/QtWidgets/QMainWindow \
 		/opt/Qt/5.7/gcc_64/bin/moc
 	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/heart_rate -I/root/Projet_heart_rate/HeartRate/heart_rate -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../heart_rate/mainwindow.h -o moc_mainwindow.cpp
 
+moc_videoProcessing.cpp: /opt/Qt/5.7/gcc_64/include/QtCore/QObject \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qnamespace.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qglobal.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qconfig.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qfeatures.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qsystemdetection.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qprocessordetection.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qcompilerdetection.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qtypeinfo.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qtypetraits.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qisenum.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qsysinfo.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qlogging.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qflags.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qatomic.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qbasicatomic.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qgenericatomic.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qatomic_msvc.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qglobalstatic.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qmutex.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qnumeric.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qversiontagging.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qstring.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qchar.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qbytearray.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qarraydata.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qstringbuilder.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qlist.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qalgorithms.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qiterator.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qhashfunctions.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qpair.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qbytearraylist.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qstringlist.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qregexp.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qstringmatcher.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qcoreevent.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qscopedpointer.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qmetatype.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qvarlengtharray.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qcontainerfwd.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobject_impl.h \
+		../heart_rate/signalProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/include/QtGui/QImage \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qimage.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qcolor.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qrgb.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qrgba64.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qpaintdevice.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs_win.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qrect.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qmargins.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qsize.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qpoint.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qpixelformat.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qtransform.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qmatrix.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qpolygon.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qvector.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qregion.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qdatastream.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qiodevice.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qline.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qpainterpath.h \
+		../heart_rate/videoProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/bin/moc
+	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/heart_rate -I/root/Projet_heart_rate/HeartRate/heart_rate -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../heart_rate/videoProcessing.hpp -o moc_videoProcessing.cpp
+
 moc_qcvwidget.cpp: /opt/Qt/5.7/gcc_64/include/QtWidgets/QWidget \
 		/opt/Qt/5.7/gcc_64/include/QtWidgets/qwidget.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs.h \
@@ -774,6 +851,8 @@ moc_qcvwidget.cpp: /opt/Qt/5.7/gcc_64/include/QtWidgets/QWidget \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qfiledevice.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qvector2d.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qtouchdevice.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/QThread \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qthread.h \
 		../heart_rate/qcvwidget.h \
 		/opt/Qt/5.7/gcc_64/bin/moc
 	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/heart_rate -I/root/Projet_heart_rate/HeartRate/heart_rate -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../heart_rate/qcvwidget.h -o moc_qcvwidget.cpp
@@ -801,11 +880,9 @@ compiler_clean: compiler_moc_header_clean compiler_uic_clean
 
 ####### Compile
 
-main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/QMainWindow \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/qmainwindow.h \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/qwidget.h \
-		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs.h \
+main.o: ../heart_rate/main.cpp /opt/Qt/5.7/gcc_64/include/QtWidgets/QApplication \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qapplication.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qcoreapplication.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qglobal.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qconfig.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qfeatures.h \
@@ -828,17 +905,16 @@ main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qmutex.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qnumeric.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qversiontagging.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qnamespace.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs_win.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qobject.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qstring.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qchar.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qbytearray.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qrefcount.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qnamespace.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qarraydata.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qstringbuilder.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobject.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs_impl.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qlist.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qalgorithms.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qiterator.h \
@@ -854,11 +930,17 @@ main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qvarlengtharray.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qcontainerfwd.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qobject_impl.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qeventloop.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qwindowdefs_win.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qpoint.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qsize.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qcursor.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qwidget.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qmargins.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qpaintdevice.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qrect.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qsize.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qpoint.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qpalette.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qcolor.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qrgb.h \
@@ -884,7 +966,6 @@ main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qfontmetrics.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qfontinfo.h \
 		/opt/Qt/5.7/gcc_64/include/QtWidgets/qsizepolicy.h \
-		/opt/Qt/5.7/gcc_64/include/QtGui/qcursor.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qkeysequence.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qevent.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qvariant.h \
@@ -900,17 +981,16 @@ main.o: ../heart_rate/main.cpp ../heart_rate/mainwindow.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qfiledevice.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qvector2d.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qtouchdevice.h \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/qtabwidget.h \
-		/opt/Qt/5.7/gcc_64/include/QtGui/qicon.h \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/QApplication \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/qapplication.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qcoreapplication.h \
-		/opt/Qt/5.7/gcc_64/include/QtCore/qeventloop.h \
-		/opt/Qt/5.7/gcc_64/include/QtWidgets/qdesktopwidget.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qguiapplication.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qinputmethod.h \
 		../heart_rate/videoProcessing.hpp \
-		../heart_rate/signalProcessing.hpp
+		/opt/Qt/5.7/gcc_64/include/QtCore/QObject \
+		../heart_rate/signalProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/include/QtGui/QImage \
+		../heart_rate/qcvwidget.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QWidget \
+		/opt/Qt/5.7/gcc_64/include/QtCore/QThread \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qthread.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../heart_rate/main.cpp
 
 mainwindow.o: ../heart_rate/mainwindow.cpp ../heart_rate/mainwindow.h \
@@ -1153,11 +1233,57 @@ qcvwidget.o: ../heart_rate/qcvwidget.cpp ../heart_rate/qcvwidget.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qfiledevice.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qvector2d.h \
 		/opt/Qt/5.7/gcc_64/include/QtGui/qtouchdevice.h \
-		ui_qcvwidget.h
+		/opt/Qt/5.7/gcc_64/include/QtCore/QThread \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qthread.h \
+		ui_qcvwidget.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/QVariant \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QAction \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qaction.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qicon.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qactiongroup.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QApplication \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qapplication.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qcoreapplication.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qeventloop.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qdesktopwidget.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qguiapplication.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qinputmethod.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QButtonGroup \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qbuttongroup.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QHeaderView \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qheaderview.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qabstractitemview.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qabstractscrollarea.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qframe.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qabstractitemmodel.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qitemselectionmodel.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qabstractitemdelegate.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qstyleoption.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qabstractspinbox.h \
+		/opt/Qt/5.7/gcc_64/include/QtGui/qvalidator.h \
+		/opt/Qt/5.7/gcc_64/include/QtCore/qregularexpression.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qslider.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qabstractslider.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qstyle.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qtabbar.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qtabwidget.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qrubberband.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QLabel \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qlabel.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/QPushButton \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qpushbutton.h \
+		/opt/Qt/5.7/gcc_64/include/QtWidgets/qabstractbutton.h \
+		../heart_rate/videoProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/include/QtCore/QObject \
+		../heart_rate/signalProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/include/QtGui/QImage
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qcvwidget.o ../heart_rate/qcvwidget.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
+
+moc_videoProcessing.o: moc_videoProcessing.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_videoProcessing.o moc_videoProcessing.cpp
 
 moc_qcvwidget.o: moc_qcvwidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_qcvwidget.o moc_qcvwidget.cpp

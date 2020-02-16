@@ -45,7 +45,7 @@ void loadSignalFromFile(const string& myFileString, vector<T>& signalVector)
     }
     else
     {
-        ASSERT(false, "Enable to open in reading mode the file testSaveSigToFile.txt");
+        functions::ASSERT(false, "Enable to open in reading mode the file testSaveSigToFile.txt");
     }
 }
 

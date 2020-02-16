@@ -12,10 +12,10 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DSRCDIR=\"/root/Projet_heart_rate/HeartRate/QtUnitTest/\" -DQT_QML_DEBUG -DQT_TESTLIB_LIB -DQT_CORE_LIB -DQT_TESTCASE_BUILDDIR='"/root/Projet_heart_rate/HeartRate/build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Debug"'
+DEFINES       = -DSRCDIR=\"/root/Projet_heart_rate/HeartRate/QtUnitTest/\" -DQT_QML_DEBUG -DQT_GUI_LIB -DQT_TESTLIB_LIB -DQT_CORE_LIB -DQT_TESTCASE_BUILDDIR='"/root/Projet_heart_rate/HeartRate/build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Debug"'
 CFLAGS        = -pipe -g -Wall -W -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++1y -Wall -W -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I../QtUnitTest -I. -I../QtUnitTest -isystem /usr/local/include -isystem /usr/local/include/opencv4 -isystem /usr/local/include/sigpack-1.2.6/sigpack -I../heart_rate -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtTest -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++
+INCPATH       = -I../QtUnitTest -I. -I../QtUnitTest -isystem /usr/local/include -isystem /usr/local/include/opencv4 -isystem /usr/local/include/sigpack-1.2.6/sigpack -I../heart_rate -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtTest -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++
 QMAKE         = /opt/Qt/5.7/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -36,7 +36,7 @@ DISTNAME      = tst_qtunittesttest1.0.0
 DISTDIR = /root/Projet_heart_rate/HeartRate/build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Debug/.tmp/tst_qtunittesttest1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/opt/Qt/5.7/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_objdetect -lfftw3 -lm -larmadillo -L/opt/Qt/5.7/gcc_64/lib -lQt5Test -lQt5Core -lpthread 
+LIBS          = $(SUBLIBS) -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_videoio -lopencv_imgproc -lopencv_objdetect -lfftw3 -lm -larmadillo -L/opt/Qt/5.7/gcc_64/lib -lQt5Gui -L/usr/lib64 -lQt5Test -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -192,6 +192,7 @@ DIST          = /opt/Qt/5.7/gcc_64/mkspecs/features/spec_pre.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/resources.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/moc.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/testlib_defines.prf \
+		/opt/Qt/5.7/gcc_64/mkspecs/features/unix/opengl.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/unix/thread.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/file_copies.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/testcase_targets.prf \
@@ -352,6 +353,7 @@ Makefile: ../QtUnitTest/QtUnitTest.pro /opt/Qt/5.7/gcc_64/mkspecs/linux-g++/qmak
 		/opt/Qt/5.7/gcc_64/mkspecs/features/resources.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/moc.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/testlib_defines.prf \
+		/opt/Qt/5.7/gcc_64/mkspecs/features/unix/opengl.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/unix/thread.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/file_copies.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/testcase_targets.prf \
@@ -359,6 +361,7 @@ Makefile: ../QtUnitTest/QtUnitTest.pro /opt/Qt/5.7/gcc_64/mkspecs/linux-g++/qmak
 		/opt/Qt/5.7/gcc_64/mkspecs/features/yacc.prf \
 		/opt/Qt/5.7/gcc_64/mkspecs/features/lex.prf \
 		../QtUnitTest/QtUnitTest.pro \
+		/opt/Qt/5.7/gcc_64/lib/libQt5Gui.prl \
 		/opt/Qt/5.7/gcc_64/lib/libQt5Test.prl \
 		/opt/Qt/5.7/gcc_64/lib/libQt5Core.prl
 	$(QMAKE) -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug -o Makefile ../QtUnitTest/QtUnitTest.pro
@@ -504,6 +507,7 @@ Makefile: ../QtUnitTest/QtUnitTest.pro /opt/Qt/5.7/gcc_64/mkspecs/linux-g++/qmak
 /opt/Qt/5.7/gcc_64/mkspecs/features/resources.prf:
 /opt/Qt/5.7/gcc_64/mkspecs/features/moc.prf:
 /opt/Qt/5.7/gcc_64/mkspecs/features/testlib_defines.prf:
+/opt/Qt/5.7/gcc_64/mkspecs/features/unix/opengl.prf:
 /opt/Qt/5.7/gcc_64/mkspecs/features/unix/thread.prf:
 /opt/Qt/5.7/gcc_64/mkspecs/features/file_copies.prf:
 /opt/Qt/5.7/gcc_64/mkspecs/features/testcase_targets.prf:
@@ -511,6 +515,7 @@ Makefile: ../QtUnitTest/QtUnitTest.pro /opt/Qt/5.7/gcc_64/mkspecs/linux-g++/qmak
 /opt/Qt/5.7/gcc_64/mkspecs/features/yacc.prf:
 /opt/Qt/5.7/gcc_64/mkspecs/features/lex.prf:
 ../QtUnitTest/QtUnitTest.pro:
+/opt/Qt/5.7/gcc_64/lib/libQt5Gui.prl:
 /opt/Qt/5.7/gcc_64/lib/libQt5Test.prl:
 /opt/Qt/5.7/gcc_64/lib/libQt5Core.prl:
 qmake: FORCE
@@ -805,9 +810,10 @@ tst_qtunittesttest.moc: /opt/Qt/5.7/gcc_64/include/QtCore/QString \
 		/opt/Qt/5.7/gcc_64/include/QtTest/qttestversion.h \
 		../heart_rate/videoProcessing.hpp \
 		../heart_rate/signalProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/include/QtGui/QImage \
 		../QtUnitTest/tst_qtunittesttest.cpp \
 		/opt/Qt/5.7/gcc_64/bin/moc
-	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/QtUnitTest -I/root/Projet_heart_rate/HeartRate/QtUnitTest -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/root/Projet_heart_rate/HeartRate/heart_rate -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtTest -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../QtUnitTest/tst_qtunittesttest.cpp -o tst_qtunittesttest.moc
+	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/QtUnitTest -I/root/Projet_heart_rate/HeartRate/QtUnitTest -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/root/Projet_heart_rate/HeartRate/heart_rate -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtTest -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../QtUnitTest/tst_qtunittesttest.cpp -o tst_qtunittesttest.moc
 
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
@@ -1066,6 +1072,7 @@ tst_qtunittesttest.o: ../QtUnitTest/tst_qtunittesttest.cpp /opt/Qt/5.7/gcc_64/in
 		/opt/Qt/5.7/gcc_64/include/QtTest/qttestversion.h \
 		../heart_rate/videoProcessing.hpp \
 		../heart_rate/signalProcessing.hpp \
+		/opt/Qt/5.7/gcc_64/include/QtGui/QImage \
 		tst_qtunittesttest.moc
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tst_qtunittesttest.o ../QtUnitTest/tst_qtunittesttest.cpp
 

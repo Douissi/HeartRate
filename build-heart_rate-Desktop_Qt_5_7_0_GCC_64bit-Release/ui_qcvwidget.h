@@ -14,6 +14,8 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -21,12 +23,21 @@ QT_BEGIN_NAMESPACE
 class Ui_QcvWidget
 {
 public:
+    QLabel *labelView;
+    QPushButton *pushButtonPlay;
 
     void setupUi(QWidget *QcvWidget)
     {
         if (QcvWidget->objectName().isEmpty())
             QcvWidget->setObjectName(QStringLiteral("QcvWidget"));
-        QcvWidget->resize(400, 300);
+        QcvWidget->resize(660, 438);
+        labelView = new QLabel(QcvWidget);
+        labelView->setObjectName(QStringLiteral("labelView"));
+        labelView->setGeometry(QRect(40, 10, 561, 371));
+        labelView->setStyleSheet(QStringLiteral("border: 1px solid;"));
+        pushButtonPlay = new QPushButton(QcvWidget);
+        pushButtonPlay->setObjectName(QStringLiteral("pushButtonPlay"));
+        pushButtonPlay->setGeometry(QRect(280, 390, 80, 23));
 
         retranslateUi(QcvWidget);
 
@@ -36,6 +47,8 @@ public:
     void retranslateUi(QWidget *QcvWidget)
     {
         QcvWidget->setWindowTitle(QApplication::translate("QcvWidget", "Form", 0));
+        labelView->setText(QString());
+        pushButtonPlay->setText(QApplication::translate("QcvWidget", "start", 0));
     } // retranslateUi
 
 };

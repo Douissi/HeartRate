@@ -39,40 +39,44 @@ constexpr bool SAVE_FFT = 1;
 constexpr bool DO_NOT_SAVE_FFT = 0;
 
 
-void ASSERT(bool condition,const std::string& str)
-{
-    if (!condition)
+struct functions {
+
+    static void ASSERT(bool condition,const std::string& str)
     {
-        std::cerr << "ASSERT FAIL WITH MSG " << str << '\n';
-        abort();
+        if (!condition)
+        {
+            std::cerr << "ASSERT FAIL WITH MSG " << str << '\n';
+            abort();
+        }
     }
-}
 
 
-void plotWithGNUPLOT(const string& nameSig, const unsigned char& type)
-{
-    if(type == SIG)
+    static void plotWithGNUPLOT(const string& nameSig, const unsigned char& type)
     {
-        string cmd = "gnuplot -e \""
-                     "set xlabel 'Samples in frames' ;"
-                     "set ylabel 'Amplitude of the signal' ;"
-                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
-        system(cmd.c_str());
+        if(type == SIG)
+        {
+            string cmd = "gnuplot -e \""
+                         "set xlabel 'Samples in frames' ;"
+                         "set ylabel 'Amplitude of the signal' ;"
+                         "plot '" + nameSig + "' using 1:2 with lines\" -p";
+            system(cmd.c_str());
+        }
+        else if (type == FFT)
+        {
+            string cmd = "gnuplot -e \""
+                         "set xlabel 'Frequencies in Hz' ;"
+                         "set ylabel 'Amplitude of the FFT' ;"
+                         "set xrange [0:6] ;"
+                         "plot '" + nameSig + "' using 1:2 with lines\" -p";
+            system(cmd.c_str());
+        }
+        else
+        {
+            ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
+        }
     }
-    else if (type == FFT)
-    {
-        string cmd = "gnuplot -e \""
-                     "set xlabel 'Frequencies in Hz' ;"
-                     "set ylabel 'Amplitude of the FFT' ;"
-                     "set xrange [0:6] ;"
-                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
-        system(cmd.c_str());
-    }
-    else
-    {
-        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
-    }
-}
+
+};
 
 
 
@@ -95,7 +99,7 @@ public :
     signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(0),
         Fs(Fech)
     {
-        ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect and not equal to size of input vector ");
+        functions::ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect and not equal to size of input vector ");
         signalSamples.reserve(numOfSamples);
         fillWithVector(signalSamplesInput);
     }
@@ -154,7 +158,7 @@ public :
         }
         else
         {
-            ASSERT(false, "Could not open the file : " + inputFile + " in saveSigToFile fct");
+            functions::ASSERT(false, "Could not open the file : " + inputFile + " in saveSigToFile fct");
         }
     }
 
@@ -191,7 +195,7 @@ public :
             }
             else
             {
-                ASSERT(false, "Could not open the file : " + FFTFile + " in signalFFT fct");
+                functions::ASSERT(false, "Could not open the file : " + FFTFile + " in signalFFT fct");
             }
         }
 
@@ -203,8 +207,8 @@ public :
     {
         vec b;
         // Create a FIR filter
-        FIR_filt<double, double, double> fir_filt;
-        b = fir1_bp(filterOrder, lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2)); // b is filter coeffs cout << b.t()
+        sp::FIR_filt<double, double, double> fir_filt;
+        b = sp::fir1_bp(filterOrder, lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2)); // b is filter coeffs cout << b.t()
         fir_filt.set_coeffs(b);
 
         outputSig.resize(0);
@@ -222,7 +226,7 @@ public :
         const std::vector<T>& inputSig = inputSignal.getSignalSamples();
         const std::vector<T>& originalSig = originalSignal.getSignalSamples();
         unsigned int N = inputSig.size();
-        ASSERT(N == originalSig.size(), "Failure when calling nlmsFilter:: Noise Signal and Input Signal do not have the same size");
+        functions::ASSERT(N == originalSig.size(), "Failure when calling nlmsFilter:: Noise Signal and Input Signal do not have the same size");
 
         outputSignalEstimation.resize(N);
         outputSignalEstimation.setFs(inputSignal.getFs());
@@ -230,7 +234,7 @@ public :
         std::vector<T>& outputEstimation = outputSignalEstimation.getSignalSamples();
 
         vector<T> nlmsOutput(N, 0.0);
-        FIR_filt<double,double,double> Ghat;
+        sp::FIR_filt<double,double,double> Ghat;
         Ghat.setup_nlms(filterOrder, mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
         // Filter - sample loop
         for(unsigned int n = 0 ; n < N ; n++)
@@ -268,73 +272,6 @@ private:
     double Fs;
 
 };
-
-
-
-int fftExemple()
-{
-    int i;
-    int N=550;//Number of points acquired inside the window
-    double Fs=200;//sampling frequency
-    //    double dF=Fs/N;
-    double  T=1/Fs;//sample time
-    double f=50;//frequency
-    double *in;
-    fftw_complex *out;
-    double t[N];//time vector
-    double ff[N];
-    fftw_plan plan_forward;
-
-    in = (double*) fftw_malloc(sizeof(double) * N);
-    out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N);
-
-    for (int i=0; i<= N;i++)
-    {
-        t[i]=i*T;
-
-        in[i] =0.7 *sin(2*M_PI*f*t[i]);// generate sine waveform
-        //    double multiplier = 0.5 * (1 - cos(2*M_PI*i/(N-1)));//Hanning Window
-        //    in[i] = multiplier * in[i];
-    }
-
-    for (int i=0; i<= ((N/2)-1);i++)
-    {ff[i]=Fs*i/N;
-    }
-    plan_forward = fftw_plan_dft_r2c_1d ( N, in, out, FFTW_ESTIMATE );
-
-    fftw_execute ( plan_forward );
-
-    double v[N];
-
-    for (int i = 0; i<= ((N/2)-1); i++)
-    {
-
-        v[i]=(20*log(sqrt(out[i][0]*out[i][0]+ out[i][1]*out[i][1])))/N;  //Here   I  have calculated the y axis of the spectrum in dB
-
-    }
-
-    fstream myfile;
-
-    myfile.open("example2.txt",fstream::out);
-
-    for(i = 0;i< ((N/2)-1); i++)
-
-    {
-
-        myfile << ff[i]<< " " << v[i]<< std::endl;
-
-    }
-
-    myfile.close();
-
-    fftw_destroy_plan ( plan_forward );
-    fftw_free ( in );
-    fftw_free ( out );
-    return 0;
-}
-
-
-
 
 
 #endif // SIGNALPROCESSING_HPP

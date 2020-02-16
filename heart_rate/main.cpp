@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "qcvwidget.h"
 #include <QApplication>
-#include <videoProcessing.hpp>
+#include "videoProcessing.hpp"
+#include "qcvwidget.h"
 
 using namespace cv;
 
@@ -87,22 +87,34 @@ void testWithNoGui()
 
     // ************************************ plotting the signals **********************
 
-  //  plotWithGNUPLOT("foreHeadSignal.txt", SIG);
-  //  plotWithGNUPLOT("backgroundSignal.txt", SIG);
-  //  plotWithGNUPLOT("nlmsOutputEstimation.txt", SIG);
-  //  plotWithGNUPLOT("FFTnlmsOutputEstimation.txt", FFT);
-  //  plotWithGNUPLOT("foreHeadMeanValueRemoved.txt", SIG);
-  //  plotWithGNUPLOT("FFTforeHeadMeanValueRemoved.txt", FFT);
-  //  plotWithGNUPLOT("filteredForeHeadBandPass.txt", SIG);
-  //  plotWithGNUPLOT("FFTfiltredForeHead.txt", FFT);
+  //  functions::plotWithGNUPLOT("foreHeadSignal.txt", SIG);
+  //  functions::plotWithGNUPLOT("backgroundSignal.txt", SIG);
+  //  functions::plotWithGNUPLOT("nlmsOutputEstimation.txt", SIG);
+  //  functions::plotWithGNUPLOT("FFTnlmsOutputEstimation.txt", FFT);
+  //  functions::plotWithGNUPLOT("foreHeadMeanValueRemoved.txt", SIG);
+  //  functions::plotWithGNUPLOT("FFTforeHeadMeanValueRemoved.txt", FFT);
+  //  functions::plotWithGNUPLOT("filteredForeHeadBandPass.txt", SIG);
+  //  functions::plotWithGNUPLOT("FFTfiltredForeHead.txt", FFT);
 
 }
 
 
 
-int main()
-{
-  testWithNoGui();
+uchar istestWithNoGui = 1;
 
-  return 0;
+int main(int argc, char *argv[])
+{
+    if(istestWithNoGui)
+    {
+        testWithNoGui();
+        return 0;
+    }
+    else
+    {
+        QApplication a(argc, argv);
+        QcvWidget w;
+        w.show();
+
+        return a.exec();
+    }
 }

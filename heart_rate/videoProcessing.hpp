@@ -1,10 +1,6 @@
 #ifndef VIDEOPROCESSING_HPP
 #define VIDEOPROCESSING_HPP
-
-#include <signalProcessing.hpp>
-
-using namespace cv;
-using namespace std;
+#include "signalProcessing.hpp"
 
 
 //***************************************************************************************************//
@@ -28,7 +24,7 @@ public :
     {
         // Check if camera opened successfully
         if(!capture.isOpened()){
-            ASSERT(0, "Error opening video stream or file");
+            functions::ASSERT(0, "Error opening video stream or file");
         }
 
         Fs = (double)(capture.get(CAP_PROP_FPS));
@@ -49,7 +45,7 @@ public :
     {
         if(!faceCascade.load(path))
         {
-            ASSERT(0, "Error while opening xml file for faceTracking");
+            functions::ASSERT(0, "Error while opening xml file for faceTracking");
         }
     }
 
@@ -107,16 +103,20 @@ public :
         backgroundSignal.fillWithValue(meanFrameValue(background));
     }
 
-    void displayFrame()
+    void displayFrame(bool display = true)
     {
         drawRectangle(frame, faces[0]);
         drawRectangle(frame, foreHeads[0]);
         drawRectangle(frame, backgroundRect);
-        imshow( "Frame", frame );
+        if(display) imshow( "Frame", frame );
     }
 
     bool isFrameEmpty() { return frame.empty(); }
 
+    void BGR2RGB()
+    {
+        cvtColor(frame, frame, COLOR_BGR2RGB);
+    }
 
     /************************************** Setters *********************************/
     void setbackGroundRect(const Rect& background) { backgroundRect = background; }
@@ -210,7 +210,8 @@ public slots:
         processVideoStream();
 
         // check colors ??
-        QImage output((const unsigned char *)videoObj->getframe().data, videoObj->getframe().cols, videoObj->getframe().rows, QImage::Format_Indexed8);
+        videoObj->BGR2RGB();
+        QImage output = QImage((const uchar*) videoObj->getframe().data, videoObj->getframe().cols, videoObj->getframe().rows, videoObj->getframe().step, QImage::Format_RGB888);
 
         emit sendFrame(output);
     }
@@ -245,11 +246,11 @@ private :
 
         videoObj->fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
         videoObj->fillbackgroundSignal();// construction of the background Signal with mean of green Channel each frame
+
+        videoObj->displayFrame(false); // only draw ROI
     }
 
 };
-
-
 
 
 
