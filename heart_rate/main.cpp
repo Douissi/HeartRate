@@ -72,7 +72,7 @@ void testWithNoGui()
     filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");
     filteredOutputEstimationSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTnlmsOutputEstimation.txt");
 
-     // remove mean value "offset" of the signal
+    // remove mean value "offset" of the signal
     foreHeadSignal.removeMeanValue();
 
     // Signal filter  ******************** TO BE OPTIMIZED **************************
@@ -87,20 +87,18 @@ void testWithNoGui()
 
     // ************************************ plotting the signals **********************
 
-  //  functions::plotWithGNUPLOT("foreHeadSignal.txt", SIG);
-  //  functions::plotWithGNUPLOT("backgroundSignal.txt", SIG);
-  //  functions::plotWithGNUPLOT("nlmsOutputEstimation.txt", SIG);
-  //  functions::plotWithGNUPLOT("FFTnlmsOutputEstimation.txt", FFT);
-  //  functions::plotWithGNUPLOT("foreHeadMeanValueRemoved.txt", SIG);
-  //  functions::plotWithGNUPLOT("FFTforeHeadMeanValueRemoved.txt", FFT);
-  //  functions::plotWithGNUPLOT("filteredForeHeadBandPass.txt", SIG);
-  //  functions::plotWithGNUPLOT("FFTfiltredForeHead.txt", FFT);
+    //  functions::plotWithGNUPLOT("foreHeadSignal.txt", SIG);
+    //  functions::plotWithGNUPLOT("backgroundSignal.txt", SIG);
+    //  functions::plotWithGNUPLOT("nlmsOutputEstimation.txt", SIG);
+    //  functions::plotWithGNUPLOT("FFTnlmsOutputEstimation.txt", FFT);
+    //  functions::plotWithGNUPLOT("foreHeadMeanValueRemoved.txt", SIG);
+    //  functions::plotWithGNUPLOT("FFTforeHeadMeanValueRemoved.txt", FFT);
+    //  functions::plotWithGNUPLOT("filteredForeHeadBandPass.txt", SIG);
+    //  functions::plotWithGNUPLOT("FFTfiltredForeHead.txt", FFT);
 
 }
 
-
-
-uchar istestWithNoGui = 1;
+uchar istestWithNoGui = 0;
 
 int main(int argc, char *argv[])
 {

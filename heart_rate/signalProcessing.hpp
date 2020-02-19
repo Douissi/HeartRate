@@ -27,6 +27,7 @@ constexpr float lowFreqCutOff = 0.5f; // in Hz, corresponding to 30Bp/min
 constexpr float highFreqCutOff = 4.5f; // in Hz, corresponding to 270 Bp/min
 constexpr int filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
 constexpr float mu = 0.5f;
+constexpr u32 windowLength = 2; // sliding window of 2 seconds
 
 constexpr unsigned char BLEUE = 0;
 constexpr unsigned char GREEN = 1;
@@ -147,6 +148,12 @@ public :
         numberOfSamples = size;
     }
 
+    void clearSignal()
+    {
+        signalSamples.clear(); // MAYBE we need to reserve again
+        numberOfSamples = 0;
+    }
+
     void saveSigToFile(const string& inputFile)
     {
         fstream myfile;
@@ -252,8 +259,8 @@ public :
 
     float getFrequencyOfMaxFFT()
     {
-       return static_cast<float>(distance(signalSamples.begin(), max_element(signalSamples.begin(), signalSamples.end()))) * Fs/
-               (2.0f * static_cast<float>(numberOfSamples));
+        return static_cast<float>(distance(signalSamples.begin(), max_element(signalSamples.begin(), signalSamples.end()))) * Fs/
+                (2.0f * static_cast<float>(numberOfSamples));
     }
 
     //****************************************getters *********************************

@@ -26,7 +26,8 @@ signals:
     void sendToggleSTream();
 
 private slots:
-    void receiveFrame(QImage frame);
+    void receiveFrame(const QImage& frame);
+    void receiveHeartRateEstimation(const float& heartRate);
     void receiveToggleStream();
 
 };

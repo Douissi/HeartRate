@@ -9,6 +9,7 @@ QcvWidget::QcvWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->labelView->setScaledContents(true);
+    this->
     setup();
 }
 
@@ -26,13 +27,14 @@ void QcvWidget::setup()
     thread = new QThread();
     IvideoProcessing* worker = new IvideoProcessing();
     QTimer* workerTrigger = new QTimer();
-    workerTrigger->setInterval(33); // maybe 1/Fs of the video ???
+    workerTrigger->setInterval(33); // maybe 1/Fs = 33 ms of the video ???
 
 
     connect(workerTrigger, SIGNAL(timeout()), worker, SLOT(receiveGrabFrame()));
     connect(this, SIGNAL(sendToggleSTream()), worker, SLOT(receiveToggleStream()));
     connect(ui->pushButtonPlay, SIGNAL(clicked(bool)), this, SLOT(receiveToggleStream()));
-    connect(worker, SIGNAL(sendFrame(QImage)), this, SLOT(receiveFrame(QImage)));
+    connect(worker, SIGNAL(sendFrame(const QImage&)), this, SLOT(receiveFrame(const QImage&)));
+    connect(worker, SIGNAL(sendHeartRateEstimation(float)), this, SLOT(receiveHeartRateEstimation(float)));
 
     connect(thread, SIGNAL(finished()), worker, SLOT(deleteLater())); // check how videoObj is deleted
     connect(thread, SIGNAL(finished()), workerTrigger, SLOT(deleteLater()));
@@ -45,9 +47,14 @@ void QcvWidget::setup()
 }
 
 
-void QcvWidget::receiveFrame(QImage frame)
+void QcvWidget::receiveFrame(const QImage& frame)
 {
     ui->labelView->setPixmap(QPixmap::fromImage(frame));
+}
+
+void QcvWidget::receiveHeartRateEstimation(const float& heartRate)
+{
+    ui->lcdNumber->display(static_cast<double>(heartRate));
 }
 
 void QcvWidget::receiveToggleStream()

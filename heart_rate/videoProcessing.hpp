@@ -16,10 +16,10 @@ class videoProcessing
 
 public :
     videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), width(0), height(0) {}
+        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f), width(0), height(0) {}
 
     videoProcessing(const String& filename) : capture(filename), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
-        backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(),
+        backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f),
         width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
     {
         // Check if camera opened successfully
@@ -118,6 +118,23 @@ public :
         cvtColor(frame, frame, COLOR_BGR2RGB);
     }
 
+    void clearSignals()
+    {
+        foreHeadSignal.clearSignal();
+        backgroundSignal.clearSignal();
+    }
+
+    void computeHeartRateEstimation()
+    {
+        signalProcessing<float> filtredSig;
+        signalProcessing<float> FFTOutput;
+
+        foreHeadSignal.removeMeanValue();
+        foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
+        filtredSig.signalFFT(FFTOutput);
+        heartRateEstimation = FFTOutput.getFrequencyOfMaxFFT() * 60.0f;
+    }
+
     /************************************** Setters *********************************/
     void setbackGroundRect(const Rect& background) { backgroundRect = background; }
     void setRectFacesVector(const std::vector<Rect>& rectFacesVector) { faces = rectFacesVector; }
@@ -133,6 +150,7 @@ public :
     const unsigned int& getNumOfFrames() const { return numberOfFrames; }
     signalProcessing<float>& getforeHeadSignal() { return foreHeadSignal; }
     signalProcessing<float>& getbackgroundSignal() { return backgroundSignal; }
+    const float& getHeartRateEstimation() const { return heartRateEstimation; }
 
 
 private:
@@ -150,6 +168,7 @@ private:
     cv::Mat background;
     signalProcessing<float> foreHeadSignal; // signal samples
     signalProcessing<float> backgroundSignal; // signal samples
+    float heartRateEstimation;
 
 public:
     const unsigned int width;
@@ -180,13 +199,16 @@ private :
 
     videoProcessing* videoObj;
     bool toggleStream;
+    u32 cptFrames;
+    u32 maxNbOfFrames;
 
 public :
 
-    explicit IvideoProcessing(QObject *parent = 0) : QObject(parent), toggleStream(false)
+    explicit IvideoProcessing(QObject *parent = 0) : QObject(parent), toggleStream(false), cptFrames(0)
     {
         videoObj = new videoProcessing("face.mp4");
         videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
+        maxNbOfFrames = windowLength * static_cast<u32>(videoObj->getFs());
     }
 
     ~IvideoProcessing()
@@ -197,23 +219,47 @@ public :
 
 signals:
 
-    void sendFrame(QImage frameProcessed);
+    void sendFrame(const QImage& frameProcessed);
+    void sendHeartRateEstimation(const float& heartRateEstimation);
 
 public slots:
 
     void receiveGrabFrame()
     {
-        if(!toggleStream) return;
+        if(!toggleStream)
+        {
+            return;
+        }
+
         videoObj->capturingFrames();
-        if(videoObj->isFrameEmpty()) return;
+
+        if(videoObj->isFrameEmpty())
+        {
+            return;
+        }
+
+        if(cptFrames < maxNbOfFrames)
+        {
+            cptFrames++;
+        }
+        else
+        {
+            cptFrames = 0;
+            videoObj->computeHeartRateEstimation();
+            videoObj->clearSignals();
+        }
 
         processVideoStream();
 
-        // check colors ??
         videoObj->BGR2RGB();
         QImage output = QImage((const uchar*) videoObj->getframe().data, videoObj->getframe().cols, videoObj->getframe().rows, videoObj->getframe().step, QImage::Format_RGB888);
 
         emit sendFrame(output);
+
+        if(cptFrames == maxNbOfFrames -1)
+        {
+            emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
+        }
     }
 
     void receiveToggleStream()

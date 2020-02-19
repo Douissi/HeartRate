@@ -14,6 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
@@ -25,19 +26,23 @@ class Ui_QcvWidget
 public:
     QLabel *labelView;
     QPushButton *pushButtonPlay;
+    QLCDNumber *lcdNumber;
 
     void setupUi(QWidget *QcvWidget)
     {
         if (QcvWidget->objectName().isEmpty())
             QcvWidget->setObjectName(QStringLiteral("QcvWidget"));
-        QcvWidget->resize(660, 438);
+        QcvWidget->resize(655, 446);
         labelView = new QLabel(QcvWidget);
         labelView->setObjectName(QStringLiteral("labelView"));
-        labelView->setGeometry(QRect(40, 10, 561, 371));
+        labelView->setGeometry(QRect(40, 10, 451, 371));
         labelView->setStyleSheet(QStringLiteral("border: 1px solid;"));
         pushButtonPlay = new QPushButton(QcvWidget);
         pushButtonPlay->setObjectName(QStringLiteral("pushButtonPlay"));
-        pushButtonPlay->setGeometry(QRect(280, 390, 80, 23));
+        pushButtonPlay->setGeometry(QRect(510, 280, 111, 41));
+        lcdNumber = new QLCDNumber(QcvWidget);
+        lcdNumber->setObjectName(QStringLiteral("lcdNumber"));
+        lcdNumber->setGeometry(QRect(510, 130, 111, 121));
 
         retranslateUi(QcvWidget);
 

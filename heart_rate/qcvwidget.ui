@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
-    <height>438</height>
+    <width>655</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>40</x>
      <y>10</y>
-     <width>561</width>
+     <width>451</width>
      <height>371</height>
     </rect>
    </property>
@@ -32,14 +32,24 @@
   <widget class="QPushButton" name="pushButtonPlay">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>390</y>
-     <width>80</width>
-     <height>23</height>
+     <x>510</x>
+     <y>280</y>
+     <width>111</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
     <string>start</string>
+   </property>
+  </widget>
+  <widget class="QLCDNumber" name="lcdNumber">
+   <property name="geometry">
+    <rect>
+     <x>510</x>
+     <y>130</y>
+     <width>111</width>
+     <height>121</height>
+    </rect>
    </property>
   </widget>
  </widget>
