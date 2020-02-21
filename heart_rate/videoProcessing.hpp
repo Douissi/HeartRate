@@ -33,6 +33,22 @@ public :
         backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
     }
 
+    // constructor for webcam entry == 0
+    videoProcessing(const int& entry) : capture(entry), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
+        backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f),
+        width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
+    {
+        // Check if camera opened successfully
+        if(!capture.isOpened()){
+            functions::ASSERT(0, "Error opening video stream or file");
+        }
+
+        Fs = (double)(capture.get(CAP_PROP_FPS));
+        numberOfFrames =  windowLength*Fs;
+        foreHeadSignal = signalProcessing<float>(numberOfFrames, Fs);
+        backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
+    }
+
     virtual ~videoProcessing()
     {
         // When everything done, release the video capture object
@@ -216,6 +232,9 @@ public :
         delete videoObj;
     }
 
+    const double& getFs() const { return videoObj->getFs(); }
+    const u32& getWidth() const { return videoObj->width; }
+    const u32& getHeight() const { return videoObj->height; }
 
 signals:
 
@@ -265,6 +284,7 @@ public slots:
     void receiveToggleStream()
     {
         toggleStream = !toggleStream;
+        if(!toggleStream) emit sendHeartRateEstimation(0.0);
     }
 
 private :

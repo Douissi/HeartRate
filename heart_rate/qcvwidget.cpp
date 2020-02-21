@@ -9,7 +9,6 @@ QcvWidget::QcvWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->labelView->setScaledContents(true);
-    this->
     setup();
 }
 
@@ -27,8 +26,9 @@ void QcvWidget::setup()
     thread = new QThread();
     IvideoProcessing* worker = new IvideoProcessing();
     QTimer* workerTrigger = new QTimer();
-    workerTrigger->setInterval(33); // maybe 1/Fs = 33 ms of the video ???
-
+    workerTrigger->setInterval(static_cast<int>((1.0/worker->getFs())*1000.0)); // maybe 1/Fs = 33 ms of the video ???
+    ui->labelView->setFixedWidth(worker->getWidth());
+    ui->labelView->setFixedHeight(worker->getHeight());
 
     connect(workerTrigger, SIGNAL(timeout()), worker, SLOT(receiveGrabFrame()));
     connect(this, SIGNAL(sendToggleSTream()), worker, SLOT(receiveToggleStream()));

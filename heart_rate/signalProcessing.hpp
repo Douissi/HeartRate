@@ -40,44 +40,44 @@ constexpr bool SAVE_FFT = 1;
 constexpr bool DO_NOT_SAVE_FFT = 0;
 
 
-struct functions {
+namespace functions {
 
-    static void ASSERT(bool condition,const std::string& str)
+inline void ASSERT(bool condition,const std::string& str)
+{
+    if (!condition)
     {
-        if (!condition)
-        {
-            std::cerr << "ASSERT FAIL WITH MSG " << str << '\n';
-            abort();
-        }
+        std::cerr << "ASSERT FAIL WITH MSG " << str << '\n';
+        abort();
     }
+}
 
 
-    static void plotWithGNUPLOT(const string& nameSig, const unsigned char& type)
+inline void plotWithGNUPLOT(const string& nameSig, const unsigned char& type)
+{
+    if(type == SIG)
     {
-        if(type == SIG)
-        {
-            string cmd = "gnuplot -e \""
-                         "set xlabel 'Samples in frames' ;"
-                         "set ylabel 'Amplitude of the signal' ;"
-                         "plot '" + nameSig + "' using 1:2 with lines\" -p";
-            system(cmd.c_str());
-        }
-        else if (type == FFT)
-        {
-            string cmd = "gnuplot -e \""
-                         "set xlabel 'Frequencies in Hz' ;"
-                         "set ylabel 'Amplitude of the FFT' ;"
-                         "set xrange [0:6] ;"
-                         "plot '" + nameSig + "' using 1:2 with lines\" -p";
-            system(cmd.c_str());
-        }
-        else
-        {
-            ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
-        }
+        string cmd = "gnuplot -e \""
+                     "set xlabel 'Samples in frames' ;"
+                     "set ylabel 'Amplitude of the signal' ;"
+                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
+        system(cmd.c_str());
     }
+    else if (type == FFT)
+    {
+        string cmd = "gnuplot -e \""
+                     "set xlabel 'Frequencies in Hz' ;"
+                     "set ylabel 'Amplitude of the FFT' ;"
+                     "set xrange [0:6] ;"
+                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
+        system(cmd.c_str());
+    }
+    else
+    {
+        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
+    }
+}
 
-};
+}
 
 
 
