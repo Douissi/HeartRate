@@ -31,7 +31,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     videoProcessing.hpp \
     signalProcessing.hpp \
-    qcvwidget.h
+    qcvwidget.h \
+    functions.hpp
 
 FORMS    += mainwindow.ui \
     qcvwidget.ui

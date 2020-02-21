@@ -218,7 +218,8 @@ DIST          = ../README.md \
 		../heart_rate/heart_rate.pro ../heart_rate/mainwindow.h \
 		../heart_rate/videoProcessing.hpp \
 		../heart_rate/signalProcessing.hpp \
-		../heart_rate/qcvwidget.h ../heart_rate/main.cpp \
+		../heart_rate/qcvwidget.h \
+		../heart_rate/functions.hpp ../heart_rate/main.cpp \
 		../heart_rate/mainwindow.cpp \
 		../heart_rate/qcvwidget.cpp \
 		../heart_rate/videoProcessing.cpp \
@@ -560,7 +561,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../heart_rate/mainwindow.h ../heart_rate/videoProcessing.hpp ../heart_rate/signalProcessing.hpp ../heart_rate/qcvwidget.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../heart_rate/mainwindow.h ../heart_rate/videoProcessing.hpp ../heart_rate/signalProcessing.hpp ../heart_rate/qcvwidget.h ../heart_rate/functions.hpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../heart_rate/main.cpp ../heart_rate/mainwindow.cpp ../heart_rate/qcvwidget.cpp ../heart_rate/videoProcessing.cpp ../heart_rate/signalProcessing.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../heart_rate/mainwindow.ui ../heart_rate/qcvwidget.ui $(DISTDIR)/
 
@@ -696,6 +697,7 @@ moc_mainwindow.cpp: /opt/Qt/5.7/gcc_64/include/QtWidgets/QMainWindow \
 	/opt/Qt/5.7/gcc_64/bin/moc $(DEFINES) -I/opt/Qt/5.7/gcc_64/mkspecs/linux-g++ -I/root/Projet_heart_rate/HeartRate/heart_rate -I/root/Projet_heart_rate/HeartRate/heart_rate -I/usr/local/include -I/usr/local/include/opencv4 -I/usr/local/include/sigpack-1.2.6/sigpack -I/opt/Qt/5.7/gcc_64/include -I/opt/Qt/5.7/gcc_64/include/QtWidgets -I/opt/Qt/5.7/gcc_64/include/QtGui -I/opt/Qt/5.7/gcc_64/include/QtCore -I. -I/usr/include/c++/7 -I/usr/include/x86_64-linux-gnu/c++/7 -I/usr/include/c++/7/backward -I/usr/lib/gcc/x86_64-linux-gnu/7/include -I/usr/local/include -I/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed -I/usr/include/x86_64-linux-gnu -I/usr/include ../heart_rate/mainwindow.h -o moc_mainwindow.cpp
 
 moc_videoProcessing.cpp: ../heart_rate/signalProcessing.hpp \
+		../heart_rate/functions.hpp \
 		/opt/Qt/5.7/gcc_64/include/QtCore/QObject \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qobject.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs.h \
@@ -1001,6 +1003,7 @@ main.o: ../heart_rate/main.cpp /opt/Qt/5.7/gcc_64/include/QtWidgets/QApplication
 		/opt/Qt/5.7/gcc_64/include/QtGui/qinputmethod.h \
 		../heart_rate/videoProcessing.hpp \
 		../heart_rate/signalProcessing.hpp \
+		../heart_rate/functions.hpp \
 		/opt/Qt/5.7/gcc_64/include/QtCore/QObject \
 		/opt/Qt/5.7/gcc_64/include/QtGui/QImage \
 		../heart_rate/qcvwidget.h \
@@ -1306,6 +1309,7 @@ qcvwidget.o: ../heart_rate/qcvwidget.cpp ../heart_rate/qcvwidget.h \
 		/opt/Qt/5.7/gcc_64/include/QtWidgets/qgridlayout.h \
 		../heart_rate/videoProcessing.hpp \
 		../heart_rate/signalProcessing.hpp \
+		../heart_rate/functions.hpp \
 		/opt/Qt/5.7/gcc_64/include/QtCore/QObject \
 		/opt/Qt/5.7/gcc_64/include/QtGui/QImage \
 		/opt/Qt/5.7/gcc_64/include/QtCore/QTimer \
@@ -1315,6 +1319,7 @@ qcvwidget.o: ../heart_rate/qcvwidget.cpp ../heart_rate/qcvwidget.h \
 
 videoProcessing.o: ../heart_rate/videoProcessing.cpp ../heart_rate/videoProcessing.hpp \
 		../heart_rate/signalProcessing.hpp \
+		../heart_rate/functions.hpp \
 		/opt/Qt/5.7/gcc_64/include/QtCore/QObject \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qobject.h \
 		/opt/Qt/5.7/gcc_64/include/QtCore/qobjectdefs.h \
@@ -1387,7 +1392,8 @@ videoProcessing.o: ../heart_rate/videoProcessing.cpp ../heart_rate/videoProcessi
 		/opt/Qt/5.7/gcc_64/include/QtGui/qpainterpath.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o videoProcessing.o ../heart_rate/videoProcessing.cpp
 
-signalProcessing.o: ../heart_rate/signalProcessing.cpp ../heart_rate/signalProcessing.hpp
+signalProcessing.o: ../heart_rate/signalProcessing.cpp ../heart_rate/signalProcessing.hpp \
+		../heart_rate/functions.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o signalProcessing.o ../heart_rate/signalProcessing.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
