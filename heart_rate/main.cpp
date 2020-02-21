@@ -98,7 +98,7 @@ void testWithNoGui()
 
 }
 
-uchar istestWithNoGui = 0;
+uchar istestWithNoGui = 1;
 
 int main(int argc, char *argv[])
 {

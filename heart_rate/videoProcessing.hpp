@@ -1,155 +1,40 @@
 #ifndef VIDEOPROCESSING_HPP
 #define VIDEOPROCESSING_HPP
 #include "signalProcessing.hpp"
+#include <QObject>
+#include <QImage>
 
 
-//***************************************************************************************************//
-//***************************************************************************************************//
 //***************************************************************************************************//
 //**************************************** videoProcessing Class ************************************//
 //***************************************************************************************************//
-//***************************************************************************************************//
-//***************************************************************************************************//
+
 class videoProcessing
 {
     friend class TestVideoProcessing;
 
 public :
-    videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-        foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f), width(0), height(0) {}
-
-    videoProcessing(const String& filename) : capture(filename), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
-        backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f),
-        width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
-    {
-        // Check if camera opened successfully
-        if(!capture.isOpened()){
-            functions::ASSERT(0, "Error opening video stream or file");
-        }
-
-        Fs = (double)(capture.get(CAP_PROP_FPS));
-        numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam (filename != 0)
-        foreHeadSignal = signalProcessing<float>(numberOfFrames, Fs);
-        backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
-    }
-
+    videoProcessing();
+    videoProcessing(const String& filename);
     // constructor for webcam entry == 0
-    videoProcessing(const int& entry) : capture(entry), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
-        backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f),
-        width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
-    {
-        // Check if camera opened successfully
-        if(!capture.isOpened()){
-            functions::ASSERT(0, "Error opening video stream or file");
-        }
+    videoProcessing(const int& entry);
 
-        Fs = (double)(capture.get(CAP_PROP_FPS));
-        numberOfFrames =  windowLength*Fs;
-        foreHeadSignal = signalProcessing<float>(numberOfFrames, Fs);
-        backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
-    }
+    virtual ~videoProcessing();
 
-    virtual ~videoProcessing()
-    {
-        // When everything done, release the video capture object
-        capture.release();
-        // Closes all the frames
-        destroyAllWindows();
-    }
-
-    void faceCascadeLoading(const string& path)
-    {
-        if(!faceCascade.load(path))
-        {
-            functions::ASSERT(0, "Error while opening xml file for faceTracking");
-        }
-    }
-
-    void capturingFrames()
-    {
-        // Capture frame-by-frame
-        capture >> frame;
-
-        // If the frame is empty, break immediately
-        if (frame.empty())
-        {
-            cout <<" Error while capturing frame :  Either frame is empty, or end of Video" << endl;
-        }
-
-        split(frame, channels); // split source channels[1] is the green one
-    }
-
-    void detectFacesFromGreenChannelInVideo()
-    {
-        /* first param was GreyColorImage */
-        faceCascade.detectMultiScale(frame, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
-    }
-
-    void creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel()
-    {
-        face =  cv::Mat(channels[GREEN] , faces[0]);
-        foreHead = cv::Mat(channels[GREEN] , foreHeads[0]);
-        background = cv::Mat(channels[GREEN] , backgroundRect);
-    }
-
-    static void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect)
-    {
-        rectangle(inputOutputImage, Point (rect.x ,rect.y), Point (rect.x + rect.width, rect.y + rect.height), Scalar(255,255,255), 2, 8, 0);
-    }
-
-    static void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGreyColor)
-    {
-        cvtColor(InputImageColor, OutputGreyColor, COLOR_BGR2GRAY);
-        equalizeHist(OutputGreyColor, OutputGreyColor);
-    }
-
-    static float meanFrameValue(const cv::Mat& inputFrame)
-    {
-        Scalar tmpMean = mean(inputFrame);
-        return tmpMean.val[0];
-    }
-
-    void fillforeHeadSignal()
-    {
-        foreHeadSignal.fillWithValue(meanFrameValue(foreHead));
-    }
-
-    void fillbackgroundSignal()
-    {
-        backgroundSignal.fillWithValue(meanFrameValue(background));
-    }
-
-    void displayFrame(bool display = true)
-    {
-        drawRectangle(frame, faces[0]);
-        drawRectangle(frame, foreHeads[0]);
-        drawRectangle(frame, backgroundRect);
-        if(display) imshow( "Frame", frame );
-    }
-
-    bool isFrameEmpty() { return frame.empty(); }
-
-    void BGR2RGB()
-    {
-        cvtColor(frame, frame, COLOR_BGR2RGB);
-    }
-
-    void clearSignals()
-    {
-        foreHeadSignal.clearSignal();
-        backgroundSignal.clearSignal();
-    }
-
-    void computeHeartRateEstimation()
-    {
-        signalProcessing<float> filtredSig;
-        signalProcessing<float> FFTOutput;
-
-        foreHeadSignal.removeMeanValue();
-        foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
-        filtredSig.signalFFT(FFTOutput);
-        heartRateEstimation = FFTOutput.getFrequencyOfMaxFFT() * 60.0f;
-    }
+    void faceCascadeLoading(const string& path);
+    void capturingFrames();
+    void detectFacesFromGreenChannelInVideo();
+    void creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+    static void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect);
+    static void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGreyColor);
+    static float meanFrameValue(const cv::Mat& inputFrame);
+    void fillforeHeadSignal();
+    void fillbackgroundSignal();
+    void displayFrame(bool display = true);
+    bool isFrameEmpty();
+    void BGR2RGB();
+    void clearSignals();
+    void computeHeartRateEstimation();
 
     /************************************** Setters *********************************/
     void setbackGroundRect(const Rect& background) { backgroundRect = background; }
@@ -193,15 +78,8 @@ public:
 };
 
 
-
-//********************************************************************************************************//
-//********************************************************************************************************//
-//********************************************************************************************************//
 //********************************************************************************************************//
 //************************************* Interface for GUI with QT ****************************************//
-//********************************************************************************************************//
-//********************************************************************************************************//
-//********************************************************************************************************//
 //********************************************************************************************************//
 
 
@@ -209,7 +87,6 @@ public:
 class IvideoProcessing : public QObject
 {
     Q_OBJECT
-
 
 private :
 
@@ -220,17 +97,8 @@ private :
 
 public :
 
-    explicit IvideoProcessing(QObject *parent = 0) : QObject(parent), toggleStream(false), cptFrames(0)
-    {
-        videoObj = new videoProcessing("face.mp4");
-        videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
-        maxNbOfFrames = windowLength * static_cast<u32>(videoObj->getFs());
-    }
-
-    ~IvideoProcessing()
-    {
-        delete videoObj;
-    }
+    explicit IvideoProcessing(QObject *parent = 0);
+    ~IvideoProcessing();
 
     const double& getFs() const { return videoObj->getFs(); }
     const u32& getWidth() const { return videoObj->width; }
@@ -243,81 +111,13 @@ signals:
 
 public slots:
 
-    void receiveGrabFrame()
-    {
-        if(!toggleStream)
-        {
-            return;
-        }
-
-        videoObj->capturingFrames();
-
-        if(videoObj->isFrameEmpty())
-        {
-            return;
-        }
-
-        if(cptFrames < maxNbOfFrames)
-        {
-            cptFrames++;
-        }
-        else
-        {
-            cptFrames = 0;
-            videoObj->computeHeartRateEstimation();
-            videoObj->clearSignals();
-        }
-
-        processVideoStream();
-
-        videoObj->BGR2RGB();
-        QImage output = QImage((const uchar*) videoObj->getframe().data, videoObj->getframe().cols, videoObj->getframe().rows, videoObj->getframe().step, QImage::Format_RGB888);
-
-        emit sendFrame(output);
-
-        if(cptFrames == maxNbOfFrames -1)
-        {
-            emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
-        }
-    }
-
-    void receiveToggleStream()
-    {
-        toggleStream = !toggleStream;
-        if(!toggleStream) emit sendHeartRateEstimation(0.0);
-    }
+    void receiveGrabFrame();
+    void receiveToggleStream();
 
 private :
 
-    void processVideoStream()
-    {
-        videoObj->detectFacesFromGreenChannelInVideo();
-        const std::vector<Rect>& faces = videoObj->getFaces();
-
-        // Background detection deduced from face detection
-        const Rect backgroundRect = Rect(faces[0].x + faces[0].width, faces[0].y + faces[0].height,
-                videoObj->width - (faces[0].x + faces[0].width), videoObj->height -(faces[0].y + faces[0].height));
-
-        videoObj->setbackGroundRect(backgroundRect);
-
-        std::vector<Rect> foreHeads = faces;
-
-        foreHeads[0].height = foreHeads[0].height/3.7; // only for manualforeHead detection
-        foreHeads[0].x = foreHeads[0].x + 50; // only for manual foreHead detection
-        foreHeads[0].width = foreHeads[0].width - 70; // only for manual foreHead detection
-
-        videoObj->setRectForeHeadsVector(foreHeads);
-
-        videoObj->creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
-
-        videoObj->fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
-        videoObj->fillbackgroundSignal();// construction of the background Signal with mean of green Channel each frame
-
-        videoObj->displayFrame(false); // only draw ROI
-    }
-
+    void processVideoStream();
 };
-
 
 
 #endif // VIDEOPROCESSING_HPP

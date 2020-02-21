@@ -26,6 +26,11 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 
 
 SOURCES += tst_qtunittesttest.cpp
+SOURCES += ../heart_rate/signalProcessing.cpp
+SOURCES += ../heart_rate/videoProcessing.cpp
+HEADERS += ../heart_rate/signalProcessing.hpp
+HEADERS += ../heart_rate/videoProcessing.hpp
+
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS +=

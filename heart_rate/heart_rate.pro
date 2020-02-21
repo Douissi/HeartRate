@@ -24,7 +24,9 @@ LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lope
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    qcvwidget.cpp
+    qcvwidget.cpp \
+    videoProcessing.cpp \
+    signalProcessing.cpp
 
 HEADERS  += mainwindow.h \
     videoProcessing.hpp \
