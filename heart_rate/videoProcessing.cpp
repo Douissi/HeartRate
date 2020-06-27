@@ -184,6 +184,7 @@ void IvideoProcessing::receiveGrabFrame()
         cptFrames = 0;
         videoObj->computeHeartRateEstimation();
         videoObj->clearSignals();
+        emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
     }
 
     processVideoStream();
@@ -193,10 +194,6 @@ void IvideoProcessing::receiveGrabFrame()
 
     emit sendFrame(output);
 
-    if(cptFrames == maxNbOfFrames -1)
-    {
-        emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
-    }
 }
 
 
