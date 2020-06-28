@@ -5,11 +5,11 @@
 //*******************************************************************************************************
 
 videoProcessing:: videoProcessing() : capture(), Fs(0.0), numberOfFrames (0), faceCascade(), frame(), backgroundRect(),
-    foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f), width(0), height(0)
+    face(), background(), faceSignal(), backgroundSignal(), heartRateEstimation(0.0f), width(0), height(0)
 {}
 
 videoProcessing::videoProcessing(const String& filename) : capture(filename), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
-    backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f),
+    backgroundRect(), face(), background(), faceSignal(), backgroundSignal(), heartRateEstimation(0.0f),
     width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
 {
     // Check if camera opened successfully
@@ -19,12 +19,12 @@ videoProcessing::videoProcessing(const String& filename) : capture(filename), Fs
 
     Fs = (double)(capture.get(CAP_PROP_FPS));
     numberOfFrames =  capture.get(CAP_PROP_FRAME_COUNT); // only for videoInput != webcam (filename != 0)
-    foreHeadSignal = signalProcessing<float>(numberOfFrames, Fs);
+    faceSignal = signalProcessing<float>(numberOfFrames, Fs);
     backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
 }
 
 videoProcessing::videoProcessing(const int& entry) : capture(entry), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
-    backgroundRect(),foreHead(), face(), background(), foreHeadSignal(), backgroundSignal(), heartRateEstimation(0.0f),
+    backgroundRect(), face(), background(), faceSignal(), backgroundSignal(), heartRateEstimation(0.0f),
     width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
 {
     // Check if camera opened successfully
@@ -34,7 +34,7 @@ videoProcessing::videoProcessing(const int& entry) : capture(entry), Fs (0.0), n
 
     Fs = (double)(capture.get(CAP_PROP_FPS));
     numberOfFrames =  windowLength*Fs;
-    foreHeadSignal = signalProcessing<float>(numberOfFrames, Fs);
+    faceSignal = signalProcessing<float>(numberOfFrames, Fs);
     backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
 }
 
@@ -74,11 +74,21 @@ void videoProcessing::detectFacesFromGreenChannelInVideo()
     faceCascade.detectMultiScale(frame, faces, 1.1, 2, 0|cv::CASCADE_SCALE_IMAGE, Size(100, 100) );
 }
 
-void videoProcessing::creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel()
+void videoProcessing::skinDetectionOverFaceAndMatrixCreationFromGreenChannel()
 {
-    face =  cv::Mat(channels[GREEN] , faces[0]);
-    foreHead = cv::Mat(channels[GREEN] , foreHeads[0]);
+    // skin detection using mask over YCbCr space
+    cv::Mat frameYCrCb;
+    cvtColor(frame, frameYCrCb, COLOR_BGR2YCrCb);
+    cv::inRange(frameYCrCb, cv::Scalar(80, 133, 77), cv::Scalar(255, 173, 127), frameYCrCb);
+    cv::Mat frameSkinDetected;
+    bitwise_and(frame, frame, frameSkinDetected, frameYCrCb);
+
+    cv::Mat channelsThresholded[3] = {};
+    split(frameSkinDetected, channelsThresholded); // split source channels[1] is the green one
+
+    face =  cv::Mat(channelsThresholded[GREEN] , faces[0]);
     background = cv::Mat(channels[GREEN] , backgroundRect);
+    //imshow( "Frame", face);
 }
 
 void videoProcessing::drawRectangle(cv::Mat& inputOutputImage, const Rect& rect)
@@ -98,12 +108,12 @@ float videoProcessing::meanFrameValue(const cv::Mat& inputFrame)
     return tmpMean.val[0];
 }
 
-void videoProcessing::fillforeHeadSignal()
+void videoProcessing::fillFaceSignal()
 {
-    foreHeadSignal.fillWithValue(meanFrameValue(foreHead));
+    faceSignal.fillWithValue(meanFrameValue(face));
 }
 
-void videoProcessing::fillbackgroundSignal()
+void videoProcessing::fillBackgroundSignal()
 {
     backgroundSignal.fillWithValue(meanFrameValue(background));
 }
@@ -111,7 +121,6 @@ void videoProcessing::fillbackgroundSignal()
 void videoProcessing::displayFrame(bool display)
 {
     drawRectangle(frame, faces[0]);
-    drawRectangle(frame, foreHeads[0]);
     drawRectangle(frame, backgroundRect);
     if(display) imshow( "Frame", frame );
 }
@@ -129,7 +138,7 @@ void videoProcessing::BGR2RGB()
 
 void videoProcessing::clearSignals()
 {
-    foreHeadSignal.clearSignal();
+    faceSignal.clearSignal();
     backgroundSignal.clearSignal();
 }
 
@@ -138,8 +147,8 @@ void videoProcessing::computeHeartRateEstimation()
     signalProcessing<float> filtredSig;
     signalProcessing<float> FFTOutput;
 
-    foreHeadSignal.removeMeanValue();
-    foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
+    faceSignal.removeMeanValue();
+    faceSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
     filtredSig.signalFFT(FFTOutput);
     heartRateEstimation = FFTOutput.getFrequencyOfMaxFFT() * 60.0f;
 }
@@ -190,7 +199,7 @@ void IvideoProcessing::receiveGrabFrame()
     processVideoStream();
 
     videoObj->BGR2RGB();
-    QImage output = QImage((const uchar*) videoObj->getframe().data, videoObj->getframe().cols, videoObj->getframe().rows, videoObj->getframe().step, QImage::Format_RGB888);
+    QImage output = QImage((const uchar*) videoObj->getFrame().data, videoObj->getFrame().cols, videoObj->getFrame().rows, videoObj->getFrame().step, QImage::Format_RGB888);
 
     emit sendFrame(output);
 
@@ -206,20 +215,12 @@ void IvideoProcessing::processVideoStream()
     const Rect backgroundRect = Rect(faces[0].x + faces[0].width, faces[0].y + faces[0].height,
             videoObj->width - (faces[0].x + faces[0].width), videoObj->height -(faces[0].y + faces[0].height));
 
-    videoObj->setbackGroundRect(backgroundRect);
+    videoObj->setBackGroundRect(backgroundRect);
 
-    std::vector<Rect> foreHeads = faces;
+    videoObj->skinDetectionOverFaceAndMatrixCreationFromGreenChannel();
 
-    foreHeads[0].height = foreHeads[0].height/3.7; // only for manualforeHead detection
-    foreHeads[0].x = foreHeads[0].x + 50; // only for manual foreHead detection
-    foreHeads[0].width = foreHeads[0].width - 70; // only for manual foreHead detection
-
-    videoObj->setRectForeHeadsVector(foreHeads);
-
-    videoObj->creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
-
-    videoObj->fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
-    videoObj->fillbackgroundSignal();// construction of the background Signal with mean of green Channel each frame
+    videoObj->fillFaceSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
+    videoObj->fillBackgroundSignal();// construction of the background Signal with mean of green Channel each frame
 
     videoObj->displayFrame(false); // only draw ROI
 }

@@ -26,20 +26,13 @@ void testWithNoGui()
         const Rect backgroundRect = Rect(faces[0].x + faces[0].width, faces[0].y + faces[0].height,
                 videoObj.width - (faces[0].x + faces[0].width), videoObj.height -(faces[0].y + faces[0].height));
 
-        videoObj.setbackGroundRect(backgroundRect);
+        videoObj.setBackGroundRect(backgroundRect);
 
-        std::vector<Rect> foreHeads = faces;
 
-        foreHeads[0].height = foreHeads[0].height/3.7; // only for manualforeHead detection
-        foreHeads[0].x = foreHeads[0].x + 50; // only for manual foreHead detection
-        foreHeads[0].width = foreHeads[0].width - 70; // only for manual foreHead detection
+        videoObj.skinDetectionOverFaceAndMatrixCreationFromGreenChannel();
 
-        videoObj.setRectForeHeadsVector(foreHeads);
-
-        videoObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
-
-        videoObj.fillforeHeadSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
-        videoObj.fillbackgroundSignal();
+        videoObj.fillFaceSignal();  // construction of the faceSignal Signal with mean of green Channel each frame
+        videoObj.fillBackgroundSignal();
 
 
         // Display results in frames
@@ -54,47 +47,47 @@ void testWithNoGui()
 
     /******************************************** Signal Processing *************************************************/
 
-    signalProcessing<float>& foreHeadSignal = videoObj.getforeHeadSignal();
-    signalProcessing<float>& backgroundSignal = videoObj.getbackgroundSignal();
+    signalProcessing<float>& faceSignalSignal = videoObj.getFaceSignal();
+    signalProcessing<float>& backgroundSignal = videoObj.getBackgroundSignal();
     signalProcessing<float> ouputEstimationSignal;
     signalProcessing<float> filteredOutputEstimationSignal;
     signalProcessing<float> filtredSig;
     signalProcessing<float> FFTOutput;
 
     backgroundSignal.saveSigToFile("backgroundSignal.txt");
-    foreHeadSignal.saveSigToFile("foreHeadSignal.txt");
+    faceSignalSignal.saveSigToFile("faceSignalSignal.txt");
 
     cout << "************************** Signal Processing *************************" << endl;
 
     // Illumination Rectification
-    signalProcessing<float>::nlmsFilter(backgroundSignal, foreHeadSignal, filterOrder, mu, ouputEstimationSignal);
+    signalProcessing<float>::nlmsFilter(backgroundSignal, faceSignalSignal, filterOrder, mu, ouputEstimationSignal);
     ouputEstimationSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filteredOutputEstimationSignal);
     filteredOutputEstimationSignal.saveSigToFile("nlmsOutputEstimation.txt");
     filteredOutputEstimationSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTnlmsOutputEstimation.txt");
 
     // remove mean value "offset" of the signal
-    foreHeadSignal.removeMeanValue();
+    faceSignalSignal.removeMeanValue();
 
     // Signal filter  ******************** TO BE OPTIMIZED **************************
-    foreHeadSignal.saveSigToFile("foreHeadMeanValueRemoved.txt");
-    foreHeadSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTforeHeadMeanValueRemoved.txt");
+    faceSignalSignal.saveSigToFile("faceSignalMeanValueRemoved.txt");
+    faceSignalSignal.signalFFT(FFTOutput, SAVE_FFT, "FFTfaceSignalMeanValueRemoved.txt");
 
 
-    foreHeadSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
-    filtredSig.saveSigToFile("filteredForeHeadBandPass.txt");
-    filtredSig.signalFFT(FFTOutput, SAVE_FFT, "FFTfiltredForeHead.txt");
+    faceSignalSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
+    filtredSig.saveSigToFile("filteredfaceSignalBandPass.txt");
+    filtredSig.signalFFT(FFTOutput, SAVE_FFT, "FFTfiltredfaceSignal.txt");
 
 
     // ************************************ plotting the signals **********************
 
-    //  functions::plotWithGNUPLOT("foreHeadSignal.txt", SIG);
+//      functions::plotWithGNUPLOT("faceSignalSignal.txt", SIG);
     //  functions::plotWithGNUPLOT("backgroundSignal.txt", SIG);
     //  functions::plotWithGNUPLOT("nlmsOutputEstimation.txt", SIG);
     //  functions::plotWithGNUPLOT("FFTnlmsOutputEstimation.txt", FFT);
-    //  functions::plotWithGNUPLOT("foreHeadMeanValueRemoved.txt", SIG);
-    //  functions::plotWithGNUPLOT("FFTforeHeadMeanValueRemoved.txt", FFT);
-    //  functions::plotWithGNUPLOT("filteredForeHeadBandPass.txt", SIG);
-    //  functions::plotWithGNUPLOT("FFTfiltredForeHead.txt", FFT);
+//      functions::plotWithGNUPLOT("faceSignalMeanValueRemoved.txt", SIG);
+//      functions::plotWithGNUPLOT("FFTfaceSignalMeanValueRemoved.txt", FFT);
+//      functions::plotWithGNUPLOT("filteredfaceSignalBandPass.txt", SIG);
+//      functions::plotWithGNUPLOT("FFTfiltredfaceSignal.txt", FFT);
 
 }
 

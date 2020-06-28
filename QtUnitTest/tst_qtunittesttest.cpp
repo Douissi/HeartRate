@@ -110,8 +110,8 @@ void TestVideoProcessing::testVideoObjCreation()
     QVERIFY(!videoObj.capture.isOpened());
     QVERIFY(videoObj.Fs == 0.0);
     QVERIFY(videoObj.numberOfFrames == 0);
-    QVERIFY(videoObj.foreHeadSignal.Fs == 0.0);
-    QVERIFY(videoObj.foreHeadSignal.numberOfSamples == 0);
+    QVERIFY(videoObj.faceSignal.Fs == 0.0);
+    QVERIFY(videoObj.faceSignal.numberOfSamples == 0);
     QVERIFY(videoObj.backgroundSignal.Fs == 0.0);
     QVERIFY(videoObj.backgroundSignal.numberOfSamples == 0);
     QVERIFY(videoObj.width == 0);
@@ -121,8 +121,8 @@ void TestVideoProcessing::testVideoObjCreation()
     QVERIFY(videoProcessingObj.capture.isOpened());
     QVERIFY(videoProcessingObj.Fs == 30.0);
     QVERIFY(videoProcessingObj.numberOfFrames == 338);
-    QVERIFY(videoProcessingObj.foreHeadSignal.Fs == 30.0);
-    QVERIFY(videoProcessingObj.foreHeadSignal.numberOfSamples == 0);
+    QVERIFY(videoProcessingObj.faceSignal.Fs == 30.0);
+    QVERIFY(videoProcessingObj.faceSignal.numberOfSamples == 0);
     QVERIFY(videoProcessingObj.backgroundSignal.Fs == 30.0);
     QVERIFY(videoProcessingObj.backgroundSignal.numberOfSamples == 0);
     QVERIFY(videoProcessingObj.width == 640);
@@ -193,25 +193,21 @@ void TestVideoProcessing::testFaceForeHeadAndBackgroundMatrixCreation()
     //    Check CV::Mat Faces / foreHead / background are empty
     QVERIFY(videoProcessingObj.face.elemSize() == 0);
     QVERIFY(videoProcessingObj.background.elemSize() == 0);
-    QVERIFY(videoProcessingObj.foreHead.elemSize() == 0);
 
     // Check channel green is not empty
     QVERIFY(!videoProcessingObj.channels[GREEN].empty());
 
-    // Load rectangles for background and foreHeads
+    // Load rectangles for background
     videoProcessingObj.backgroundRect = Rect(5, 116 , 128, 200);
-    videoProcessingObj.foreHeads.push_back(Rect(5, 116 , 128, 200));
     /******* Face has been set in previous test ******/
 
     QVERIFY(videoProcessingObj.faces.size() > 0);
-    QVERIFY(videoProcessingObj.foreHeads.size() > 0);
 
-    videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+    videoProcessingObj.skinDetectionOverFaceAndMatrixCreationFromGreenChannel();
 
     // Check CV::Mat Faces / foreHead / background are not empty any more
     QVERIFY(videoProcessingObj.face.elemSize() != 0);
     QVERIFY(videoProcessingObj.background.elemSize() != 0);
-    QVERIFY(videoProcessingObj.foreHead.elemSize() != 0);
 }
 
 

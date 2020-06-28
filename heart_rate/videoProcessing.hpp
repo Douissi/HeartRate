@@ -24,12 +24,12 @@ public :
     void faceCascadeLoading(const string& path);
     void capturingFrames();
     void detectFacesFromGreenChannelInVideo();
-    void creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+    void skinDetectionOverFaceAndMatrixCreationFromGreenChannel();
     static void drawRectangle(cv::Mat& inputOutputImage, const Rect& rect);
     static void imageColorToGreyTransform(const cv::Mat& InputImageColor, cv::Mat& OutputGreyColor);
     static float meanFrameValue(const cv::Mat& inputFrame);
-    void fillforeHeadSignal();
-    void fillbackgroundSignal();
+    void fillFaceSignal();
+    void fillBackgroundSignal();
     void displayFrame(bool display = true);
     bool isFrameEmpty();
     void BGR2RGB();
@@ -37,20 +37,14 @@ public :
     void computeHeartRateEstimation();
 
     /************************************** Setters *********************************/
-    void setbackGroundRect(const Rect& background) { backgroundRect = background; }
-    void setRectFacesVector(const std::vector<Rect>& rectFacesVector) { faces = rectFacesVector; }
-    void setRectForeHeadsVector(const std::vector<Rect>& rectForeHeadsVector) { foreHeads =  rectForeHeadsVector; }
+    void setBackGroundRect(const Rect& background) { backgroundRect = background; }
 
     /************************************** Getters ********************************/
     const std::vector<Rect>& getFaces() const { return faces; }
-    const cv::Mat& getframe() const { return frame; }
-    const Rect& getbackgroundRect() const { return backgroundRect; }
-    const cv::Mat& getforeHead() const { return foreHead; }
-    const cv::Mat& getbackground() const { return background; }
+    const cv::Mat& getFrame() const { return frame; }
     const double& getFs() const { return Fs; }
-    const unsigned int& getNumOfFrames() const { return numberOfFrames; }
-    signalProcessing<float>& getforeHeadSignal() { return foreHeadSignal; }
-    signalProcessing<float>& getbackgroundSignal() { return backgroundSignal; }
+    signalProcessing<float>& getFaceSignal() { return faceSignal; }
+    signalProcessing<float>& getBackgroundSignal() { return backgroundSignal; }
     const float& getHeartRateEstimation() const { return heartRateEstimation; }
 
 
@@ -62,12 +56,10 @@ private:
     cv::Mat frame; // frame
     cv::Mat channels[3] = {};   // Channels RGB
     std::vector<Rect> faces = {}; // Rectangles containing faces
-    std::vector<Rect> foreHeads = {}; // Rectangles containing foreHeads
     Rect backgroundRect; // a rectangle containing background dimension
-    cv::Mat foreHead;
     cv::Mat face;
     cv::Mat background;
-    signalProcessing<float> foreHeadSignal; // signal samples
+    signalProcessing<float> faceSignal; // signal samples
     signalProcessing<float> backgroundSignal; // signal samples
     float heartRateEstimation;
 
