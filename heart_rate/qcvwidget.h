@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QThread>
+#include "videoProcessing.hpp"
+
 
 namespace Ui {
 class QcvWidget;
@@ -17,6 +19,7 @@ private:
     QThread* thread;
 
     void setup();
+    void configureUi(const IvideoProcessing* const worker);
 
 public:
     explicit QcvWidget(QWidget *parent = 0);
@@ -27,8 +30,11 @@ signals:
 
 private slots:
     void receiveFrame(const QImage& frame);
+    void receiveFace(const QImage& face);
     void receiveHeartRateEstimation(const float& heartRate);
     void receiveToggleStream();
+    void receiveRealTimeMode();
+    void receiveOfflineMode();
 
 };
 

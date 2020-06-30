@@ -206,7 +206,7 @@ void IvideoProcessing::receiveGrabFrame()
 }
 
 
-void IvideoProcessing::processVideoStream()
+void IvideoProcessing:: processVideoStream()
 {
     videoObj->detectFacesFromGreenChannelInVideo();
     const std::vector<Rect>& faces = videoObj->getFaces();
@@ -218,6 +218,13 @@ void IvideoProcessing::processVideoStream()
     videoObj->setBackGroundRect(backgroundRect);
 
     videoObj->skinDetectionOverFaceAndMatrixCreationFromGreenChannel();
+
+    cv::Mat faceRBG;
+    cvtColor(videoObj->getFace(), faceRBG, COLOR_BGR2RGB);
+
+    QImage outputFace = QImage((const uchar*)  faceRBG.data, faceRBG.cols, faceRBG.rows, faceRBG.step, QImage::Format_RGB888);
+
+    emit sendFace(outputFace);
 
     videoObj->fillFaceSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
     videoObj->fillBackgroundSignal();// construction of the background Signal with mean of green Channel each frame

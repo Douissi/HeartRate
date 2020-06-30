@@ -42,6 +42,7 @@ public :
     /************************************** Getters ********************************/
     const std::vector<Rect>& getFaces() const { return faces; }
     const cv::Mat& getFrame() const { return frame; }
+    const cv::Mat& getFace() const { return face; }
     const double& getFs() const { return Fs; }
     signalProcessing<float>& getFaceSignal() { return faceSignal; }
     signalProcessing<float>& getBackgroundSignal() { return backgroundSignal; }
@@ -99,6 +100,7 @@ public :
 signals:
 
     void sendFrame(const QImage& frameProcessed);
+    void sendFace(const QImage& faceProcessed);
     void sendHeartRateEstimation(const float& heartRateEstimation);
 
 public slots:

@@ -21,19 +21,30 @@ QcvWidget::~QcvWidget()
     delete ui;
 }
 
+void QcvWidget::configureUi(const IvideoProcessing* const worker)
+{
+    ui->labelView->setFixedWidth(worker->getWidth());
+    ui->labelView->setFixedHeight(worker->getHeight());
+    ui->skinDetected->hasScaledContents();
+    ui->skinDetected->setScaledContents(true);
+    ui->textUsedMode->setFontWeight(QFont::Bold);
+}
+
 void QcvWidget::setup()
 {
     thread = new QThread();
     IvideoProcessing* worker = new IvideoProcessing();
     QTimer* workerTrigger = new QTimer();
     workerTrigger->setInterval(static_cast<int>((1.0/worker->getFs())*1000.0)); // maybe 1/Fs = 33 ms of the video ???
-    ui->labelView->setFixedWidth(worker->getWidth());
-    ui->labelView->setFixedHeight(worker->getHeight());
+    configureUi(worker);
 
     connect(workerTrigger, SIGNAL(timeout()), worker, SLOT(receiveGrabFrame()));
     connect(this, SIGNAL(sendToggleSTream()), worker, SLOT(receiveToggleStream()));
     connect(ui->pushButtonPlay, SIGNAL(clicked(bool)), this, SLOT(receiveToggleStream()));
+    connect(ui->realTimeMode, SIGNAL(clicked(bool)), this, SLOT(receiveRealTimeMode()));
+    connect(ui->OfflineMode, SIGNAL(clicked(bool)), this, SLOT(receiveOfflineMode()));
     connect(worker, SIGNAL(sendFrame(const QImage&)), this, SLOT(receiveFrame(const QImage&)));
+    connect(worker, SIGNAL(sendFace(const QImage&)), this, SLOT(receiveFace(const QImage&)));
     connect(worker, SIGNAL(sendHeartRateEstimation(float)), this, SLOT(receiveHeartRateEstimation(float)));
 
     connect(thread, SIGNAL(finished()), worker, SLOT(deleteLater())); // check how videoObj is deleted
@@ -52,6 +63,11 @@ void QcvWidget::receiveFrame(const QImage& frame)
     ui->labelView->setPixmap(QPixmap::fromImage(frame));
 }
 
+void QcvWidget::receiveFace(const QImage& face)
+{
+    ui->skinDetected->setPixmap(QPixmap::fromImage(face));
+}
+
 void QcvWidget::receiveHeartRateEstimation(const float& heartRate)
 {
     ui->lcdNumber->display(static_cast<double>(heartRate));
@@ -63,4 +79,14 @@ void QcvWidget::receiveToggleStream()
     else ui->pushButtonPlay->setText("start");
 
     emit sendToggleSTream();
+}
+
+void QcvWidget::receiveOfflineMode()
+{
+    ui->textUsedMode->setText("Offline Mode Used, click start to begin");
+}
+
+void QcvWidget::receiveRealTimeMode()
+{
+   ui->textUsedMode->setText("Real Time Mode Used, click start to begin");
 }
