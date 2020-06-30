@@ -20,6 +20,7 @@
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -36,22 +37,23 @@ public:
     QTextBrowser *textUsedMode;
     QPushButton *OfflineMode;
     QLabel *skinDetected;
+    QCustomPlot *customPlot;
 
     void setupUi(QWidget *QcvWidget)
     {
         if (QcvWidget->objectName().isEmpty())
             QcvWidget->setObjectName(QStringLiteral("QcvWidget"));
-        QcvWidget->resize(758, 633);
+        QcvWidget->resize(969, 763);
         labelView = new QLabel(QcvWidget);
         labelView->setObjectName(QStringLiteral("labelView"));
         labelView->setGeometry(QRect(40, 90, 451, 371));
         labelView->setStyleSheet(QStringLiteral("border: 1px solid;"));
         textBrowser = new QTextBrowser(QcvWidget);
         textBrowser->setObjectName(QStringLiteral("textBrowser"));
-        textBrowser->setGeometry(QRect(580, 30, 171, 31));
+        textBrowser->setGeometry(QRect(590, 20, 171, 31));
         layoutWidget = new QWidget(QcvWidget);
         layoutWidget->setObjectName(QStringLiteral("layoutWidget"));
-        layoutWidget->setGeometry(QRect(580, 70, 171, 201));
+        layoutWidget->setGeometry(QRect(590, 70, 171, 201));
         verticalLayout = new QVBoxLayout(layoutWidget);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
@@ -78,8 +80,11 @@ public:
         OfflineMode->setContextMenuPolicy(Qt::ActionsContextMenu);
         skinDetected = new QLabel(QcvWidget);
         skinDetected->setObjectName(QStringLiteral("skinDetected"));
-        skinDetected->setGeometry(QRect(570, 290, 191, 281));
+        skinDetected->setGeometry(QRect(590, 280, 291, 271));
         skinDetected->setStyleSheet(QStringLiteral("border: 1px solid;"));
+        customPlot = new QCustomPlot(QcvWidget);
+        customPlot->setObjectName(QStringLiteral("customPlot"));
+        customPlot->setGeometry(QRect(760, 40, 241, 231));
         labelView->raise();
         textBrowser->raise();
         layoutWidget->raise();
@@ -89,6 +94,7 @@ public:
         textUsedMode->raise();
         OfflineMode->raise();
         skinDetected->raise();
+        customPlot->raise();
 
         retranslateUi(QcvWidget);
 

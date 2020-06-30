@@ -8,7 +8,7 @@ QT       += core gui
 
 CONFIG += c++14
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = heart_rate
 TEMPLATE = app
@@ -26,13 +26,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     qcvwidget.cpp \
     videoProcessing.cpp \
-    signalProcessing.cpp
+    signalProcessing.cpp \
+    qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
     videoProcessing.hpp \
     signalProcessing.hpp \
     qcvwidget.h \
-    functions.hpp
+    functions.hpp \
+    qcustomplot.h
 
 FORMS    += mainwindow.ui \
     qcvwidget.ui

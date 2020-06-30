@@ -20,6 +20,7 @@
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -36,6 +37,7 @@ public:
     QTextBrowser *textUsedMode;
     QPushButton *OfflineMode;
     QLabel *skinDetected;
+    QCustomPlot *customPlot;
 
     void setupUi(QWidget *QcvWidget)
     {
@@ -80,6 +82,9 @@ public:
         skinDetected->setObjectName(QStringLiteral("skinDetected"));
         skinDetected->setGeometry(QRect(570, 290, 191, 281));
         skinDetected->setStyleSheet(QStringLiteral("border: 1px solid;"));
+        customPlot = new QCustomPlot(QcvWidget);
+        customPlot->setObjectName(QStringLiteral("customPlot"));
+        customPlot->setGeometry(QRect(530, 450, 181, 161));
         labelView->raise();
         textBrowser->raise();
         layoutWidget->raise();
@@ -89,6 +94,7 @@ public:
         textUsedMode->raise();
         OfflineMode->raise();
         skinDetected->raise();
+        customPlot->raise();
 
         retranslateUi(QcvWidget);
 

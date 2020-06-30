@@ -36,6 +36,7 @@ private slots:
     void receiveRealTimeMode();
     void receiveOfflineMode();
 
+    void makePlot();
 };
 
 #endif // QCVWIDGET_H
