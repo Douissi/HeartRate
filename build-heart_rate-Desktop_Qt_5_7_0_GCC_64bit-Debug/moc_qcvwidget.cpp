@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_QcvWidget_t {
-    QByteArrayData data[13];
-    char stringdata0[169];
+    QByteArrayData data[15];
+    char stringdata0[191];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -41,14 +41,17 @@ QT_MOC_LITERAL(8, 91, 9), // "heartRate"
 QT_MOC_LITERAL(9, 101, 19), // "receiveToggleStream"
 QT_MOC_LITERAL(10, 121, 19), // "receiveRealTimeMode"
 QT_MOC_LITERAL(11, 141, 18), // "receiveOfflineMode"
-QT_MOC_LITERAL(12, 160, 8) // "makePlot"
+QT_MOC_LITERAL(12, 160, 8), // "makePlot"
+QT_MOC_LITERAL(13, 169, 11), // "vectorFloat"
+QT_MOC_LITERAL(14, 181, 9) // "sigToPlot"
 
     },
     "QcvWidget\0sendToggleSTream\0\0receiveFrame\0"
     "frame\0receiveFace\0face\0"
     "receiveHeartRateEstimation\0heartRate\0"
     "receiveToggleStream\0receiveRealTimeMode\0"
-    "receiveOfflineMode\0makePlot"
+    "receiveOfflineMode\0makePlot\0vectorFloat\0"
+    "sigToPlot"
 };
 #undef QT_MOC_LITERAL
 
@@ -75,7 +78,7 @@ static const uint qt_meta_data_QcvWidget[] = {
        9,    0,   64,    2, 0x08 /* Private */,
       10,    0,   65,    2, 0x08 /* Private */,
       11,    0,   66,    2, 0x08 /* Private */,
-      12,    0,   67,    2, 0x08 /* Private */,
+      12,    1,   67,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void,
@@ -87,7 +90,7 @@ static const uint qt_meta_data_QcvWidget[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 13,   14,
 
        0        // eod
 };
@@ -105,7 +108,7 @@ void QcvWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 4: _t->receiveToggleStream(); break;
         case 5: _t->receiveRealTimeMode(); break;
         case 6: _t->receiveOfflineMode(); break;
-        case 7: _t->makePlot(); break;
+        case 7: _t->makePlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {

@@ -9,8 +9,8 @@ QcvWidget::QcvWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->labelView->setScaledContents(true);
+    qRegisterMetaType<vectorFloat>("vectorFloat");
     setup();
-    makePlot();
 }
 
 QcvWidget::~QcvWidget()
@@ -20,15 +20,6 @@ QcvWidget::~QcvWidget()
 
     delete thread;
     delete ui;
-}
-
-void QcvWidget::configureUi(const IvideoProcessing* const worker)
-{
-    ui->labelView->setFixedWidth(worker->getWidth());
-    ui->labelView->setFixedHeight(worker->getHeight());
-    ui->skinDetected->hasScaledContents();
-    ui->skinDetected->setScaledContents(true);
-    ui->textUsedMode->setFontWeight(QFont::Bold);
 }
 
 void QcvWidget::setup()
@@ -47,6 +38,7 @@ void QcvWidget::setup()
     connect(worker, SIGNAL(sendFrame(const QImage&)), this, SLOT(receiveFrame(const QImage&)));
     connect(worker, SIGNAL(sendFace(const QImage&)), this, SLOT(receiveFace(const QImage&)));
     connect(worker, SIGNAL(sendHeartRateEstimation(float)), this, SLOT(receiveHeartRateEstimation(float)));
+    connect(worker, SIGNAL(sendSignalToPlot(const vectorFloat)), this, SLOT(makePlot(const vectorFloat)));
 
     connect(thread, SIGNAL(finished()), worker, SLOT(deleteLater())); // check how videoObj is deleted
     connect(thread, SIGNAL(finished()), workerTrigger, SLOT(deleteLater()));
@@ -56,6 +48,15 @@ void QcvWidget::setup()
     workerTrigger->moveToThread(thread);
 
     thread->start();
+}
+
+void QcvWidget::configureUi(const IvideoProcessing* const worker)
+{
+    ui->labelView->setFixedWidth(worker->getWidth());
+    ui->labelView->setFixedHeight(worker->getHeight());
+    ui->skinDetected->hasScaledContents();
+    ui->skinDetected->setScaledContents(true);
+    ui->textUsedMode->setFontWeight(QFont::Bold);
 }
 
 
@@ -82,6 +83,30 @@ void QcvWidget::receiveToggleStream()
     emit sendToggleSTream();
 }
 
+void QcvWidget::makePlot(const vectorFloat sigToPlot)
+{
+    const unsigned int nbOfSamples = sigToPlot.size();
+    // generate some data:
+    QVector<double> x(nbOfSamples), y(nbOfSamples);
+    for (unsigned int i=0; i < nbOfSamples; ++i)
+    {
+//      x[i] = static_cast<double>(i) * 30.0 / (2.0 * static_cast<double>(nbOfSamples));
+      x[i] = i;
+      y[i] = sigToPlot[i];
+    }
+    // create graph and assign data to it:
+    ui->customPlot->addGraph();
+    ui->customPlot->graph(0)->setData(x, y);
+    // give the axes some labels:
+    ui->customPlot->xAxis->setLabel("Signal extracted from Face Skin detetction");
+    ui->customPlot->yAxis->setLabel("Amplitude of the Signal");
+    // set axes ranges, so we see all data:
+    ui->customPlot->xAxis->setRange(0, nbOfSamples);
+    ui->customPlot->yAxis->setRange(*min_element(sigToPlot.begin(), sigToPlot.end()),
+                                    *max_element(sigToPlot.begin(), sigToPlot.end()));
+    ui->customPlot->replot();
+}
+
 void QcvWidget::receiveOfflineMode()
 {
     ui->textUsedMode->setText("Offline Mode Used, click start to begin");
@@ -90,26 +115,4 @@ void QcvWidget::receiveOfflineMode()
 void QcvWidget::receiveRealTimeMode()
 {
    ui->textUsedMode->setText("Real Time Mode Used, click start to begin");
-}
-
-
-void QcvWidget::makePlot()
-{
-    // generate some data:
-    QVector<double> x(101), y(101); // initialize with entries 0..100
-    for (int i=0; i<101; ++i)
-    {
-      x[i] = i/50.0 - 1; // x goes from -1 to 1
-      y[i] = x[i]*x[i]; // let's plot a quadratic function
-    }
-    // create graph and assign data to it:
-    ui->customPlot->addGraph();
-    ui->customPlot->graph(0)->setData(x, y);
-    // give the axes some labels:
-    ui->customPlot->xAxis->setLabel("x");
-    ui->customPlot->yAxis->setLabel("y");
-    // set axes ranges, so we see all data:
-    ui->customPlot->xAxis->setRange(-1, 1);
-    ui->customPlot->yAxis->setRange(0, 1);
-    ui->customPlot->replot();
 }

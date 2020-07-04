@@ -142,11 +142,8 @@ void videoProcessing::clearSignals()
     backgroundSignal.clearSignal();
 }
 
-void videoProcessing::computeHeartRateEstimation()
+void videoProcessing::computeHeartRateEstimation(signalProcessing<float>& filtredSig, signalProcessing<float>& FFTOutput)
 {
-    signalProcessing<float> filtredSig;
-    signalProcessing<float> FFTOutput;
-
     faceSignal.removeMeanValue();
     faceSignal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
     filtredSig.signalFFT(FFTOutput);
@@ -191,7 +188,10 @@ void IvideoProcessing::receiveGrabFrame()
     else
     {
         cptFrames = 0;
-        videoObj->computeHeartRateEstimation();
+        signalProcessing<float> filtredSig;
+        signalProcessing<float> FFTOutput;
+        videoObj->computeHeartRateEstimation(filtredSig, FFTOutput);
+        emit sendSignalToPlot(filtredSig.getSignalSamples());
         videoObj->clearSignals();
         emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
     }

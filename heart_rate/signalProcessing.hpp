@@ -35,7 +35,7 @@ public :
     //****************************************getters *********************************
     std::vector <T>& getSignalSamples() { return signalSamples; }
     const double& getFs() { return Fs; }
-    const unsigned int& getNbOfSamples() { return numberOfSamples; }
+    const unsigned int& getNbOfSamples() const { return numberOfSamples; }
 
     //***************************************setters ********************************
     void setFs(const double& Fech) { Fs = Fech; }

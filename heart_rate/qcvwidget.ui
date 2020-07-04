@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>969</width>
+    <width>1213</width>
     <height>763</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
   <widget class="QTextBrowser" name="textBrowser">
    <property name="geometry">
     <rect>
-     <x>590</x>
+     <x>620</x>
      <y>20</y>
      <width>171</width>
      <height>31</height>
@@ -49,10 +49,10 @@ p, li { white-space: pre-wrap; }
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>590</x>
+     <x>620</x>
      <y>70</y>
-     <width>171</width>
-     <height>201</height>
+     <width>181</width>
+     <height>211</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -120,8 +120,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="skinDetected">
    <property name="geometry">
     <rect>
-     <x>590</x>
-     <y>280</y>
+     <x>620</x>
+     <y>320</y>
      <width>291</width>
      <height>271</height>
     </rect>
@@ -136,23 +136,13 @@ p, li { white-space: pre-wrap; }
   <widget class="QCustomPlot" name="customPlot" native="true">
    <property name="geometry">
     <rect>
-     <x>760</x>
-     <y>40</y>
-     <width>241</width>
-     <height>231</height>
+     <x>810</x>
+     <y>50</y>
+     <width>391</width>
+     <height>261</height>
     </rect>
    </property>
   </widget>
-  <zorder>labelView</zorder>
-  <zorder>textBrowser</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>pushButtonPlay</zorder>
-  <zorder>lcdNumber</zorder>
-  <zorder>realTimeMode</zorder>
-  <zorder>textUsedMode</zorder>
-  <zorder>OfflineMode</zorder>
-  <zorder>skinDetected</zorder>
-  <zorder>customPlot</zorder>
  </widget>
  <customwidgets>
   <customwidget>

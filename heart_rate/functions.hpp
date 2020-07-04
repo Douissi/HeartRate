@@ -20,6 +20,8 @@ using namespace std;
 using namespace arma;
 using namespace sp;
 
+typedef std::vector<float> vectorFloat;
+
 constexpr float lowFreqCutOff = 0.5f; // in Hz, corresponding to 30Bp/min
 constexpr float highFreqCutOff = 4.5f; // in Hz, corresponding to 270 Bp/min
 constexpr int filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30

@@ -35,8 +35,8 @@ private slots:
     void receiveToggleStream();
     void receiveRealTimeMode();
     void receiveOfflineMode();
+    void makePlot(const vectorFloat sigToPlot);
 
-    void makePlot();
 };
 
 #endif // QCVWIDGET_H

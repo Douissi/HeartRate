@@ -34,7 +34,7 @@ public :
     bool isFrameEmpty();
     void BGR2RGB();
     void clearSignals();
-    void computeHeartRateEstimation();
+    void computeHeartRateEstimation(signalProcessing<float>& filtredSig, signalProcessing<float>& FFTOutput);
 
     /************************************** Setters *********************************/
     void setBackGroundRect(const Rect& background) { backgroundRect = background; }
@@ -102,6 +102,7 @@ signals:
     void sendFrame(const QImage& frameProcessed);
     void sendFace(const QImage& faceProcessed);
     void sendHeartRateEstimation(const float& heartRateEstimation);
+    void sendSignalToPlot(const vectorFloat sigToPlot);
 
 public slots:
 
