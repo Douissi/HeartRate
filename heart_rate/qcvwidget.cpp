@@ -5,7 +5,8 @@
 
 QcvWidget::QcvWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::QcvWidget)
+    ui(new Ui::QcvWidget),
+    Fs(0.0)
 {
     ui->setupUi(this);
     ui->labelView->setScaledContents(true);
@@ -25,10 +26,11 @@ QcvWidget::~QcvWidget()
 void QcvWidget::setup()
 {
     thread = new QThread();
-    IvideoProcessing* worker = new IvideoProcessing();
+    IvideoProcessing* worker = new IvideoProcessing("face.mp4");
     QTimer* workerTrigger = new QTimer();
-    workerTrigger->setInterval(static_cast<int>((1.0/worker->getFs())*1000.0)); // maybe 1/Fs = 33 ms of the video ???
-    configureUi(worker);
+    Fs = worker->getFs();
+    workerTrigger->setInterval(static_cast<int>((1.0/Fs)*1000.0)); // maybe 1/Fs = 33 ms of the video ???
+    configureUi();
 
     connect(workerTrigger, SIGNAL(timeout()), worker, SLOT(receiveGrabFrame()));
     connect(this, SIGNAL(sendToggleSTream()), worker, SLOT(receiveToggleStream()));
@@ -38,7 +40,8 @@ void QcvWidget::setup()
     connect(worker, SIGNAL(sendFrame(const QImage&)), this, SLOT(receiveFrame(const QImage&)));
     connect(worker, SIGNAL(sendFace(const QImage&)), this, SLOT(receiveFace(const QImage&)));
     connect(worker, SIGNAL(sendHeartRateEstimation(float)), this, SLOT(receiveHeartRateEstimation(float)));
-    connect(worker, SIGNAL(sendSignalToPlot(const vectorFloat)), this, SLOT(makePlot(const vectorFloat)));
+    connect(worker, SIGNAL(sendSignalToPlot(const vectorFloat)), this, SLOT(faceSignalPlot(const vectorFloat)));
+    connect(worker, SIGNAL(sendFFTtoPlot(const vectorFloat)), this, SLOT(faceFFTPlot(const vectorFloat)));
 
     connect(thread, SIGNAL(finished()), worker, SLOT(deleteLater())); // check how videoObj is deleted
     connect(thread, SIGNAL(finished()), workerTrigger, SLOT(deleteLater()));
@@ -50,10 +53,12 @@ void QcvWidget::setup()
     thread->start();
 }
 
-void QcvWidget::configureUi(const IvideoProcessing* const worker)
+void QcvWidget::configureUi()
 {
-    ui->labelView->setFixedWidth(worker->getWidth());
-    ui->labelView->setFixedHeight(worker->getHeight());
+//    ui->labelView->setFixedWidth(worker->getWidth());
+//    ui->labelView->setFixedHeight(worker->getHeight());
+    ui->labelView->hasScaledContents();
+    ui->labelView->setScaledContents(true);
     ui->skinDetected->hasScaledContents();
     ui->skinDetected->setScaledContents(true);
     ui->textUsedMode->setFontWeight(QFont::Bold);
@@ -83,14 +88,13 @@ void QcvWidget::receiveToggleStream()
     emit sendToggleSTream();
 }
 
-void QcvWidget::makePlot(const vectorFloat sigToPlot)
+void QcvWidget::faceSignalPlot(const vectorFloat sigToPlot)
 {
     const unsigned int nbOfSamples = sigToPlot.size();
     // generate some data:
     QVector<double> x(nbOfSamples), y(nbOfSamples);
     for (unsigned int i=0; i < nbOfSamples; ++i)
     {
-//      x[i] = static_cast<double>(i) * 30.0 / (2.0 * static_cast<double>(nbOfSamples));
       x[i] = i;
       y[i] = sigToPlot[i];
     }
@@ -98,13 +102,36 @@ void QcvWidget::makePlot(const vectorFloat sigToPlot)
     ui->customPlot->addGraph();
     ui->customPlot->graph(0)->setData(x, y);
     // give the axes some labels:
-    ui->customPlot->xAxis->setLabel("Signal extracted from Face Skin detetction");
+    ui->customPlot->xAxis->setLabel("Signal extracted from Face Skin detection");
     ui->customPlot->yAxis->setLabel("Amplitude of the Signal");
     // set axes ranges, so we see all data:
     ui->customPlot->xAxis->setRange(0, nbOfSamples);
     ui->customPlot->yAxis->setRange(*min_element(sigToPlot.begin(), sigToPlot.end()),
                                     *max_element(sigToPlot.begin(), sigToPlot.end()));
     ui->customPlot->replot();
+}
+
+void QcvWidget::faceFFTPlot(const vectorFloat FFTtoPlot)
+{
+    const unsigned int nbOfSamples = FFTtoPlot.size();
+    // generate some data:
+    QVector<double> x(nbOfSamples), y(nbOfSamples);
+    for (unsigned int i=0; i < nbOfSamples; ++i)
+    {
+      x[i] = static_cast<double>(i) * Fs / (2.0 * static_cast<double>(nbOfSamples)); // 30 = Fech
+      y[i] = FFTtoPlot[i];
+    }
+    // create graph and assign data to it:
+    ui->FFTOutput->addGraph();
+    ui->FFTOutput->graph(0)->setData(x, y);
+    // give the axes some labels:
+    ui->FFTOutput->xAxis->setLabel("FFT extracted from Face Skin detection");
+    ui->FFTOutput->yAxis->setLabel("Amplitude of the FFT");
+    // set axes ranges, so we see all data:
+    ui->FFTOutput->xAxis->setRange(0, 6); // Max of Heart Rate freq not exceeding 6 Hz
+    ui->FFTOutput->yAxis->setRange(*min_element(FFTtoPlot.begin(), FFTtoPlot.end()),
+                                    *max_element(FFTtoPlot.begin(), FFTtoPlot.end()));
+    ui->FFTOutput->replot();
 }
 
 void QcvWidget::receiveOfflineMode()

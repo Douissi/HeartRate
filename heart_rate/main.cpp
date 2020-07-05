@@ -10,7 +10,7 @@ void testWithNoGui()
 {
     // Create a VideoCapture object and open the input file
     // If the input is the web camera, pass 0 instead of the video file name
-    videoProcessing videoObj("face.mp4");
+    videoProcessing videoObj("face3.mp4");
 
     videoObj.faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
 
@@ -91,7 +91,7 @@ void testWithNoGui()
 
 }
 
-uchar istestWithNoGui = 0;
+uchar istestWithNoGui = 2;
 
 int main(int argc, char *argv[])
 {

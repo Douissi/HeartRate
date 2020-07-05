@@ -155,9 +155,9 @@ void videoProcessing::computeHeartRateEstimation(signalProcessing<float>& filtre
 //*************************** Implementation of Interface VideoProcessing class *************************
 //*******************************************************************************************************
 
-IvideoProcessing::IvideoProcessing(QObject *parent) : QObject(parent), toggleStream(false), cptFrames(0)
+IvideoProcessing::IvideoProcessing(const string& input, QObject *parent) : QObject(parent), toggleStream(false), cptFrames(0)
 {
-    videoObj = new videoProcessing("face.mp4");
+    videoObj = new videoProcessing(input);
     videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
     maxNbOfFrames = windowLength * static_cast<u32>(videoObj->getFs());
 }
@@ -192,6 +192,7 @@ void IvideoProcessing::receiveGrabFrame()
         signalProcessing<float> FFTOutput;
         videoObj->computeHeartRateEstimation(filtredSig, FFTOutput);
         emit sendSignalToPlot(filtredSig.getSignalSamples());
+        emit sendFFTtoPlot(FFTOutput.getSignalSamples());
         videoObj->clearSignals();
         emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
     }

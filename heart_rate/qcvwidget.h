@@ -17,9 +17,10 @@ class QcvWidget : public QWidget
 private:
     Ui::QcvWidget *ui;
     QThread* thread;
+    double Fs;
 
     void setup();
-    void configureUi(const IvideoProcessing* const worker);
+    void configureUi();
 
 public:
     explicit QcvWidget(QWidget *parent = 0);
@@ -35,7 +36,8 @@ private slots:
     void receiveToggleStream();
     void receiveRealTimeMode();
     void receiveOfflineMode();
-    void makePlot(const vectorFloat sigToPlot);
+    void faceSignalPlot(const vectorFloat sigToPlot);
+    void faceFFTPlot(const vectorFloat FFTtoPlot);
 
 };
 

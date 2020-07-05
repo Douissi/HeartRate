@@ -90,7 +90,7 @@ private :
 
 public :
 
-    explicit IvideoProcessing(QObject *parent = 0);
+    explicit IvideoProcessing(const string& input, QObject *parent = 0);
     ~IvideoProcessing();
 
     const double& getFs() const { return videoObj->getFs(); }
@@ -103,6 +103,7 @@ signals:
     void sendFace(const QImage& faceProcessed);
     void sendHeartRateEstimation(const float& heartRateEstimation);
     void sendSignalToPlot(const vectorFloat sigToPlot);
+    void sendFFTtoPlot(const vectorFloat FFTtoPlot);
 
 public slots:
 

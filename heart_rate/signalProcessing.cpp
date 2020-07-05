@@ -195,5 +195,5 @@ float signalProcessing<T>::getFrequencyOfMaxFFT()
 
 
 
-// avoid linking issue to explicitly instantiate the template as flaot signals
+// avoid linking issue to explicitly instantiate the template as float signals
 template class signalProcessing<float>;

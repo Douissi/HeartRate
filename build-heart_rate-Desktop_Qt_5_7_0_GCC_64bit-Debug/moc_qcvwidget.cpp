@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_QcvWidget_t {
-    QByteArrayData data[15];
-    char stringdata0[191];
+    QByteArrayData data[17];
+    char stringdata0[219];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -41,17 +41,20 @@ QT_MOC_LITERAL(8, 91, 9), // "heartRate"
 QT_MOC_LITERAL(9, 101, 19), // "receiveToggleStream"
 QT_MOC_LITERAL(10, 121, 19), // "receiveRealTimeMode"
 QT_MOC_LITERAL(11, 141, 18), // "receiveOfflineMode"
-QT_MOC_LITERAL(12, 160, 8), // "makePlot"
-QT_MOC_LITERAL(13, 169, 11), // "vectorFloat"
-QT_MOC_LITERAL(14, 181, 9) // "sigToPlot"
+QT_MOC_LITERAL(12, 160, 14), // "faceSignalPlot"
+QT_MOC_LITERAL(13, 175, 11), // "vectorFloat"
+QT_MOC_LITERAL(14, 187, 9), // "sigToPlot"
+QT_MOC_LITERAL(15, 197, 11), // "faceFFTPlot"
+QT_MOC_LITERAL(16, 209, 9) // "FFTtoPlot"
 
     },
     "QcvWidget\0sendToggleSTream\0\0receiveFrame\0"
     "frame\0receiveFace\0face\0"
     "receiveHeartRateEstimation\0heartRate\0"
     "receiveToggleStream\0receiveRealTimeMode\0"
-    "receiveOfflineMode\0makePlot\0vectorFloat\0"
-    "sigToPlot"
+    "receiveOfflineMode\0faceSignalPlot\0"
+    "vectorFloat\0sigToPlot\0faceFFTPlot\0"
+    "FFTtoPlot"
 };
 #undef QT_MOC_LITERAL
 
@@ -61,7 +64,7 @@ static const uint qt_meta_data_QcvWidget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -69,16 +72,17 @@ static const uint qt_meta_data_QcvWidget[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   54,    2, 0x06 /* Public */,
+       1,    0,   59,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       3,    1,   55,    2, 0x08 /* Private */,
-       5,    1,   58,    2, 0x08 /* Private */,
-       7,    1,   61,    2, 0x08 /* Private */,
-       9,    0,   64,    2, 0x08 /* Private */,
-      10,    0,   65,    2, 0x08 /* Private */,
-      11,    0,   66,    2, 0x08 /* Private */,
-      12,    1,   67,    2, 0x08 /* Private */,
+       3,    1,   60,    2, 0x08 /* Private */,
+       5,    1,   63,    2, 0x08 /* Private */,
+       7,    1,   66,    2, 0x08 /* Private */,
+       9,    0,   69,    2, 0x08 /* Private */,
+      10,    0,   70,    2, 0x08 /* Private */,
+      11,    0,   71,    2, 0x08 /* Private */,
+      12,    1,   72,    2, 0x08 /* Private */,
+      15,    1,   75,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void,
@@ -91,6 +95,7 @@ static const uint qt_meta_data_QcvWidget[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, 0x80000000 | 13,   14,
+    QMetaType::Void, 0x80000000 | 13,   16,
 
        0        // eod
 };
@@ -108,7 +113,8 @@ void QcvWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 4: _t->receiveToggleStream(); break;
         case 5: _t->receiveRealTimeMode(); break;
         case 6: _t->receiveOfflineMode(); break;
-        case 7: _t->makePlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
+        case 7: _t->faceSignalPlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
+        case 8: _t->faceFFTPlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -149,13 +155,13 @@ int QcvWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 9)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }
