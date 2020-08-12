@@ -99,9 +99,9 @@ public :
 
 signals:
 
-    void sendFrame(const QImage& frameProcessed);
-    void sendFace(const QImage& faceProcessed);
-    void sendHeartRateEstimation(const float& heartRateEstimation);
+    void sendFrame(const QImage frameProcessed);
+    void sendFace(const QImage faceProcessed);
+    void sendHeartRateEstimation(const float heartRateEstimation);
     void sendSignalToPlot(const vectorFloat sigToPlot);
     void sendFFTtoPlot(const vectorFloat FFTtoPlot);
 
@@ -109,6 +109,8 @@ public slots:
 
     void receiveGrabFrame();
     void receiveToggleStream();
+    void receiveStopStream();
+    void receiveReconstructVideoObj(const string input);
 
 private :
 

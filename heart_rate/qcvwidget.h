@@ -28,11 +28,13 @@ public:
 
 signals:
     void sendToggleSTream();
+    void sendStopStream();
+    void sendReconstructOfflineVideoObj(const string input);
 
 private slots:
-    void receiveFrame(const QImage& frame);
-    void receiveFace(const QImage& face);
-    void receiveHeartRateEstimation(const float& heartRate);
+    void receiveFrame(const QImage frame);
+    void receiveFace(const QImage face);
+    void receiveHeartRateEstimation(const float heartRate);
     void receiveToggleStream();
     void receiveRealTimeMode();
     void receiveOfflineMode();

@@ -11,6 +11,7 @@ QcvWidget::QcvWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->labelView->setScaledContents(true);
     qRegisterMetaType<vectorFloat>("vectorFloat");
+    qRegisterMetaType<string>("string");
     setup();
 }
 
@@ -37,11 +38,13 @@ void QcvWidget::setup()
     connect(ui->pushButtonPlay, SIGNAL(clicked(bool)), this, SLOT(receiveToggleStream()));
     connect(ui->realTimeMode, SIGNAL(clicked(bool)), this, SLOT(receiveRealTimeMode()));
     connect(ui->OfflineMode, SIGNAL(clicked(bool)), this, SLOT(receiveOfflineMode()));
-    connect(worker, SIGNAL(sendFrame(const QImage&)), this, SLOT(receiveFrame(const QImage&)));
-    connect(worker, SIGNAL(sendFace(const QImage&)), this, SLOT(receiveFace(const QImage&)));
+    connect(worker, SIGNAL(sendFrame(const QImage)), this, SLOT(receiveFrame(const QImage)));
+    connect(worker, SIGNAL(sendFace(const QImage)), this, SLOT(receiveFace(const QImage)));
     connect(worker, SIGNAL(sendHeartRateEstimation(float)), this, SLOT(receiveHeartRateEstimation(float)));
     connect(worker, SIGNAL(sendSignalToPlot(const vectorFloat)), this, SLOT(faceSignalPlot(const vectorFloat)));
     connect(worker, SIGNAL(sendFFTtoPlot(const vectorFloat)), this, SLOT(faceFFTPlot(const vectorFloat)));
+    connect(this, SIGNAL(sendStopStream()), worker, SLOT(receiveStopStream()));
+    connect(this, SIGNAL(sendReconstructOfflineVideoObj(const string)), worker, SLOT(receiveReconstructVideoObj(const string)));
 
     connect(thread, SIGNAL(finished()), worker, SLOT(deleteLater())); // check how videoObj is deleted
     connect(thread, SIGNAL(finished()), workerTrigger, SLOT(deleteLater()));
@@ -65,17 +68,17 @@ void QcvWidget::configureUi()
 }
 
 
-void QcvWidget::receiveFrame(const QImage& frame)
+void QcvWidget::receiveFrame(const QImage frame)
 {
     ui->labelView->setPixmap(QPixmap::fromImage(frame));
 }
 
-void QcvWidget::receiveFace(const QImage& face)
+void QcvWidget::receiveFace(const QImage face)
 {
     ui->skinDetected->setPixmap(QPixmap::fromImage(face));
 }
 
-void QcvWidget::receiveHeartRateEstimation(const float& heartRate)
+void QcvWidget::receiveHeartRateEstimation(const float heartRate)
 {
     ui->lcdNumber->display(static_cast<double>(heartRate));
 }
@@ -137,6 +140,11 @@ void QcvWidget::faceFFTPlot(const vectorFloat FFTtoPlot)
 void QcvWidget::receiveOfflineMode()
 {
     ui->textUsedMode->setText("Offline Mode Used, click start to begin");
+    ui->pushButtonPlay->setText("start");
+    emit sendStopStream();
+    QString s1 = QFileDialog::getOpenFileName(this, "Open a file", "directoryToOpen",
+                                              "Videos (*.mp4 *.wmv)");
+    emit sendReconstructOfflineVideoObj(s1.toUtf8().constData());
 }
 
 void QcvWidget::receiveRealTimeMode()

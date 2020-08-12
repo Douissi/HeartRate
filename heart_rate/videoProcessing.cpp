@@ -238,3 +238,18 @@ void IvideoProcessing::receiveToggleStream()
     toggleStream = !toggleStream;
     if(!toggleStream) emit sendHeartRateEstimation(0.0);
 }
+
+void IvideoProcessing::receiveStopStream()
+{
+    toggleStream = false;
+}
+
+void IvideoProcessing::receiveReconstructVideoObj(const string input)
+{
+    toggleStream = false;
+    cptFrames = 0;
+    delete videoObj;
+    videoObj = new videoProcessing(input);
+    videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
+    maxNbOfFrames = windowLength * static_cast<u32>(videoObj->getFs());
+}
