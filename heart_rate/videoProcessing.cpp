@@ -23,7 +23,7 @@ videoProcessing::videoProcessing(const String& filename) : capture(filename), Fs
     backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
 }
 
-videoProcessing::videoProcessing(const int& entry) : capture(entry), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
+videoProcessing::videoProcessing(const int& entry, const int windowLen) : capture(entry), Fs (0.0), numberOfFrames (0), faceCascade(), frame(),
     backgroundRect(), face(), background(), faceSignal(), backgroundSignal(), heartRateEstimation(0.0f),
     width(capture.get(CAP_PROP_FRAME_WIDTH)), height(capture.get(CAP_PROP_FRAME_HEIGHT))
 {
@@ -33,7 +33,7 @@ videoProcessing::videoProcessing(const int& entry) : capture(entry), Fs (0.0), n
     }
 
     Fs = (double)(capture.get(CAP_PROP_FPS));
-    numberOfFrames =  windowLength*Fs;
+    numberOfFrames =  windowLen*Fs;
     faceSignal = signalProcessing<float>(numberOfFrames, Fs);
     backgroundSignal = signalProcessing<float>(numberOfFrames, Fs);
 }
@@ -155,11 +155,12 @@ void videoProcessing::computeHeartRateEstimation(signalProcessing<float>& filtre
 //*************************** Implementation of Interface VideoProcessing class *************************
 //*******************************************************************************************************
 
-IvideoProcessing::IvideoProcessing(const string& input, QObject *parent) : QObject(parent), toggleStream(false), cptFrames(0)
+IvideoProcessing::IvideoProcessing(const string& input, QObject *parent) : QObject(parent), toggleStream(false), cptFrames(0),
+  isRealTime(false), inputVideo(input)
 {
     videoObj = new videoProcessing(input);
     videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
-    maxNbOfFrames = windowLength * static_cast<u32>(videoObj->getFs());
+    maxNbOfFrames = windowLenProcess * static_cast<u32>(videoObj->getFs());
 }
 
 IvideoProcessing::~IvideoProcessing()
@@ -207,7 +208,7 @@ void IvideoProcessing::receiveGrabFrame()
 }
 
 
-void IvideoProcessing:: processVideoStream()
+void IvideoProcessing::processVideoStream()
 {
     videoObj->detectFacesFromGreenChannelInVideo();
     const std::vector<Rect>& faces = videoObj->getFaces();
@@ -236,7 +237,6 @@ void IvideoProcessing:: processVideoStream()
 void IvideoProcessing::receiveToggleStream()
 {
     toggleStream = !toggleStream;
-    if(!toggleStream) emit sendHeartRateEstimation(0.0);
 }
 
 void IvideoProcessing::receiveStopStream()
@@ -244,12 +244,35 @@ void IvideoProcessing::receiveStopStream()
     toggleStream = false;
 }
 
-void IvideoProcessing::receiveReconstructVideoObj(const string input)
+void IvideoProcessing::reconstructVideoObj(const string &input, const int &winLen)
 {
     toggleStream = false;
     cptFrames = 0;
     delete videoObj;
     videoObj = new videoProcessing(input);
     videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
-    maxNbOfFrames = windowLength * static_cast<u32>(videoObj->getFs());
+    maxNbOfFrames = winLen * static_cast<u32>(videoObj->getFs());
+    windowLenProcess = winLen;
+    inputVideo = input;
+    emit sendHeartRateEstimation(0.0);
 }
+
+void IvideoProcessing::receiveReconstructVideoObj(const string input)
+{
+    reconstructVideoObj(input, windowLenProcess);
+}
+
+void IvideoProcessing::receiveWinLenChange(const int windowLen)
+{
+   reconstructVideoObj(inputVideo, windowLen);
+}
+
+void IvideoProcessing::receiveResetStream()
+{
+    if(!isRealTime)
+    {
+        reconstructVideoObj(inputVideo, windowLenProcess);
+    }
+    // TODO for realTime
+}
+

@@ -18,6 +18,7 @@ private:
     Ui::QcvWidget *ui;
     QThread* thread;
     double Fs;
+    int windowLen;
 
     void setup();
     void configureUi();
@@ -29,6 +30,8 @@ public:
 signals:
     void sendToggleSTream();
     void sendStopStream();
+    void sendResetStream();
+    void sendWindowLenChange(const int windowLen);
     void sendReconstructOfflineVideoObj(const string input);
 
 private slots:
@@ -38,6 +41,8 @@ private slots:
     void receiveToggleStream();
     void receiveRealTimeMode();
     void receiveOfflineMode();
+    void receiveResetStream();
+    void receiveWinLenChange();
     void faceSignalPlot(const vectorFloat sigToPlot);
     void faceFFTPlot(const vectorFloat FFTtoPlot);
 

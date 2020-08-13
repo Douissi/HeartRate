@@ -17,7 +17,7 @@ public :
     videoProcessing();
     videoProcessing(const String& filename);
     // constructor for webcam entry == 0
-    videoProcessing(const int& entry);
+    videoProcessing(const int& entry, const int windowLen = windowLength);
 
     virtual ~videoProcessing();
 
@@ -87,6 +87,9 @@ private :
     bool toggleStream;
     u32 cptFrames;
     u32 maxNbOfFrames;
+    bool isRealTime;
+    string inputVideo;
+    int windowLenProcess = windowLength;
 
 public :
 
@@ -111,10 +114,13 @@ public slots:
     void receiveToggleStream();
     void receiveStopStream();
     void receiveReconstructVideoObj(const string input);
+    void receiveResetStream();
+    void receiveWinLenChange(const int windowLen);
 
 private :
 
     void processVideoStream();
+    void reconstructVideoObj(const string& input, const int& winLen);
 };
 
 

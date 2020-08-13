@@ -6,7 +6,8 @@
 QcvWidget::QcvWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QcvWidget),
-    Fs(0.0)
+    Fs(0.0),
+    windowLen(windowLength)
 {
     ui->setupUi(this);
     ui->labelView->setScaledContents(true);
@@ -36,6 +37,10 @@ void QcvWidget::setup()
     connect(workerTrigger, SIGNAL(timeout()), worker, SLOT(receiveGrabFrame()));
     connect(this, SIGNAL(sendToggleSTream()), worker, SLOT(receiveToggleStream()));
     connect(ui->pushButtonPlay, SIGNAL(clicked(bool)), this, SLOT(receiveToggleStream()));
+    connect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(receiveResetStream()));
+    connect(ui->pushButtonWinLenValidate, SIGNAL(clicked(bool)), this, SLOT(receiveWinLenChange()));
+    connect(this, SIGNAL(sendResetStream()), worker, SLOT(receiveResetStream()));
+    connect(this, SIGNAL(sendWindowLenChange(int)), worker, SLOT(receiveWinLenChange(int)));
     connect(ui->realTimeMode, SIGNAL(clicked(bool)), this, SLOT(receiveRealTimeMode()));
     connect(ui->OfflineMode, SIGNAL(clicked(bool)), this, SLOT(receiveOfflineMode()));
     connect(worker, SIGNAL(sendFrame(const QImage)), this, SLOT(receiveFrame(const QImage)));
@@ -65,6 +70,7 @@ void QcvWidget::configureUi()
     ui->skinDetected->hasScaledContents();
     ui->skinDetected->setScaledContents(true);
     ui->textUsedMode->setFontWeight(QFont::Bold);
+    ui->spinBox->setValue(windowLen);
 }
 
 
@@ -139,15 +145,45 @@ void QcvWidget::faceFFTPlot(const vectorFloat FFTtoPlot)
 
 void QcvWidget::receiveOfflineMode()
 {
-    ui->textUsedMode->setText("Offline Mode Used, click start to begin");
     ui->pushButtonPlay->setText("start");
     emit sendStopStream();
     QString s1 = QFileDialog::getOpenFileName(this, "Open a file", "directoryToOpen",
                                               "Videos (*.mp4 *.wmv)");
-    emit sendReconstructOfflineVideoObj(s1.toUtf8().constData());
+    if(!s1.isEmpty())
+    {
+        ui->textUsedMode->setText("Offline Mode Used, click start to begin");
+        emit sendReconstructOfflineVideoObj(s1.toUtf8().constData());
+    }
+    else
+    {
+        ui->textUsedMode->setText("No video selected, Offline Mode Used over default face.mp4 video");
+    }
+}
+
+void QcvWidget::receiveResetStream()
+{
+    emit sendStopStream();
+    ui->pushButtonPlay->setText("start");
+    // TODO needs to wait till processVideoStream has finished in the worker (WA with sleep fct)
+//    usleep(100000);
+    emit sendResetStream();
 }
 
 void QcvWidget::receiveRealTimeMode()
 {
+    //TODO for realTime implementation
    ui->textUsedMode->setText("Real Time Mode Used, click start to begin");
+}
+
+void QcvWidget::receiveWinLenChange()
+{
+    int newWinLenValue = ui->spinBox->value();
+    if(newWinLenValue != windowLen)
+    {
+        emit sendStopStream();
+        ui->pushButtonPlay->setText("start");
+        windowLen = newWinLenValue;
+        // TODO needs to wait till processVideoStream has finished in the worker (WA with sleep fct)
+        emit sendWindowLenChange(newWinLenValue);
+    }
 }
