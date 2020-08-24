@@ -24,7 +24,7 @@ typedef std::vector<float> vectorFloat;
 
 constexpr float lowFreqCutOff = 0.5f; // in Hz, corresponding to 30Bp/min
 constexpr float highFreqCutOff = 4.5f; // in Hz, corresponding to 270 Bp/min = 4.5 Hz
-constexpr int filterOrder = 50; // Filter Order in BandPass Hanning Window Filter fixed to 30
+constexpr int filterOrder = 40; // Filter Order in BandPass Hanning Window Filter fixed to 30
 constexpr float mu = 0.5f;
 constexpr u32 windowLength = 2; // sliding window of 2 seconds
 

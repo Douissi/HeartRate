@@ -90,6 +90,7 @@ private :
     bool isRealTime;
     string inputVideo;
     int windowLenProcess = windowLength;
+    bool isFaceDetected;
 
 public :
 

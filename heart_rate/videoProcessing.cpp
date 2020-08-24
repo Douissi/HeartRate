@@ -76,6 +76,7 @@ void videoProcessing::detectFacesFromGreenChannelInVideo()
 
 void videoProcessing::skinDetectionOverFaceAndMatrixCreationFromGreenChannel()
 {
+    // TODO maybe improve performance by processing skin detection only on face !!!
     // skin detection using mask over YCbCr space
     cv::Mat frameYCrCb;
     cvtColor(frame, frameYCrCb, COLOR_BGR2YCrCb);
@@ -156,7 +157,7 @@ void videoProcessing::computeHeartRateEstimation(signalProcessing<float>& filtre
 //*******************************************************************************************************
 
 IvideoProcessing::IvideoProcessing(const string& input, QObject *parent) : QObject(parent), toggleStream(false), cptFrames(0),
-  isRealTime(false), inputVideo(input)
+  isRealTime(false), inputVideo(input), isFaceDetected(false)
 {
     videoObj = new videoProcessing(input);
     videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
@@ -182,6 +183,18 @@ void IvideoProcessing::receiveGrabFrame()
         return;
     }
 
+    processVideoStream();
+
+    if(!isFaceDetected)
+    {
+        return;
+    }
+
+    videoObj->BGR2RGB();
+    QImage output = QImage((const uchar*) videoObj->getFrame().data, videoObj->getFrame().cols, videoObj->getFrame().rows, videoObj->getFrame().step, QImage::Format_RGB888);
+
+    emit sendFrame(output);
+
     if(cptFrames < maxNbOfFrames)
     {
         cptFrames++;
@@ -198,13 +211,6 @@ void IvideoProcessing::receiveGrabFrame()
         emit sendHeartRateEstimation(videoObj->getHeartRateEstimation());
     }
 
-    processVideoStream();
-
-    videoObj->BGR2RGB();
-    QImage output = QImage((const uchar*) videoObj->getFrame().data, videoObj->getFrame().cols, videoObj->getFrame().rows, videoObj->getFrame().step, QImage::Format_RGB888);
-
-    emit sendFrame(output);
-
 }
 
 
@@ -212,6 +218,15 @@ void IvideoProcessing::processVideoStream()
 {
     videoObj->detectFacesFromGreenChannelInVideo();
     const std::vector<Rect>& faces = videoObj->getFaces();
+    if(faces.size() == 0)
+    {
+        isFaceDetected = false;
+        return;
+    }
+    else
+    {
+        isFaceDetected = true;
+    }
 
     // Background detection deduced from face detection
     const Rect backgroundRect = Rect(faces[0].x + faces[0].width, faces[0].y + faces[0].height,
@@ -228,7 +243,7 @@ void IvideoProcessing::processVideoStream()
 
     emit sendFace(outputFace);
 
-    videoObj->fillFaceSignal();  // construction of the ForeHead Signal with mean of green Channel each frame
+    videoObj->fillFaceSignal();  // construction of the face Signal with mean of green Channel each frame
     videoObj->fillBackgroundSignal();// construction of the background Signal with mean of green Channel each frame
 
     videoObj->displayFrame(false); // only draw ROI
@@ -254,6 +269,7 @@ void IvideoProcessing::reconstructVideoObj(const string &input, const int &winLe
     maxNbOfFrames = winLen * static_cast<u32>(videoObj->getFs());
     windowLenProcess = winLen;
     inputVideo = input;
+    isFaceDetected = false;
     emit sendHeartRateEstimation(0.0);
 }
 
