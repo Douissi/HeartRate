@@ -50,6 +50,7 @@ void QcvWidget::setup()
     connect(worker, SIGNAL(sendFFTtoPlot(const vectorFloat)), this, SLOT(faceFFTPlot(const vectorFloat)));
     connect(this, SIGNAL(sendStopStream()), worker, SLOT(receiveStopStream()));
     connect(this, SIGNAL(sendReconstructOfflineVideoObj(const string)), worker, SLOT(receiveReconstructVideoObj(const string)));
+    connect(this, SIGNAL(sendRealTimeMode()), worker, SLOT(receiveRealTimeMode()));
 
     connect(thread, SIGNAL(finished()), worker, SLOT(deleteLater())); // check how videoObj is deleted
     connect(thread, SIGNAL(finished()), workerTrigger, SLOT(deleteLater()));
@@ -156,7 +157,7 @@ void QcvWidget::receiveOfflineMode()
     }
     else
     {
-        ui->textUsedMode->setText("No video selected, Offline Mode Used over default face.mp4 video");
+        ui->textUsedMode->setText("No video selected, Previous mode is still on use");
     }
 }
 
@@ -171,8 +172,11 @@ void QcvWidget::receiveResetStream()
 
 void QcvWidget::receiveRealTimeMode()
 {
-    //TODO for realTime implementation
+   emit sendStopStream();
    ui->textUsedMode->setText("Real Time Mode Used, click start to begin");
+   ui->pushButtonPlay->setText("start");
+
+   emit sendRealTimeMode();
 }
 
 void QcvWidget::receiveWinLenChange()

@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_QcvWidget_t {
-    QByteArrayData data[26];
-    char stringdata0[363];
+    QByteArrayData data[27];
+    char stringdata0[380];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -39,34 +39,36 @@ QT_MOC_LITERAL(6, 79, 9), // "windowLen"
 QT_MOC_LITERAL(7, 89, 30), // "sendReconstructOfflineVideoObj"
 QT_MOC_LITERAL(8, 120, 6), // "string"
 QT_MOC_LITERAL(9, 127, 5), // "input"
-QT_MOC_LITERAL(10, 133, 12), // "receiveFrame"
-QT_MOC_LITERAL(11, 146, 5), // "frame"
-QT_MOC_LITERAL(12, 152, 11), // "receiveFace"
-QT_MOC_LITERAL(13, 164, 4), // "face"
-QT_MOC_LITERAL(14, 169, 26), // "receiveHeartRateEstimation"
-QT_MOC_LITERAL(15, 196, 9), // "heartRate"
-QT_MOC_LITERAL(16, 206, 19), // "receiveToggleStream"
-QT_MOC_LITERAL(17, 226, 19), // "receiveRealTimeMode"
-QT_MOC_LITERAL(18, 246, 18), // "receiveOfflineMode"
-QT_MOC_LITERAL(19, 265, 18), // "receiveResetStream"
-QT_MOC_LITERAL(20, 284, 19), // "receiveWinLenChange"
-QT_MOC_LITERAL(21, 304, 14), // "faceSignalPlot"
-QT_MOC_LITERAL(22, 319, 11), // "vectorFloat"
-QT_MOC_LITERAL(23, 331, 9), // "sigToPlot"
-QT_MOC_LITERAL(24, 341, 11), // "faceFFTPlot"
-QT_MOC_LITERAL(25, 353, 9) // "FFTtoPlot"
+QT_MOC_LITERAL(10, 133, 16), // "sendRealTimeMode"
+QT_MOC_LITERAL(11, 150, 12), // "receiveFrame"
+QT_MOC_LITERAL(12, 163, 5), // "frame"
+QT_MOC_LITERAL(13, 169, 11), // "receiveFace"
+QT_MOC_LITERAL(14, 181, 4), // "face"
+QT_MOC_LITERAL(15, 186, 26), // "receiveHeartRateEstimation"
+QT_MOC_LITERAL(16, 213, 9), // "heartRate"
+QT_MOC_LITERAL(17, 223, 19), // "receiveToggleStream"
+QT_MOC_LITERAL(18, 243, 19), // "receiveRealTimeMode"
+QT_MOC_LITERAL(19, 263, 18), // "receiveOfflineMode"
+QT_MOC_LITERAL(20, 282, 18), // "receiveResetStream"
+QT_MOC_LITERAL(21, 301, 19), // "receiveWinLenChange"
+QT_MOC_LITERAL(22, 321, 14), // "faceSignalPlot"
+QT_MOC_LITERAL(23, 336, 11), // "vectorFloat"
+QT_MOC_LITERAL(24, 348, 9), // "sigToPlot"
+QT_MOC_LITERAL(25, 358, 11), // "faceFFTPlot"
+QT_MOC_LITERAL(26, 370, 9) // "FFTtoPlot"
 
     },
     "QcvWidget\0sendToggleSTream\0\0sendStopStream\0"
     "sendResetStream\0sendWindowLenChange\0"
     "windowLen\0sendReconstructOfflineVideoObj\0"
-    "string\0input\0receiveFrame\0frame\0"
-    "receiveFace\0face\0receiveHeartRateEstimation\0"
-    "heartRate\0receiveToggleStream\0"
-    "receiveRealTimeMode\0receiveOfflineMode\0"
-    "receiveResetStream\0receiveWinLenChange\0"
-    "faceSignalPlot\0vectorFloat\0sigToPlot\0"
-    "faceFFTPlot\0FFTtoPlot"
+    "string\0input\0sendRealTimeMode\0"
+    "receiveFrame\0frame\0receiveFace\0face\0"
+    "receiveHeartRateEstimation\0heartRate\0"
+    "receiveToggleStream\0receiveRealTimeMode\0"
+    "receiveOfflineMode\0receiveResetStream\0"
+    "receiveWinLenChange\0faceSignalPlot\0"
+    "vectorFloat\0sigToPlot\0faceFFTPlot\0"
+    "FFTtoPlot"
 };
 #undef QT_MOC_LITERAL
 
@@ -76,31 +78,32 @@ static const uint qt_meta_data_QcvWidget[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      15,   14, // methods
+      16,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       5,       // signalCount
+       6,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   89,    2, 0x06 /* Public */,
-       3,    0,   90,    2, 0x06 /* Public */,
-       4,    0,   91,    2, 0x06 /* Public */,
-       5,    1,   92,    2, 0x06 /* Public */,
-       7,    1,   95,    2, 0x06 /* Public */,
+       1,    0,   94,    2, 0x06 /* Public */,
+       3,    0,   95,    2, 0x06 /* Public */,
+       4,    0,   96,    2, 0x06 /* Public */,
+       5,    1,   97,    2, 0x06 /* Public */,
+       7,    1,  100,    2, 0x06 /* Public */,
+      10,    0,  103,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      10,    1,   98,    2, 0x08 /* Private */,
-      12,    1,  101,    2, 0x08 /* Private */,
-      14,    1,  104,    2, 0x08 /* Private */,
-      16,    0,  107,    2, 0x08 /* Private */,
-      17,    0,  108,    2, 0x08 /* Private */,
-      18,    0,  109,    2, 0x08 /* Private */,
-      19,    0,  110,    2, 0x08 /* Private */,
-      20,    0,  111,    2, 0x08 /* Private */,
-      21,    1,  112,    2, 0x08 /* Private */,
-      24,    1,  115,    2, 0x08 /* Private */,
+      11,    1,  104,    2, 0x08 /* Private */,
+      13,    1,  107,    2, 0x08 /* Private */,
+      15,    1,  110,    2, 0x08 /* Private */,
+      17,    0,  113,    2, 0x08 /* Private */,
+      18,    0,  114,    2, 0x08 /* Private */,
+      19,    0,  115,    2, 0x08 /* Private */,
+      20,    0,  116,    2, 0x08 /* Private */,
+      21,    0,  117,    2, 0x08 /* Private */,
+      22,    1,  118,    2, 0x08 /* Private */,
+      25,    1,  121,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void,
@@ -108,18 +111,19 @@ static const uint qt_meta_data_QcvWidget[] = {
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,    6,
     QMetaType::Void, 0x80000000 | 8,    9,
+    QMetaType::Void,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::QImage,   11,
-    QMetaType::Void, QMetaType::QImage,   13,
-    QMetaType::Void, QMetaType::Float,   15,
+    QMetaType::Void, QMetaType::QImage,   12,
+    QMetaType::Void, QMetaType::QImage,   14,
+    QMetaType::Void, QMetaType::Float,   16,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 22,   23,
-    QMetaType::Void, 0x80000000 | 22,   25,
+    QMetaType::Void, 0x80000000 | 23,   24,
+    QMetaType::Void, 0x80000000 | 23,   26,
 
        0        // eod
 };
@@ -135,16 +139,17 @@ void QcvWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 2: _t->sendResetStream(); break;
         case 3: _t->sendWindowLenChange((*reinterpret_cast< const int(*)>(_a[1]))); break;
         case 4: _t->sendReconstructOfflineVideoObj((*reinterpret_cast< const string(*)>(_a[1]))); break;
-        case 5: _t->receiveFrame((*reinterpret_cast< const QImage(*)>(_a[1]))); break;
-        case 6: _t->receiveFace((*reinterpret_cast< const QImage(*)>(_a[1]))); break;
-        case 7: _t->receiveHeartRateEstimation((*reinterpret_cast< const float(*)>(_a[1]))); break;
-        case 8: _t->receiveToggleStream(); break;
-        case 9: _t->receiveRealTimeMode(); break;
-        case 10: _t->receiveOfflineMode(); break;
-        case 11: _t->receiveResetStream(); break;
-        case 12: _t->receiveWinLenChange(); break;
-        case 13: _t->faceSignalPlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
-        case 14: _t->faceFFTPlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
+        case 5: _t->sendRealTimeMode(); break;
+        case 6: _t->receiveFrame((*reinterpret_cast< const QImage(*)>(_a[1]))); break;
+        case 7: _t->receiveFace((*reinterpret_cast< const QImage(*)>(_a[1]))); break;
+        case 8: _t->receiveHeartRateEstimation((*reinterpret_cast< const float(*)>(_a[1]))); break;
+        case 9: _t->receiveToggleStream(); break;
+        case 10: _t->receiveRealTimeMode(); break;
+        case 11: _t->receiveOfflineMode(); break;
+        case 12: _t->receiveResetStream(); break;
+        case 13: _t->receiveWinLenChange(); break;
+        case 14: _t->faceSignalPlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
+        case 15: _t->faceFFTPlot((*reinterpret_cast< const vectorFloat(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -185,6 +190,13 @@ void QcvWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
                 return;
             }
         }
+        {
+            typedef void (QcvWidget::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&QcvWidget::sendRealTimeMode)) {
+                *result = 5;
+                return;
+            }
+        }
     }
 }
 
@@ -213,13 +225,13 @@ int QcvWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 16)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 16;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 15)
+        if (_id < 16)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 15;
+        _id -= 16;
     }
     return _id;
 }
@@ -254,5 +266,11 @@ void QcvWidget::sendReconstructOfflineVideoObj(const string _t1)
 {
     void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void QcvWidget::sendRealTimeMode()
+{
+    QMetaObject::activate(this, &staticMetaObject, 5, Q_NULLPTR);
 }
 QT_END_MOC_NAMESPACE

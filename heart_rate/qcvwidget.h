@@ -33,6 +33,7 @@ signals:
     void sendResetStream();
     void sendWindowLenChange(const int windowLen);
     void sendReconstructOfflineVideoObj(const string input);
+    void sendRealTimeMode();
 
 private slots:
     void receiveFrame(const QImage frame);

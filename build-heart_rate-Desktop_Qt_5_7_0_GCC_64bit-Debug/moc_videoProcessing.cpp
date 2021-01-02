@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_IvideoProcessing_t {
-    QByteArrayData data[22];
-    char stringdata0[317];
+    QByteArrayData data[23];
+    char stringdata0[337];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -50,7 +50,8 @@ QT_MOC_LITERAL(17, 255, 6), // "string"
 QT_MOC_LITERAL(18, 262, 5), // "input"
 QT_MOC_LITERAL(19, 268, 18), // "receiveResetStream"
 QT_MOC_LITERAL(20, 287, 19), // "receiveWinLenChange"
-QT_MOC_LITERAL(21, 307, 9) // "windowLen"
+QT_MOC_LITERAL(21, 307, 9), // "windowLen"
+QT_MOC_LITERAL(22, 317, 19) // "receiveRealTimeMode"
 
     },
     "IvideoProcessing\0sendFrame\0\0frameProcessed\0"
@@ -61,7 +62,7 @@ QT_MOC_LITERAL(21, 307, 9) // "windowLen"
     "receiveToggleStream\0receiveStopStream\0"
     "receiveReconstructVideoObj\0string\0"
     "input\0receiveResetStream\0receiveWinLenChange\0"
-    "windowLen"
+    "windowLen\0receiveRealTimeMode"
 };
 #undef QT_MOC_LITERAL
 
@@ -71,7 +72,7 @@ static const uint qt_meta_data_IvideoProcessing[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -79,19 +80,20 @@ static const uint qt_meta_data_IvideoProcessing[] = {
        5,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   69,    2, 0x06 /* Public */,
-       4,    1,   72,    2, 0x06 /* Public */,
-       6,    1,   75,    2, 0x06 /* Public */,
-       8,    1,   78,    2, 0x06 /* Public */,
-      11,    1,   81,    2, 0x06 /* Public */,
+       1,    1,   74,    2, 0x06 /* Public */,
+       4,    1,   77,    2, 0x06 /* Public */,
+       6,    1,   80,    2, 0x06 /* Public */,
+       8,    1,   83,    2, 0x06 /* Public */,
+      11,    1,   86,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      13,    0,   84,    2, 0x0a /* Public */,
-      14,    0,   85,    2, 0x0a /* Public */,
-      15,    0,   86,    2, 0x0a /* Public */,
-      16,    1,   87,    2, 0x0a /* Public */,
-      19,    0,   90,    2, 0x0a /* Public */,
-      20,    1,   91,    2, 0x0a /* Public */,
+      13,    0,   89,    2, 0x0a /* Public */,
+      14,    0,   90,    2, 0x0a /* Public */,
+      15,    0,   91,    2, 0x0a /* Public */,
+      16,    1,   92,    2, 0x0a /* Public */,
+      19,    0,   95,    2, 0x0a /* Public */,
+      20,    1,   96,    2, 0x0a /* Public */,
+      22,    0,   99,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QImage,    3,
@@ -107,6 +109,7 @@ static const uint qt_meta_data_IvideoProcessing[] = {
     QMetaType::Void, 0x80000000 | 17,   18,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,   21,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -128,6 +131,7 @@ void IvideoProcessing::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 8: _t->receiveReconstructVideoObj((*reinterpret_cast< const string(*)>(_a[1]))); break;
         case 9: _t->receiveResetStream(); break;
         case 10: _t->receiveWinLenChange((*reinterpret_cast< const int(*)>(_a[1]))); break;
+        case 11: _t->receiveRealTimeMode(); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -196,13 +200,13 @@ int IvideoProcessing::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 11)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 11;
+        _id -= 12;
     }
     return _id;
 }

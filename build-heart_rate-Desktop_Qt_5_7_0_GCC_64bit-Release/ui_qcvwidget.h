@@ -65,7 +65,7 @@ public:
         textUsedMode->setGeometry(QRect(120, 10, 341, 41));
         OfflineMode = new QPushButton(QcvWidget);
         OfflineMode->setObjectName(QStringLiteral("OfflineMode"));
-        OfflineMode->setGeometry(QRect(310, 50, 121, 21));
+        OfflineMode->setGeometry(QRect(310, 50, 151, 21));
         OfflineMode->setContextMenuPolicy(Qt::ActionsContextMenu);
         skinDetected = new QLabel(QcvWidget);
         skinDetected->setObjectName(QStringLiteral("skinDetected"));
@@ -101,23 +101,6 @@ public:
         pushButtonWinLenValidate = new QPushButton(QcvWidget);
         pushButtonWinLenValidate->setObjectName(QStringLiteral("pushButtonWinLenValidate"));
         pushButtonWinLenValidate->setGeometry(QRect(870, 150, 61, 41));
-        labelView->raise();
-        textBrowser->raise();
-        realTimeMode->raise();
-        textUsedMode->raise();
-        OfflineMode->raise();
-        skinDetected->raise();
-        customPlot->raise();
-        textBrowser_2->raise();
-        FFTOutput->raise();
-        textBrowser_3->raise();
-        lcdNumber->raise();
-        spinBox->raise();
-        textBrowser_4->raise();
-        pushButtonPlay->raise();
-        lcdNumber->raise();
-        pushButtonReset->raise();
-        pushButtonWinLenValidate->raise();
 
         retranslateUi(QcvWidget);
 
@@ -133,13 +116,13 @@ public:
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Heart Rate Estimation</span></p></body></html>", 0));
-        realTimeMode->setText(QApplication::translate("QcvWidget", "Real Time Video ", 0));
+        realTimeMode->setText(QApplication::translate("QcvWidget", "Real Time Mode ", 0));
         textUsedMode->setHtml(QApplication::translate("QcvWidget", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Please Choose Mode before START</span></p></body></html>", 0));
-        OfflineMode->setText(QApplication::translate("QcvWidget", "Offline Video", 0));
+"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Please Choose Mode before START (Default is Offline Mode)</span></p></body></html>", 0));
+        OfflineMode->setText(QApplication::translate("QcvWidget", "Offline Mode (browse)", 0));
         skinDetected->setText(QString());
         textBrowser_2->setHtml(QApplication::translate("QcvWidget", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"

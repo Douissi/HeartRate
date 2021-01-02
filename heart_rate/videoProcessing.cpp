@@ -259,9 +259,10 @@ void IvideoProcessing::receiveStopStream()
     toggleStream = false;
 }
 
-void IvideoProcessing::reconstructVideoObj(const string &input, const int &winLen)
+void IvideoProcessing::reconstructOfflineVideoObj(const string &input, const int &winLen)
 {
     toggleStream = false;
+    isRealTime = false;
     cptFrames = 0;
     delete videoObj;
     videoObj = new videoProcessing(input);
@@ -273,22 +274,51 @@ void IvideoProcessing::reconstructVideoObj(const string &input, const int &winLe
     emit sendHeartRateEstimation(0.0);
 }
 
+void IvideoProcessing::reconstructRealTimeVideoObj(const u32 &entry, const int &winLen)
+{
+    toggleStream = false;
+    cptFrames = 0;
+    delete videoObj;
+    videoObj = new videoProcessing(entry, winLen);
+    videoObj->faceCascadeLoading("/usr/local/share/opencv4/haarcascades/haarcascade_frontalface_alt2.xml");
+    maxNbOfFrames = winLen * static_cast<u32>(videoObj->getFs());
+    windowLenProcess = winLen;
+    isFaceDetected = false;
+    emit sendHeartRateEstimation(0.0);
+}
+
 void IvideoProcessing::receiveReconstructVideoObj(const string input)
 {
-    reconstructVideoObj(input, windowLenProcess);
+    reconstructOfflineVideoObj(input, windowLenProcess);
 }
 
 void IvideoProcessing::receiveWinLenChange(const int windowLen)
 {
-   reconstructVideoObj(inputVideo, windowLen);
+    if(!isRealTime)
+    {
+        reconstructOfflineVideoObj(inputVideo, windowLen);
+    }
+    else
+    {
+        reconstructRealTimeVideoObj(0, windowLen);
+    }
+}
+
+void IvideoProcessing::receiveRealTimeMode()
+{
+    isRealTime = true;
+    reconstructRealTimeVideoObj(0, windowLenProcess);
 }
 
 void IvideoProcessing::receiveResetStream()
 {
     if(!isRealTime)
     {
-        reconstructVideoObj(inputVideo, windowLenProcess);
+        reconstructOfflineVideoObj(inputVideo, windowLenProcess);
     }
-    // TODO for realTime
+    else
+    {
+        reconstructRealTimeVideoObj(0, windowLenProcess);
+    }
 }
 

@@ -117,11 +117,13 @@ public slots:
     void receiveReconstructVideoObj(const string input);
     void receiveResetStream();
     void receiveWinLenChange(const int windowLen);
+    void receiveRealTimeMode();
 
 private :
 
     void processVideoStream();
-    void reconstructVideoObj(const string& input, const int& winLen);
+    void reconstructOfflineVideoObj(const string& input, const int& winLen);
+    void reconstructRealTimeVideoObj(const u32& entry, const int& winLen);
 };
 
 
