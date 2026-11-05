@@ -1,6 +1,27 @@
-build-heart_rate-Desktop_Qt_5_7_0_GCC_64bit-Debug
-build-heart_rate-Desktop_Qt_5_7_0_GCC_64bit-Profile
-build-heart_rate-Desktop_Qt_5_7_0_GCC_64bit-Release
-build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Debug
-build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Profile
-build-QtUnitTest-Desktop_Qt_5_7_0_GCC_64bit-Release
+# Visual Studio
+.vs/
+*.user
+*.aps
+*.ncb
+*.sdf
+*.ipch
+*.VC.db
+*.VC.opendb
+
+# Build output (see OutDir / IntDir in the .vcxproj files)
+bin/
+obj/
+x64/
+
+# vcpkg (manifest mode) : packages installed at build time
+vcpkg_installed/
+
+# Files written by the application / the tests when run from the source folders
+backgroundSignal.txt
+foreHeadSignal.txt
+foreHeadMeanValueRemoved.txt
+filteredForeHeadBandPass.txt
+nlmsOutputEstimation.txt
+FFT*.txt
+testSaveSigToFile.txt
+example2.txt

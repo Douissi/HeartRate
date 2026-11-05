@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "heart-rate",
+  "version": "1.0.0",
+  "description": "Heart rate estimation from a face video (OpenCV + FFTW)",
+  "dependencies": [
+    {
+      "name": "opencv4",
+      "features": [
+        "ffmpeg"
+      ]
+    },
+    "fftw3"
+  ],
+  "builtin-baseline": "29718cfec805208b4e2d80ed91e681143b488dd7"
+}

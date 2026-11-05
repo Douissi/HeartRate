@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Targets shared by all the projects of HeartRate.sln (imported automatically by MSBuild). -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- vcpkg : installs the packages listed in vcpkg.json, adds include / library folders,
+       links the libraries and copies the required DLLs next to the built binaries. -->
+  <Import Project="$(HeartRateVcpkgRoot)scripts\buildsystems\msbuild\vcpkg.targets"
+          Condition="'$(HeartRateVcpkgRoot)' != ''" />
+
+  <!-- OpenCV headers: the vcpkg opencv4 package installs them in <installed>\include\opencv4\opencv2\...
+       while the code includes <opencv2/...>, so <installed>\include\opencv4 must be an include folder.
+       <installed> depends on the vcpkg version/mode, all the possible locations are added
+       (folders that do not exist are ignored by the compiler). -->
+  <PropertyGroup>
+    <HeartRateVcpkgTriplet>$(VcpkgTriplet)</HeartRateVcpkgTriplet>
+    <HeartRateVcpkgTriplet Condition="'$(HeartRateVcpkgTriplet)' == ''">x64-windows</HeartRateVcpkgTriplet>
+    <HeartRateOpenCVIncludeDirs>$(MSBuildThisFileDirectory)vcpkg_installed\$(HeartRateVcpkgTriplet)\$(HeartRateVcpkgTriplet)\include\opencv4;$(MSBuildThisFileDirectory)vcpkg_installed\$(HeartRateVcpkgTriplet)\include\opencv4</HeartRateOpenCVIncludeDirs>
+    <HeartRateOpenCVIncludeDirs Condition="'$(_ZVcpkgCurrentInstalledDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(_ZVcpkgCurrentInstalledDir)'))include\opencv4;$(HeartRateOpenCVIncludeDirs)</HeartRateOpenCVIncludeDirs>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(HeartRateOpenCVIncludeDirs)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Clear error message when vcpkg cannot be found -->
+  <Target Name="HeartRateCheckVcpkg" BeforeTargets="PrepareForBuild"
+          Condition="'$(HeartRateVcpkgRoot)' == '' and '$(VcpkgRoot)' == '' and '$(VcpkgPropsImported)' != 'true'">
+    <Error Text="vcpkg was not found. Install the 'vcpkg package manager' component of Visual Studio (Visual Studio Installer > Modify > Individual components), or clone https://github.com/microsoft/vcpkg, run bootstrap-vcpkg.bat and set the VCPKG_ROOT environment variable to its folder. See README.md." />
+  </Target>
+
+  <!-- Copies the runtime data files (videos, Haar cascade, reference signals ...) next to the
+       built binary : every <None> item of a project having the metadata
+       <HeartRateCopyToOutput>true</HeartRateCopyToOutput> is copied into $(OutDir). -->
+  <Target Name="HeartRateCopyRuntimeData" AfterTargets="Build">
+    <ItemGroup>
+      <_HeartRateRuntimeData Include="@(None)" Condition="'%(None.HeartRateCopyToOutput)' == 'true'" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_HeartRateRuntimeData)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"
+          Condition="'@(_HeartRateRuntimeData)' != ''" />
+  </Target>
+
+</Project>

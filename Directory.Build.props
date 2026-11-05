@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Settings shared by all the projects of HeartRate.sln (imported automatically by MSBuild).
+
+  Third party libraries (OpenCV with FFmpeg video decoding, FFTW3) are provided by vcpkg in
+  "manifest mode": the list of packages is in vcpkg.json (solution folder) and vcpkg installs
+  them automatically into .\vcpkg_installed during the first build.
+
+  vcpkg location (first match wins):
+    1. the VCPKG_ROOT environment variable (a standalone vcpkg clone), or
+    2. the vcpkg copy bundled with Visual Studio 2022 17.6+ (component "vcpkg package manager",
+       installed by default with the "Desktop development with C++" workload), or
+    3. a user-wide integration done with "vcpkg integrate install".
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgAutoLink>true</VcpkgAutoLink>
+    <VcpkgApplocalDeps>true</VcpkgApplocalDeps>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <HeartRateVcpkgRoot Condition="'$(HeartRateVcpkgRoot)' == '' and '$(VCPKG_ROOT)' != '' and Exists('$(VCPKG_ROOT)\scripts\buildsystems\msbuild\vcpkg.props')">$([MSBuild]::EnsureTrailingSlash('$(VCPKG_ROOT)'))</HeartRateVcpkgRoot>
+    <HeartRateVcpkgRoot Condition="'$(HeartRateVcpkgRoot)' == '' and '$(VsInstallRoot)' != '' and Exists('$(VsInstallRoot)\VC\vcpkg\scripts\buildsystems\msbuild\vcpkg.props')">$(VsInstallRoot)\VC\vcpkg\</HeartRateVcpkgRoot>
+    <!-- vcpkg is imported below: disable the user-wide integration to avoid importing it twice -->
+    <VCPkgLocalAppDataDisabled Condition="'$(HeartRateVcpkgRoot)' != ''">true</VCPkgLocalAppDataDisabled>
+  </PropertyGroup>
+
+  <Import Project="$(HeartRateVcpkgRoot)scripts\buildsystems\msbuild\vcpkg.props"
+          Condition="'$(HeartRateVcpkgRoot)' != '' and '$(VcpkgPropsImported)' != 'true'" />
+
+</Project>

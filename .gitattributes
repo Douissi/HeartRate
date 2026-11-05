@@ -1,0 +1,11 @@
+# Visual Studio files use Windows line endings
+*.sln       text eol=crlf
+*.vcxproj   text eol=crlf
+*.filters   text eol=crlf
+*.props     text eol=crlf
+*.targets   text eol=crlf
+
+# Binary data
+*.mp4       binary
+*.wmv       binary
+*.bmp       binary

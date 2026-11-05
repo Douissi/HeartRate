@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\heart_rate">
+      <UniqueIdentifier>{4457A64F-D119-4E32-BBF8-762D2CAB53AC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Data">
+      <UniqueIdentifier>{D0E9D4BA-732D-4BD3-B7C3-B609275CED0F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TestModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSignalProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestVideoProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TestUtils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\heart_rate\dsp.hpp">
+      <Filter>Header Files\heart_rate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\heart_rate\signalProcessing.hpp">
+      <Filter>Header Files\heart_rate</Filter>
+    </ClInclude>
+    <ClInclude Include="..\heart_rate\videoProcessing.hpp">
+      <Filter>Header Files\heart_rate</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\testSignalInput.txt">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="data\TestFFTexpectedResult.txt">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="data\testFiltredBandPassInputSignal.txt">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="data\testInput1.txt">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="data\testInput2.txt">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="data\testExpectedNLMSoutput.txt">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="..\data\73BPmin.mp4">
+      <Filter>Test Data</Filter>
+    </None>
+    <None Include="..\data\haarcascade_frontalface_alt2.xml">
+      <Filter>Test Data</Filter>
+    </None>
+  </ItemGroup>
+</Project>
