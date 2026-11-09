@@ -22,9 +22,6 @@
     <ClInclude Include="dsp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="signalPlot.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="signalProcessing.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

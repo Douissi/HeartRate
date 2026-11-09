@@ -17,7 +17,6 @@
 #include <fftw3.h>
 
 #include "dsp.hpp"
-#include "signalPlot.hpp"
 
 using namespace std;
 

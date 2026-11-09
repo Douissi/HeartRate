@@ -95,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dsp.hpp" />
-    <ClInclude Include="signalPlot.hpp" />
     <ClInclude Include="signalProcessing.hpp" />
     <ClInclude Include="videoProcessing.hpp" />
   </ItemGroup>
