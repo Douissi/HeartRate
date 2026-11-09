@@ -16,7 +16,7 @@ static const char* const DEFAULT_VIDEO_FILE = "face.mp4";
 static const char* const DEFAULT_FACE_CASCADE_FILE = "haarcascade_frontalface_alt2.xml";
 
 // Display the signals and their spectrum at the end of the processing (OpenCV windows)
-static const bool SHOW_PLOTS = true;
+static const bool SHOW_PLOTS = false;
 
 
 static int run(const std::string& videoFile, const std::string& faceCascadeFile)
@@ -113,7 +113,7 @@ static int run(const std::string& videoFile, const std::string& faceCascadeFile)
 
   // ************************************ heart rate estimation **********************
   // Highest peak of the spectrum inside the band [lowFreqCutOff, highFreqCutOff]
-  auto printHeartRate = [](const std::string& name, const signalProcessing<float>& spectrum)
+  /*auto printHeartRate = [](const std::string& name, const signalProcessing<float>& spectrum)
   {
       const double frequency = spectrum.getHeartRateFrequency(lowFreqCutOff, highFreqCutOff);
       cout << "Estimated heart rate (" << name << ") : ";
@@ -121,14 +121,14 @@ static int run(const std::string& videoFile, const std::string& faceCascadeFile)
       else cout << 60.0 * frequency << " bpm (peak at " << frequency << " Hz)" << endl;
   };
   printHeartRate("forehead, band-pass filtered", FFTfiltredForeHead);
-  printHeartRate("NLMS illumination rectification", FFTnlmsOutputEstimation);
+  printHeartRate("NLMS illumination rectification", FFTnlmsOutputEstimation);*/
 
 
   // ************************************ plotting the signals **********************
   // One OpenCV window per plot (see signalProcessing::plotSignal / plotFFT), tiled on the screen.
   // The same signals are also saved in the .txt files above (plotWithGNUPLOT can plot these files
   // if gnuplot is installed).
-  if (SHOW_PLOTS)
+/*  if (SHOW_PLOTS)
   {
       const int plotWidth = 560;
       const int plotHeight = 200;
@@ -161,7 +161,7 @@ static int run(const std::string& videoFile, const std::string& faceCascadeFile)
 
       cout << "Plots displayed : press a key in one of the plot windows to quit." << endl;
       waitKey(0);
-  }
+  }*/
 
 
   return 0;

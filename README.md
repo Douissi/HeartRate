@@ -143,6 +143,8 @@ For Manual foreHead detection for face2.mp4 video file
 //    faces[0].x = faces[0].x + 60; // only for manual foreHead detection
 //    faces[0].width = faces[0].width -140; // only for manual foreHead detection
 ```
+
+
 # Youssef readme
 This is the body of the main loop in main.cpp. It runs once per video frame and turns the video into two signals, one sample per frame. Those signals are what the signal-processing part uses afterwards to estimate the heart rate.
 
@@ -170,7 +172,6 @@ if(videoObj.getFaces().empty())
     videoObj.setRectFacesVector(lastDetectedFaces);
 }
 lastDetectedFaces = videoObj.getFaces();
-This is the only part I added; everything else is your original code.
 
 The original code used faces[0] directly. If the detector missed the face in a frame, that read an empty list, which is undefined behaviour and usually a crash.
 Now, if no face is found, the face rectangle from the previous frame is reused. That keeps exactly one sample per frame, which matters because the processing assumes evenly spaced samples at the video's frame rate (30 per second).
@@ -224,9 +225,8 @@ an FFT, where the main peak corresponds to the heart rate.
 
 # last msg from project task: list of hcnages from QT to VS.
 
-Here are all the changes to your own code, file by file. I checked them against the real diff with your original Qt version (the first git commit), not from memory.
+Here are all the changes to the code, file by file. 
 
-The processing algorithms, constants and parameters are the same as before. Every function you had still exists with the same name and signature, so code calling them still works. The changes fall into five groups:
 
 fixes needed to compile with Visual Studio's compiler (MSVC);
 replacing the SigPack and Armadillo libraries;

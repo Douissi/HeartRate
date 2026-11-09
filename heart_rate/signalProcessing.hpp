@@ -301,7 +301,7 @@ public :
     // open (e.g. cv::waitKey(0) waits until a key is pressed). renderSignalPlot / renderFFTPlot
     // only return the image (to save it with cv::imwrite, or to display it elsewhere).
 
-    // Frequency (Hz) of the bin 'index' of a spectrum computed by signalFFT()
+/*    // Frequency (Hz) of the bin 'index' of a spectrum computed by signalFFT()
     double getFFTBinFrequency(const unsigned int& index) const
     {
         const double length = (fftSize != 0) ? fftSize : 2.0 * numberOfSamples;
@@ -405,6 +405,7 @@ public :
     {
         signal_plot::show(windowName, renderFFTPlot(windowName, maxFrequency, lowFreq, highFreq, width, height));
     }
+    */
 
     //****************************************getters *********************************
     std::vector <T>& getSignalSamples() { return signalSamples; }
