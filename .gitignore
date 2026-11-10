@@ -12,6 +12,7 @@
 bin/
 obj/
 x64/
+TestResults/
 
 # vcpkg (manifest mode) : packages installed at build time
 vcpkg_installed/

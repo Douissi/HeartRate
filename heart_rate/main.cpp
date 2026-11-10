@@ -12,7 +12,7 @@ using namespace cv;
 // Default files are searched in the working directory. The Visual Studio project copies them
 // (content of the "data" folder) next to heart_rate.exe and uses that folder as working
 // directory when debugging (F5 / Ctrl+F5).
-static const char* const DEFAULT_VIDEO_FILE = "face.mp4";
+static const char* const DEFAULT_VIDEO_FILE = "test.mp4";
 static const char* const DEFAULT_FACE_CASCADE_FILE = "haarcascade_frontalface_alt2.xml";
 
 

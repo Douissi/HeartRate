@@ -12,7 +12,7 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 namespace heart_rate_tests
 {
 
-static const char* const TEST_VIDEO_FILE = "73BPmin.mp4";
+static const char* const TEST_VIDEO_FILE = "test.mp4";
 static const char* const FACE_CASCADE_FILE = "haarcascade_frontalface_alt2.xml";
 
 TEST_CLASS(TestVideoProcessing)
