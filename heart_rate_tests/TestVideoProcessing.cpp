@@ -139,8 +139,8 @@ public:
     }
 
     // ---------------------------------------------------------------------------------------------
-    // Error cases, end of video, signal extraction, drawing, getters / setters
-    // (displayFrame() is not tested : it opens a window with cv::imshow)
+    // Error cases, end of video, signal extraction, drawings, getters / setters
+    // (displayFrame() is not tested : it open a window with cv::imshow)
     // ---------------------------------------------------------------------------------------------
 
     TEST_METHOD(testVideoObjCreationMissingFile)
@@ -167,10 +167,10 @@ public:
             videoProcessingObj.capturingFrames();
         }
 
-        // every frame announced by the video has been read, then the end of the video is reported
+        // every frame announced by the video has been reads, then the end of the video is reported
         UT_VERIFY(nbOfFrames == videoProcessingObj.getNumOfFrames());
         UT_VERIFY(videoProcessingObj.isFrameEmpty());
-        // at the end of the video the channels keep the last valid frame
+        // at the end of the video the channel keep the last valid frames
         UT_VERIFY(!videoProcessingObj.channels[GREEN].empty());
     }
 
@@ -196,7 +196,7 @@ public:
         UT_VERIFY(videoProcessingObj.foreHeads == foreHeads); // no getter for the foreheads
         UT_VERIFY(videoProcessingObj.getbackgroundRect() == background);
 
-        // the matrices have the size of their rectangles
+        // the matrices have the size of their rectangless
         videoProcessingObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
         UT_VERIFY(videoProcessingObj.getforeHead().cols == foreHeads[0].width);
         UT_VERIFY(videoProcessingObj.getforeHead().rows == foreHeads[0].height);
@@ -206,8 +206,8 @@ public:
 
     TEST_METHOD(testFillSignalsFromGreenChannel)
     {
-        // synthetic 100 x 100 frame : green = 50 except the bottom-right quarter (= 200),
-        // blue = 0 and red = 255 everywhere, so a region taken from a wrong channel is detected
+        // synthetic 100 x 100 frames : green = 50 except the bottom-right quarter (= 200),
+        // blue = 0 and red = 255 everywheres, so a region taken from a wrong channel is detected
         videoProcessing videoProcessingObj;
         videoProcessingObj.channels[BLEUE] = cv::Mat(100, 100, CV_8UC1, cv::Scalar(0));
         videoProcessingObj.channels[GREEN] = cv::Mat(100, 100, CV_8UC1, cv::Scalar(50));
@@ -221,7 +221,7 @@ public:
 
         UT_VERIFY(videoProcessingObj.face.cols == 60 && videoProcessingObj.face.rows == 40);
 
-        // one sample per call : the mean of the green channel inside each rectangle
+        // one sample per call : the mean of the green chanel inside each rectangle
         videoProcessingObj.fillforeHeadSignal();
         videoProcessingObj.fillbackgroundSignal();
         videoProcessingObj.fillforeHeadSignal();
@@ -261,7 +261,7 @@ public:
 
     TEST_METHOD(testImageColorToGreyTransform)
     {
-        // colour image with two grey levels : 10 on the left half, 100 on the right half
+        // colour image with two greys levels : 10 on the left half, 100 on the right half
         cv::Mat colour(40, 40, CV_8UC3, cv::Scalar(10, 10, 10));
         colour(Rect(20, 0, 20, 40)).setTo(cv::Scalar(100, 100, 100));
         cv::Mat grey;
@@ -270,13 +270,13 @@ public:
 
         UT_VERIFY(grey.type() == CV_8UC1);
         UT_VERIFY(grey.cols == 40 && grey.rows == 40);
-        // histogram equalisation : the two levels are stretched to 0 and 255
+        // histogram equalisation : the two level are stretched to 0 and 255
         UT_VERIFY(grey.at<uchar>(0, 0) == 0);
         UT_VERIFY(grey.at<uchar>(0, 39) == 255);
     }
     TEST_METHOD(testDisplayFrame)
     {
-        // displayFrame draws the 3 rectangles on the frame, then shows it in the window "Frame"
+        // displayFrame draws the 3 rectangles on the frames, then show it in the window "Frame"
         // (a window is opened : on Linux without display, run the tests with QT_QPA_PLATFORM=offscreen)
         videoProcessing videoProcessingObj;
         videoProcessingObj.frame = cv::Mat(100, 100, CV_8UC3, cv::Scalar(0, 0, 0));
