@@ -30,19 +30,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\data\face.mp4">
+    <None Include="..\data\test.mp4">
       <Filter>Data</Filter>
     </None>
     <None Include="..\data\face2.mp4">
-      <Filter>Data</Filter>
-    </None>
-    <None Include="..\data\YousFace.mp4">
-      <Filter>Data</Filter>
-    </None>
-    <None Include="..\data\73BPmin.mp4">
-      <Filter>Data</Filter>
-    </None>
-    <None Include="..\data\73BPmin.wmv">
       <Filter>Data</Filter>
     </None>
     <None Include="..\data\lena.bmp">

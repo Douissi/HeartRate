@@ -17,6 +17,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CoverageAnchors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="TestModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,7 +63,7 @@
     <None Include="data\testExpectedNLMSoutput.txt">
       <Filter>Test Data</Filter>
     </None>
-    <None Include="..\data\73BPmin.mp4">
+    <None Include="..\data\test.mp4">
       <Filter>Test Data</Filter>
     </None>
     <None Include="..\data\haarcascade_frontalface_alt2.xml">

@@ -47,6 +47,10 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <!-- /PROFILE (code coverage) does not support incremental linking -->
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
   <PropertyGroup>
     <OutDir>$(MSBuildProjectDirectory)\..\bin\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(MSBuildProjectDirectory)\..\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
@@ -69,6 +73,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <!-- /PROFILE : required by Visual Studio native code coverage (Test > Analyze Code Coverage) -->
+      <Profile>true</Profile>
       <AdditionalLibraryDirectories>$(VCInstallDir)Auxiliary\VS\UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -95,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CoverageAnchors.cpp" />
     <ClCompile Include="TestModule.cpp" />
     <ClCompile Include="TestSignalProcessing.cpp" />
     <ClCompile Include="TestVideoProcessing.cpp" />
@@ -125,7 +132,7 @@
     <None Include="data\testExpectedNLMSoutput.txt">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
-    <None Include="..\data\73BPmin.mp4">
+    <None Include="..\data\test.mp4">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
     <None Include="..\data\haarcascade_frontalface_alt2.xml">

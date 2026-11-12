@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Code coverage settings of HeartRate.sln (Visual Studio native code coverage).
+
+  Use : Test > Configure Run Settings > Select Solution Wide runsettings File > HeartRate.runsettings
+        then Test > Analyze Code Coverage for All Tests  (configuration Debug | x64).
+  Command line (Developer PowerShell, solution folder, after a Debug build) :
+        vstest.console.exe bin\x64\Debug\heart_rate_tests\heart_rate_tests.dll /Settings:HeartRate.runsettings /Collect:"Code Coverage"
+
+  Only the code under test is reported : the headers of the heart_rate folder
+  (dsp.hpp, signalProcessing.hpp, videoProcessing.hpp). Test code, OpenCV, FFTW and the STL are excluded,
+  so the figures are comparable with coverage_analysis/TEST_COVERAGE_REPORT.md.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage" uri="datacollector://Microsoft/CodeCoverage/2.0" assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <Configuration>
+          <CodeCoverage>
+            <!-- The classes under test are header-only : their code is compiled into the test dll -->
+            <ModulePaths>
+              <Include>
+                <ModulePath>.*\\heart_rate_tests\.dll$</ModulePath>
+              </Include>
+            </ModulePaths>
+            <!-- Files located directly in a folder named "heart_rate" (not heart_rate_tests, not vcpkg_installed) -->
+            <Sources>
+              <Include>
+                <Source>.*\\heart_rate\\[^\\]+\.(hpp|h|cpp)$</Source>
+              </Include>
+            </Sources>
+            <!-- Static instrumentation of the dll linked with /PROFILE (see heart_rate_tests.vcxproj) -->
+            <EnableStaticNativeInstrumentation>True</EnableStaticNativeInstrumentation>
+            <EnableStaticNativeInstrumentationRestore>True</EnableStaticNativeInstrumentationRestore>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

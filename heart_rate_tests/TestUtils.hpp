@@ -99,6 +99,23 @@ void loadSignalFromFile(const std::string& myFileString, std::vector<T>& signalV
     }
 }
 
+// Reads a 2-column text file ("x y" on each line, e.g. "frequency power" written by signalFFT)
+inline void loadColumnsFromFile(const std::string& fileName, std::vector<double>& x, std::vector<double>& y)
+{
+    std::ifstream file(fileName);
+    if (!file.is_open())
+    {
+        const std::wstring name(fileName.begin(), fileName.end());
+        ::Microsoft::VisualStudio::CppUnitTestFramework::Assert::Fail((L"Unable to open in reading mode the file " + name).c_str());
+    }
+    double a = 0.0, b = 0.0;
+    while (file >> a >> b)
+    {
+        x.push_back(a);
+        y.push_back(b);
+    }
+}
+
 } // namespace ut
 
 #endif // TEST_UTILS_HPP

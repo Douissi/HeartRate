@@ -100,19 +100,10 @@
   </ItemGroup>
   <!-- Runtime data copied next to heart_rate.exe (see Directory.Build.targets) -->
   <ItemGroup>
-    <None Include="..\data\face.mp4">
+    <None Include="..\data\test.mp4">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
     <None Include="..\data\face2.mp4">
-      <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
-    </None>
-    <None Include="..\data\YousFace.mp4">
-      <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
-    </None>
-    <None Include="..\data\73BPmin.mp4">
-      <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
-    </None>
-    <None Include="..\data\73BPmin.wmv">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
     <None Include="..\data\lena.bmp">
