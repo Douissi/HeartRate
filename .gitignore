@@ -14,6 +14,9 @@ obj/
 x64/
 TestResults/
 
+# Linux build (linux/run_tests.sh)
+linux/build*/
+
 # vcpkg (manifest mode) : packages installed at build time
 vcpkg_installed/
 

@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClInclude Include="TestUtils.hpp" />
     <ClInclude Include="..\heart_rate\dsp.hpp" />
+    <ClInclude Include="..\heart_rate\signalPlot.hpp" />
     <ClInclude Include="..\heart_rate\signalProcessing.hpp" />
     <ClInclude Include="..\heart_rate\videoProcessing.hpp" />
   </ItemGroup>

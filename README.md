@@ -54,9 +54,38 @@ The application is run from its output folder (debugger working directory = `$(O
 heart_rate.exe [videoFile] [haarCascadeXmlFile]
 ```
 
-Default: `face.mp4` and `haarcascade_frontalface_alt2.xml`. Press `Esc` in the video window to stop
 the acquisition early. The signals and their FFT are saved as text files in the working directory
 (`foreHeadSignal.txt`, `backgroundSignal.txt`, `nlmsOutputEstimation.txt`, `FFT*.txt` ...).
+
+### Sliding window analysis
+
+While the video is read, the application also estimates the heart rate on a sliding window, as a
+real-time application would: the forehead signal is a buffer filled with one sample per frame; as
+soon as it holds `slidingWindowLengthSeconds` (4.5 s) of signal, and then every
+`slidingWindowStepSeconds` (1 s), the last 4.5 s are processed (mean value removed, band-pass
+filter of order `filterOrder`, FFT zero padded to `slidingWindowFFTLength` = 1024 points) and the
+maximum of the spectrum gives a heart rate. The constants are in `heart_rate/signalProcessing.hpp`
+and are **shared with the unit test** `testHeartRateEstimationFromForeHeadGreenChannelSlidingWindow`
+(same windows, same results).
+
+With `test.mp4` (10 s) this gives 6 estimations, printed during the acquisition:
+
+```
+Sliding window 1 : 0.0 s - 4.5 s -> estimated heart rate 51 bpm
+... 2 : 1.0 s - 5.5 s -> 53 bpm, 3 : 2.0 s - 6.5 s -> 54 bpm, 4 : 3.0 s - 7.5 s -> 51 bpm
+... 5 : 4.0 s - 8.5 s -> 49 bpm, 6 : 5.0 s - 9.5 s -> 51 bpm
+Whole video (301 samples) : estimated heart rate 54 bpm
+```
+
+At the end of the video three plots (`heart_rate/signalPlot.hpp`, OpenCV) are saved in the working
+directory and displayed in windows; the application waits until a key is pressed or the windows are
+closed:
+
+| File | Content |
+|------|---------|
+| `slidingWindowsSignals.png` | the band-pass filtered forehead signal of each window, on its time axis |
+| `slidingWindowsFFT.png` | the spectrum of each window (heart rate band shaded, peak marked with its bpm) |
+| `slidingWindowsHeartRate.png` | the heart rate estimated by the successive windows through the video, with the whole-video estimation as a dashed reference line |
 
 ## Unit tests
 
@@ -64,7 +93,42 @@ The tests use the **Microsoft Native C++ Unit Test Framework** (`CppUnitTest.h`)
 Visual Studio, no extra package is needed.
 
 * *Test > Test Explorer*, then *Run All Tests* (the solution is built first if needed).
-* 16 tests: `TestSignalProcessing` (11 tests) and `TestVideoProcessing` (5 tests).
+* 43 tests: `TestSignalProcessing` (26 tests) and `TestVideoProcessing` (17 tests).
+* `TestVideoProcessing::testHeartRateEstimationFromForeHeadGreenChannel` runs the processing of `main()` on
+  the whole `test.mp4` (forehead green channel, mean value removed, band-pass filter, FFT) and checks that the frequency of the
+  spectrum maximum matches the heart rate of the video, `TEST_VIDEO_HEART_RATE_BPM` (54 bpm).
+* Plots of this test: the band-pass filtered forehead signal and its FFT (heart rate band shaded,
+  highest peak marked with its frequency and bpm) are drawn with `heart_rate/signalPlot.hpp`
+  (OpenCV), saved next to the test dll (`testHeartRate_filteredForeHeadSignal.png`,
+  `testHeartRate_FFTfilteredForeHead.png`) and displayed in two windows. **The test waits until a
+  key is pressed or the windows are closed.** Settings at the top of `TestVideoProcessing.cpp`:
+  `TEST_SHOW_PLOTS` (1 = plots, 0 = no plot, e.g. for unattended runs) and
+  `TEST_PLOTS_DISPLAY_TIME_MS` (0 = wait for the user, > 0 = windows closed automatically after
+  this time). The plots are drawn before the heart rate check, so they are also shown when it fails.
+* `TestVideoProcessing::testHeartRateEstimationFromForeHeadGreenChannelTimeWindow` does the same
+  processing on a 3 s part of the video only, `TEST_WINDOW_START_S` = 5 s to `TEST_WINDOW_END_S` =
+  8 s (90 frames; the video is read from the start, the frames before 5 s are skipped), with the
+  band-pass filter, and an FFT **zero padded** to `TEST_WINDOW_FFT_LENGTH` = 1024 points. Without
+  zero padding, 90 samples give one spectrum value every 30 / 90 Hz = 20 bpm (estimation 40 bpm);
+  with it, one every 30 / 1024 Hz = 1.76 bpm: the estimation is 46 bpm (this part of the video peaks
+  at about 46 bpm). A 3 s signal still cannot separate frequencies closer than 20 bpm, so the
+  estimation is correct when it is less than half of that (10 bpm) away from
+  `TEST_VIDEO_HEART_RATE_BPM`. Plots: `testHeartRateWindow_*.png`.
+* `TestVideoProcessing::testHeartRateEstimationFromForeHeadGreenChannelSlidingWindow` processes the
+  video in sliding windows, as a real-time application would: the video is read frame by frame into
+  a buffer (one forehead sample per frame); when the buffer holds `TEST_SLIDING_WINDOW_LENGTH_S` =
+  4.5 s of signal the last 4.5 s are processed (mean removed, band-pass filter order 40, FFT zero
+  padded to `TEST_SLIDING_WINDOW_FFT_LENGTH` = 1024, maximum), then again every
+  `TEST_SLIDING_WINDOW_STEP_S` = 1 s of new signal while the reading goes on: 0-4.5 s, 1-5.5 s ...
+  5-9.5 s, i.e. 6 estimations for the 10 s video (51, 53, 54, 51, 49, 51 bpm). Each one must be
+  less than half of the frequency resolution of a window (60 / 4.5 / 2 = 6.7 bpm) away from
+  `TEST_VIDEO_HEART_RATE_BPM`. Plots: the 6 filtered signals in one image and their 6 spectra in
+  another (`testHeartRateSliding_*.png`, grids made with `signal_plot::tile`).
+* Zero padding of the FFT: `signalFFT(output, save, file, zeroPaddedLength)`. The last parameter
+  is optional: `NO_ZERO_PADDING` (default, 0) computes the FFT of the samples only, as before; a
+  length >= the number of samples appends zeros up to that length (use an even length, e.g. a power
+  of 2). The length used is given by `getFFTSize()` of the spectrum. Tested by
+  `TestSignalProcessing::testFFTZeroPadding`.
 
 Command line alternative (Developer Command Prompt / Developer PowerShell for VS, after a build):
 
@@ -74,6 +138,46 @@ vstest.console.exe bin\x64\Debug\heart_rate_tests\heart_rate_tests.dll
 
 The test data (reference signal files, `73BPmin.mp4`, Haar cascade) are copied next to
 `heart_rate_tests.dll`, and the tests use that folder as working directory.
+
+## Linux (build and run the tests without Visual Studio)
+
+The `linux/` folder builds the same sources with CMake and GCC/Clang (the Visual Studio projects
+are not modified and do not use it):
+
+| Path | Description |
+|------|-------------|
+| `linux/run_tests.sh` | configures, builds and runs the tests |
+| `linux/CMakeLists.txt` | builds `heart_rate` and `heart_rate_tests` into `linux/build-<mode>/bin` (test data copied there) |
+| `linux/test_framework/` | Linux implementation of the part of the Microsoft `CppUnitTest.h` used by the tests, and the test runner |
+| `linux/sandbox/` | OpenCV stand-in for machines where OpenCV C++ cannot be installed (see below) |
+
+```
+linux/run_tests.sh                      # every test
+linux/run_tests.sh TestSignalProcessing::
+linux/run_tests.sh TestVideoProcessing::testHeartRateEstimationFromForeHeadGreenChannel
+linux/run_tests.sh --list               # names of the tests
+```
+
+A test is run when its name `Class::method` starts with one of the arguments. The exit code is 0
+only if every test passed.
+
+* **Normal Linux machine:** install the development packages
+  (`sudo apt install build-essential cmake libopencv-dev libfftw3-dev`); the script uses the real
+  OpenCV and FFTW.
+* **Sandbox (no root / no internet, OpenCV C++ not installable):** when CMake does not find OpenCV,
+  the script switches to `--sandbox`. This needs only the Python OpenCV module (`cv2`) and the FFTW
+  runtime library (`libfftw3.so.3`). OpenCV is replaced by `linux/sandbox/include`: the build runs
+  `linux/sandbox/decode_video.py` once, which decodes `test.mp4` and runs the Haar face detection
+  with the **real** OpenCV of Python, then `cv::VideoCapture` / `cv::CascadeClassifier` replay
+  these frames and detections in the C++ code. The signal processing (`signalProcessing`, `dsp`,
+  FFTW) is the real code. By default only the tests that do not depend on the OpenCV
+  implementation are run (all `TestSignalProcessing` + the heart rate tests); the other
+  `TestVideoProcessing` tests can be run with a filter, but they then test the stand-in, not OpenCV
+  (`testImageColorToGreyTransform` fails: `cvtColor` is not in the stand-in).
+  The build folder takes about 300 MB (decoded frames).
+  There is no window in the sandbox: the plots of the heart rate test are only saved as
+  `linux/build-sandbox/bin/*.png` (the texts are drawn by the real OpenCV of Python, the lines by
+  the stand-in, without anti-aliasing).
 
 ## Libraries
 

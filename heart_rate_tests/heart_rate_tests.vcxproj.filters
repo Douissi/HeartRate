@@ -37,6 +37,9 @@
     <ClInclude Include="..\heart_rate\dsp.hpp">
       <Filter>Header Files\heart_rate</Filter>
     </ClInclude>
+    <ClInclude Include="..\heart_rate\signalPlot.hpp">
+      <Filter>Header Files\heart_rate</Filter>
+    </ClInclude>
     <ClInclude Include="..\heart_rate\signalProcessing.hpp">
       <Filter>Header Files\heart_rate</Filter>
     </ClInclude>

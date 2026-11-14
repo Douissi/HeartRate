@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dsp.hpp" />
+    <ClInclude Include="signalPlot.hpp" />
     <ClInclude Include="signalProcessing.hpp" />
     <ClInclude Include="videoProcessing.hpp" />
   </ItemGroup>
@@ -103,7 +104,7 @@
     <None Include="..\data\test.mp4">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
-    <None Include="..\data\face2.mp4">
+    <None Include="..\data\test2.mp4">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
     <None Include="..\data\lena.bmp">

@@ -11,9 +11,10 @@
 // This gives the same function set as the gcov measurement (coverage_analysis/), where
 // -fkeep-inline-functions and an explicit template instantiation play this role.
 //
-// When a function is added to signalProcessing / videoProcessing / dsp, add it to the table below.
+// When a function is added to signalProcessing / videoProcessing / dsp / signalPlot, add it to the table below.
 
 #include "videoProcessing.hpp"
+#include "signalPlot.hpp"
 
 #include <tuple>
 
@@ -25,48 +26,54 @@
 
 namespace
 {
-using SP = signalProcessing<float>;
-using VP = videoProcessing;
+    using SP = signalProcessing<float>;
+    using VP = videoProcessing;
 
-const auto coverageAnchors = std::make_tuple(
-    // free functions (signalProcessing.hpp)
-    &ASSERT, &plotWithGNUPLOT, &fftExemple,
+    const auto coverageAnchors = std::make_tuple(
+        // free functions (signalProcessing.hpp)
+        &ASSERT, &plotWithGNUPLOT, &fftExemple,
 
-    // signalProcessing<float>
-    &SP::meanVector, &SP::removeMeanValue, &SP::fillWithValue, &SP::fillWithVector, &SP::reserve,
-    &SP::resize, &SP::saveSigToFile, &SP::signalFFT, &SP::bandPassFilterFunction, &SP::nlmsFilter,
-    &SP::getFrequencyOfMaxFFT, &SP::getSignalSamples, &SP::getFs, &SP::getNbOfSamples, &SP::setFs,
-    &SP::setNbOfSamples,
+        // signalProcessing<float>
+        &SP::meanVector, &SP::removeMeanValue, &SP::fillWithValue, &SP::fillWithVector, &SP::reserve,
+        &SP::resize, &SP::saveSigToFile, &SP::signalFFT, &SP::bandPassFilterFunction, &SP::nlmsFilter,
+        &SP::getFrequencyOfMaxFFT, &SP::getSignalSamples, &SP::getFs, &SP::getNbOfSamples, &SP::getFFTSize, &SP::setFs,
+        &SP::setNbOfSamples,
 
-    // videoProcessing
-    &VP::faceCascadeLoading, &VP::capturingFrames, &VP::detectFacesFromGreenChannelInVideo,
-    &VP::creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel, &VP::drawRectangle,
-    &VP::imageColorToGreyTransform, &VP::meanFrameValue, &VP::fillforeHeadSignal,
-    &VP::fillbackgroundSignal, &VP::displayFrame, &VP::isFrameEmpty, &VP::setbackGroundRect,
-    &VP::setRectFacesVector, &VP::setRectForeHeadsVector, &VP::getFaces, &VP::getframe,
-    &VP::getbackgroundRect, &VP::getforeHead, &VP::getbackground, &VP::getFs, &VP::getNumOfFrames,
-    &VP::getforeHeadSignal, &VP::getbackgroundSignal,
+        // videoProcessing
+        &VP::faceCascadeLoading, &VP::capturingFrames, &VP::detectFacesFromGreenChannelInVideo,
+        &VP::creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel, &VP::drawRectangle,
+        &VP::imageColorToGreyTransform, &VP::meanFrameValue, &VP::fillforeHeadSignal,
+        &VP::fillbackgroundSignal, &VP::displayFrame, &VP::isFrameEmpty, &VP::setbackGroundRect,
+        &VP::setRectFacesVector, &VP::setRectForeHeadsVector, &VP::getFaces, &VP::getframe,
+        &VP::getbackgroundRect, &VP::getforeHead, &VP::getbackground, &VP::getFs, &VP::getNumOfFrames,
+        &VP::getforeHeadSignal, &VP::getbackgroundSignal,
 
-    // dsp.hpp
-    &dsp::sinc, &dsp::hamming, &dsp::fir1_bp, &dsp::FIR_filt::set_coeffs, &dsp::FIR_filt::setup_nlms,
-    &dsp::FIR_filt::operator(), &dsp::FIR_filt::nlms_adapt, &dsp::FIR_filt::coeffs);
+        // dsp.hpp
+        &dsp::sinc, &dsp::hamming, &dsp::fir1_bp, &dsp::FIR_filt::set_coeffs, &dsp::FIR_filt::setup_nlms,
+        &dsp::FIR_filt::operator(), &dsp::FIR_filt::nlms_adapt, &dsp::FIR_filt::coeffs,
 
-// Constructors / destructors cannot have their address taken: instantiating the objects here
-// generates them (they are also called by the tests).
-void constructorsAndDestructors()
-{
-    SP a;
-    SP b(1u, 1.0);
-    SP c(std::vector<float>(2, 0.0f), 2u, 1.0);
-    VP v;
-    VP w(String("video.mp4"));
-}
+        // signalPlot.hpp
+        &signal_plot::render, &signal_plot::signalPlotData<float>, &signal_plot::spectrumPlotData<float>,
+        &signal_plot::displayAvailable, &signal_plot::show, &signal_plot::save, &signal_plot::waitForWindows,
+        &signal_plot::detail::niceStep, &signal_plot::detail::formatTick, &signal_plot::detail::textSize,
+        &signal_plot::detail::text, &signal_plot::detail::makeTicks);
+
+    // Constructors / destructors cannot have their address taken: instantiating the objects here
+    // generates them (they are also called by the tests).
+    void constructorsAndDestructors()
+    {
+        SP a;
+        SP b(1u, 1.0);
+        SP c(std::vector<float>(2, 0.0f), 2u, 1.0);
+        VP v;
+        VP w(String("video.mp4"));
+    }
 } // namespace
 
 // Never called: exists only so that the anchors above are kept in the DLL.
 HEART_RATE_COVERAGE_EXPORT const void* heartRateCoverageAnchors()
 {
-    static void (*const ctors)() = &constructorsAndDestructors;
+    static void (* const ctors)() = &constructorsAndDestructors;
     static const void* const table[] = { &coverageAnchors, &ctors };
     return table;
 }

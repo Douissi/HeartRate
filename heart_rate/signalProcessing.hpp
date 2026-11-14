@@ -35,6 +35,15 @@ constexpr unsigned char FFT = 2;
 constexpr bool SAVE_FFT = 1;
 constexpr bool DO_NOT_SAVE_FFT = 0;
 
+constexpr unsigned int NO_ZERO_PADDING = 0; // signalFFT : FFT length = number of samples
+
+// Sliding window analysis (main.cpp and TestVideoProcessing) : a heart rate is estimated from the last
+// slidingWindowLengthSeconds of signal, every slidingWindowStepSeconds ; the FFT of a window is zero
+// padded to slidingWindowFFTLength points so that the peak of these short signals is read precisely.
+constexpr double slidingWindowLengthSeconds = 4.5;
+constexpr double slidingWindowStepSeconds = 1.0;
+constexpr unsigned int slidingWindowFFTLength = 1024;
+
 
 // Reports a fatal error. The message is printed and an exception is thrown, so that the
 // application can report it (see main.cpp) and a unit test fails cleanly instead of
@@ -54,26 +63,26 @@ inline void ASSERT(bool condition, const std::string& str)
 // (OpenCV windows), without external program.
 inline void plotWithGNUPLOT(const string& nameSig, const unsigned char& type)
 {
-    if(type == SIG)
+    if (type == SIG)
     {
         string cmd = "gnuplot -e \""
-                     "set xlabel 'Samples in frames' ;"
-                     "set ylabel 'Amplitude of the signal' ;"
-                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
+            "set xlabel 'Samples in frames' ;"
+            "set ylabel 'Amplitude of the signal' ;"
+            "plot '" + nameSig + "' using 1:2 with lines\" -p";
         system(cmd.c_str());
     }
     else if (type == FFT)
     {
         string cmd = "gnuplot -e \""
-                     "set xlabel 'Frequencies in Hz' ;"
-                     "set ylabel 'Amplitude of the FFT' ;"
-                     "set xrange [0:6] ;"
-                     "plot '" + nameSig + "' using 1:2 with lines\" -p";
+            "set xlabel 'Frequencies in Hz' ;"
+            "set ylabel 'Amplitude of the FFT' ;"
+            "set xrange [0:6] ;"
+            "plot '" + nameSig + "' using 1:2 with lines\" -p";
         system(cmd.c_str());
     }
     else
     {
-        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** " );
+        ASSERT(false, "**** !!!!!! ***** plot With GNUPLOT :: type of Sig NOT KNOWN ** !!!!! ******** ");
     }
 }
 
@@ -110,14 +119,14 @@ class signalProcessing
     friend class heart_rate_tests::TestVideoProcessing;
     friend class heart_rate_tests::TestSignalProcessing;
 
-public :
-    signalProcessing() : numberOfSamples(0), Fs(0){}
+public:
+    signalProcessing() : numberOfSamples(0), Fs(0) {}
     signalProcessing(const unsigned int& numOfSamples, const double& Fech) : numberOfSamples(0), Fs(Fech)
     {
         signalSamples.reserve(numOfSamples); // WRN = please make sure when calling size() on this vector
     }
 
-    signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int &numOfSamples , const double &Fech) : numberOfSamples(0),
+    signalProcessing(const std::vector<T>& signalSamplesInput, const unsigned int& numOfSamples, const double& Fech) : numberOfSamples(0),
         Fs(Fech)
     {
         ASSERT(signalSamplesInput.size() == numOfSamples, " Error while constructing signalProcessing Obj :: numOfSamples incorrect and not equal to size of input vector ");
@@ -144,8 +153,8 @@ public :
     void removeMeanValue()
     {
         T meanSignal = meanVector();
-        std::transform(signalSamples.begin(), signalSamples.end(),signalSamples.begin(),
-                       [&meanSignal](T v) -> T {return v - meanSignal;});
+        std::transform(signalSamples.begin(), signalSamples.end(), signalSamples.begin(),
+            [&meanSignal](T v) -> T {return v - meanSignal;});
     }
 
     void fillWithValue(const T& value)
@@ -156,16 +165,16 @@ public :
 
     void fillWithVector(const std::vector<T>& inputVec)
     {
-        for(const auto& v : inputVec) signalSamples.push_back(v);
+        for (const auto& v : inputVec) signalSamples.push_back(v);
         numberOfSamples += static_cast<unsigned int>(inputVec.size());
     }
 
-    void reserve(const unsigned int &size)
+    void reserve(const unsigned int& size)
     {
         signalSamples.reserve(size);
     }
 
-    void resize(const unsigned int &size)
+    void resize(const unsigned int& size)
     {
         signalSamples.resize(size);
         numberOfSamples = size;
@@ -174,10 +183,10 @@ public :
     void saveSigToFile(const string& inputFile)
     {
         fstream myfile;
-        myfile.open(inputFile,fstream::out);
-        if(myfile.is_open())
+        myfile.open(inputFile, fstream::out);
+        if (myfile.is_open())
         {
-            for(unsigned int i = 0;i < numberOfSamples; i++) myfile << i<< " " << signalSamples[i]<< std::endl;
+            for (unsigned int i = 0;i < numberOfSamples; i++) myfile << i << " " << signalSamples[i] << std::endl;
             myfile.close();
         }
         else
@@ -186,45 +195,56 @@ public :
         }
     }
 
-    // Power spectrum (|X(k)|^2, k = 0 .. N/2-1) of the signal computed with FFTW.
-    void signalFFT(signalProcessing<T>& FFTOutput, const bool& save = DO_NOT_SAVE_FFT, const string& FFTFile = " ")
+    // Power spectrum (|X(k)|^2, k = 0 .. N/2-1) of the signal computed with FFTW, N = length of the FFT.
+    // Optional zero padding :
+    //   zeroPaddedLength = NO_ZERO_PADDING (default) : N = number of samples of the signal.
+    //   zeroPaddedLength >= number of samples        : N = zeroPaddedLength, zeros are added after the
+    //     samples before the FFT. The spectrum then has a value every Fs / N Hz instead of every
+    //     Fs / (number of samples) Hz : the position of a peak is read more precisely (useful for short
+    //     signals). It does not separate two frequencies closer than Fs / (number of samples).
+    //     Use an even length (getFrequencyOfMaxFFT assumes N = 2 x the size of the spectrum); a power
+    //     of 2 is the fastest.
+    void signalFFT(signalProcessing<T>& FFTOutput, const bool& save = DO_NOT_SAVE_FFT, const string& FFTFile = " ",
+        const unsigned int& zeroPaddedLength = NO_ZERO_PADDING)
     {
         ASSERT(numberOfSamples >= 2 && signalSamples.size() >= numberOfSamples,
-               "signalFFT fct :: the signal must contain at least 2 samples");
+            "signalFFT fct :: the signal must contain at least 2 samples");
+        ASSERT(zeroPaddedLength == NO_ZERO_PADDING || zeroPaddedLength >= numberOfSamples,
+            "signalFFT fct :: the zero padded length must not be smaller than the number of samples");
 
-        const unsigned int N = numberOfSamples;
+        const unsigned int N = (zeroPaddedLength == NO_ZERO_PADDING) ? numberOfSamples : zeroPaddedLength; // FFT length
         const double FsSignal = Fs;
 
         // Heap buffers (MSVC does not support variable length arrays), aligned for FFTW
         fftw_raii::RealBuffer in(fftw_alloc_real(N));
-        fftw_raii::ComplexBuffer out(fftw_alloc_complex(N/2 + 1));
+        fftw_raii::ComplexBuffer out(fftw_alloc_complex(N / 2 + 1));
         ASSERT(in != nullptr && out != nullptr, "signalFFT fct :: FFTW memory allocation failed");
 
-        for (unsigned int i=0 ; i < N ; i++) in[i] = static_cast<double>(signalSamples[i]);
+        for (unsigned int i = 0; i < N; i++) in[i] = (i < numberOfSamples) ? static_cast<double>(signalSamples[i]) : 0.0; // zero padding
 
         fftw_raii::Plan plan_forward(fftw_plan_dft_r2c_1d(static_cast<int>(N), in.get(), out.get(), FFTW_ESTIMATE));
         ASSERT(plan_forward.plan != nullptr, "signalFFT fct :: FFTW plan creation failed");
         fftw_execute(plan_forward.plan);
 
         FFTOutput.resize(0);
-        FFTOutput.reserve(N/2 +1);
+        FFTOutput.reserve(N / 2 + 1);
         FFTOutput.setFs(FsSignal);
         FFTOutput.fftSize = N; // needed to compute the frequency of each bin (plotFFT, getHeartRateFrequency)
 
-        for (unsigned int i = 0 ; i<= ((N/2)-1) ; i++)
+        for (unsigned int i = 0; i <= ((N / 2) - 1); i++)
         {
-            FFTOutput.fillWithValue(static_cast<T>(out[i][0]*out[i][0]+ out[i][1]*out[i][1]));
+            FFTOutput.fillWithValue(static_cast<T>(out[i][0] * out[i][0] + out[i][1] * out[i][1]));
         }
 
-        if(save)
+        if (save)
         {
             fstream myfile;
-            myfile.open(FFTFile,fstream::out);
+            myfile.open(FFTFile, fstream::out);
 
-            if(myfile.is_open())
+            if (myfile.is_open())
             {
                 std::vector<T>& v = FFTOutput.getSignalSamples();
-                for(unsigned int i = 0;i< ((N/2)-1); i++) myfile << FsSignal*i/N<< " " << v[i]<< std::endl; // readble mode by gnuplot
+                for (unsigned int i = 0;i < ((N / 2) - 1); i++) myfile << FsSignal * i / N << " " << v[i] << std::endl; // readble mode by gnuplot
                 myfile.close();
             }
             else
@@ -235,11 +255,11 @@ public :
     }
 
     void bandPassFilterFunction(const float& lowFreqCutOff, const float& highFreqCutOff, const int& filterOrder,
-                                signalProcessing<T>& outputSig)
+        signalProcessing<T>& outputSig)
     {
         // Create a band-pass FIR filter (Hamming window), b contains the filter coeffs
         dsp::FIR_filt fir_filt;
-        const std::vector<double> b = dsp::fir1_bp(static_cast<std::size_t>(filterOrder), lowFreqCutOff/(Fs/2), highFreqCutOff/(Fs/2));
+        const std::vector<double> b = dsp::fir1_bp(static_cast<std::size_t>(filterOrder), lowFreqCutOff / (Fs / 2), highFreqCutOff / (Fs / 2));
         fir_filt.set_coeffs(b);
 
         const std::vector<T> input = signalSamples; // copy: outputSig may be *this
@@ -255,7 +275,7 @@ public :
 
 
     static void nlmsFilter(signalProcessing<T>& inputSignal, signalProcessing<T>& originalSignal, const int& filterOrder,
-                           const float& mu, signalProcessing<T>& outputSignalEstimation)
+        const float& mu, signalProcessing<T>& outputSignalEstimation)
     {
         const std::vector<T> inputSig = inputSignal.getSignalSamples();       // copies: the output may alias an input
         const std::vector<T> originalSig = originalSignal.getSignalSamples();
@@ -275,12 +295,12 @@ public :
         dsp::FIR_filt Ghat;
         Ghat.setup_nlms(static_cast<std::size_t>(filterOrder), mu, 0.0); // mu is 0.5, 0.0 is NLMS regulation const.
         // Filter - sample loop
-        for(unsigned int n = 0 ; n < N ; n++)
+        for (unsigned int n = 0; n < N; n++)
         {
             // Apply adaptiv filter
             nlmsOutput[n] = static_cast<T>(Ghat(inputSig[n]));
             // Calc error
-            outputEstimation[n] = originalSig[n]-nlmsOutput[n];
+            outputEstimation[n] = originalSig[n] - nlmsOutput[n];
             Ghat.nlms_adapt(outputEstimation[n]);
         }
 
@@ -290,8 +310,8 @@ public :
 
     float getFrequencyOfMaxFFT()
     {
-       return static_cast<float>(static_cast<double>(distance(signalSamples.begin(), max_element(signalSamples.begin(), signalSamples.end()))) * Fs/
-               (2.0 * static_cast<double>(numberOfSamples)));
+        return static_cast<float>(static_cast<double>(distance(signalSamples.begin(), max_element(signalSamples.begin(), signalSamples.end()))) * Fs /
+            (2.0 * static_cast<double>(numberOfSamples)));
     }
 
     //************************************** plotting *********************************
@@ -410,6 +430,8 @@ public :
     std::vector <T>& getSignalSamples() { return signalSamples; }
     const double& getFs() { return Fs; }
     const unsigned int& getNbOfSamples() { return numberOfSamples; }
+    // spectrum computed by signalFFT() : length of the FFT (samples + zero padding), 0 otherwise
+    unsigned int getFFTSize() const { return fftSize; }
 
     //***************************************setters ********************************
     void setFs(const double& Fech) { Fs = Fech; }
@@ -429,51 +451,52 @@ private:
 // FFTW usage example (not used by the application): FFT of a 50 Hz sine, spectrum in dB saved in example2.txt
 inline int fftExemple()
 {
-    constexpr int N=550;//Number of points acquired inside the window
-    const double Fs=200;//sampling frequency
+    constexpr int N = 550;//Number of points acquired inside the window
+    const double Fs = 200;//sampling frequency
     //    double dF=Fs/N;
-    const double  T=1/Fs;//sample time
-    const double f=50;//frequency
+    const double  T = 1 / Fs;//sample time
+    const double f = 50;//frequency
 
     fftw_raii::RealBuffer in(fftw_alloc_real(N));
-    fftw_raii::ComplexBuffer out(fftw_alloc_complex(N/2 + 1));
+    fftw_raii::ComplexBuffer out(fftw_alloc_complex(N / 2 + 1));
     std::vector<double> t(N);//time vector
     std::vector<double> ff(N);
 
-    for (int i=0; i < N;i++)
+    for (int i = 0; i < N;i++)
     {
-        t[i]=i*T;
+        t[i] = i * T;
 
-        in[i] =0.7 *sin(2*dsp::kPi*f*t[i]);// generate sine waveform
+        in[i] = 0.7 * sin(2 * dsp::kPi * f * t[i]);// generate sine waveform
         //    double multiplier = 0.5 * (1 - cos(2*dsp::kPi*i/(N-1)));//Hanning Window
         //    in[i] = multiplier * in[i];
     }
 
-    for (int i=0; i<= ((N/2)-1);i++)
-    {ff[i]=Fs*i/N;
+    for (int i = 0; i <= ((N / 2) - 1);i++)
+    {
+        ff[i] = Fs * i / N;
     }
-    fftw_raii::Plan plan_forward(fftw_plan_dft_r2c_1d ( N, in.get(), out.get(), FFTW_ESTIMATE ));
+    fftw_raii::Plan plan_forward(fftw_plan_dft_r2c_1d(N, in.get(), out.get(), FFTW_ESTIMATE));
 
-    fftw_execute ( plan_forward.plan );
+    fftw_execute(plan_forward.plan);
 
     std::vector<double> v(N);
 
-    for (int i = 0; i<= ((N/2)-1); i++)
+    for (int i = 0; i <= ((N / 2) - 1); i++)
     {
 
-        v[i]=(20*log(sqrt(out[i][0]*out[i][0]+ out[i][1]*out[i][1])))/N;  //Here   I  have calculated the y axis of the spectrum in dB
+        v[i] = (20 * log(sqrt(out[i][0] * out[i][0] + out[i][1] * out[i][1]))) / N;  //Here   I  have calculated the y axis of the spectrum in dB
 
     }
 
     fstream myfile;
 
-    myfile.open("example2.txt",fstream::out);
+    myfile.open("example2.txt", fstream::out);
 
-    for(int i = 0;i< ((N/2)-1); i++)
+    for (int i = 0;i < ((N / 2) - 1); i++)
 
     {
 
-        myfile << ff[i]<< " " << v[i]<< std::endl;
+        myfile << ff[i] << " " << v[i] << std::endl;
 
     }
 
