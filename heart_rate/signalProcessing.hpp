@@ -202,8 +202,8 @@ public:
     //     samples before the FFT. The spectrum then has a value every Fs / N Hz instead of every
     //     Fs / (number of samples) Hz : the position of a peak is read more precisely (useful for short
     //     signals). It does not separate two frequencies closer than Fs / (number of samples).
-    //     Use an even length (getFrequencyOfMaxFFT assumes N = 2 x the size of the spectrum); a power
-    //     of 2 is the fastest.
+    //     Any length can be used (the frequencies of the bins use the FFT length, see
+    //     getFFTBinFrequency); a power of 2 is the fastest.
     void signalFFT(signalProcessing<T>& FFTOutput, const bool& save = DO_NOT_SAVE_FFT, const string& FFTFile = " ",
         const unsigned int& zeroPaddedLength = NO_ZERO_PADDING)
     {
@@ -308,10 +308,62 @@ public:
         outputEstimation[0] = outputEstimation[1];
     }
 
-    float getFrequencyOfMaxFFT()
+    // For a spectrum computed by signalFFT() : frequency (Hz) of bin k = k x Fs / N, N = length of the
+    // FFT (fftSize, i.e. samples + zero padding). A spectrum filled by hand (fftSize = 0) is assumed to
+    // come from an FFT of 2 x its number of values.
+    double getFFTBinFrequency(const unsigned int& k) const
     {
-        return static_cast<float>(static_cast<double>(distance(signalSamples.begin(), max_element(signalSamples.begin(), signalSamples.end()))) * Fs /
-            (2.0 * static_cast<double>(numberOfSamples)));
+        const double length = (fftSize != 0) ? static_cast<double>(fftSize) : 2.0 * static_cast<double>(numberOfSamples);
+        return static_cast<double>(k) * Fs / length;
+    }
+
+    // For a spectrum computed by signalFFT() : frequency (Hz) of its highest value inside the heart rate
+    // band [lowFreq, highFreq] (default [lowFreqCutOff, highFreqCutOff] = [0.5, 4.5] Hz = [30, 270] bpm).
+    // The heart rate in beats per minute is 60 x this frequency.
+    // Only the band is searched : the band-pass filter (order filterOrder) attenuates the slow variations
+    // (illumination, movements, < 0.5 Hz) but does not remove them, and they can be stronger than the
+    // pulse (e.g. the nose region of test.mp4) : the maximum of the whole spectrum would then be one of
+    // them (e.g. 0.1 Hz = 6 bpm) instead of the heart rate.
+    // Throws (ASSERT) if no value of the spectrum is inside the band.
+    float getFrequencyOfMaxFFT(const double& lowFreq = lowFreqCutOff, const double& highFreq = highFreqCutOff) const
+    {
+        const unsigned int n = std::min(numberOfSamples, static_cast<unsigned int>(signalSamples.size()));
+        bool found = false;
+        unsigned int best = 0;
+        for (unsigned int k = 0; k < n; k++)
+        {
+            const double f = getFFTBinFrequency(k);
+            if (f < lowFreq || f > highFreq) continue;
+            if (!found || signalSamples[k] > signalSamples[best]) best = k;
+            found = true;
+        }
+        ASSERT(found, "getFrequencyOfMaxFFT fct :: no value of the spectrum inside the heart rate band");
+        return static_cast<float>(getFFTBinFrequency(best));
+    }
+
+    // For a spectrum computed by signalFFT() : signal to noise ratio (linear, not dB) of the pulse at
+    // 'frequency' (Hz), as used in remote photoplethysmography (de Haan & Jeanne 2013) :
+    //   power of the bins within +/- halfWidth of 'frequency' and within +/- 2 x halfWidth of its first
+    //   harmonic (2 x frequency; the pulse is not a pure sine), divided by the power of all the other
+    //   bins of the band [lowFreq, highFreq].
+    // A high value means that the signal is dominated by a component at 'frequency'. Returns 0 for a
+    // spectrum without power in the band; the noise power is kept above 1e-12 x the band power so that
+    // the ratio stays finite (a pure sine then gives 1e12).
+    double getSNR(const double& frequency, const double& halfWidth = 0.1,
+        const double& lowFreq = lowFreqCutOff, const double& highFreq = highFreqCutOff) const
+    {
+        const unsigned int n = std::min(numberOfSamples, static_cast<unsigned int>(signalSamples.size()));
+        double signalPower = 0.0, noisePower = 0.0;
+        for (unsigned int k = 0; k < n; k++)
+        {
+            const double f = getFFTBinFrequency(k);
+            if (f < lowFreq || f > highFreq) continue;
+            const bool pulse = std::fabs(f - frequency) <= halfWidth || std::fabs(f - 2.0 * frequency) <= 2.0 * halfWidth;
+            (pulse ? signalPower : noisePower) += static_cast<double>(signalSamples[k]);
+        }
+        const double bandPower = signalPower + noisePower;
+        if (bandPower <= 0.0) return 0.0;
+        return signalPower / std::max(noisePower, 1e-12 * bandPower);
     }
 
     //************************************** plotting *********************************

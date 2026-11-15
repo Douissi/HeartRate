@@ -36,7 +36,7 @@ namespace
         // signalProcessing<float>
         &SP::meanVector, &SP::removeMeanValue, &SP::fillWithValue, &SP::fillWithVector, &SP::reserve,
         &SP::resize, &SP::saveSigToFile, &SP::signalFFT, &SP::bandPassFilterFunction, &SP::nlmsFilter,
-        &SP::getFrequencyOfMaxFFT, &SP::getSignalSamples, &SP::getFs, &SP::getNbOfSamples, &SP::getFFTSize, &SP::setFs,
+        &SP::getFrequencyOfMaxFFT, &SP::getFFTBinFrequency, &SP::getSNR, &SP::getSignalSamples, &SP::getFs, &SP::getNbOfSamples, &SP::getFFTSize, &SP::setFs,
         &SP::setNbOfSamples,
 
         // videoProcessing
@@ -47,6 +47,17 @@ namespace
         &VP::setRectFacesVector, &VP::setRectForeHeadsVector, &VP::getFaces, &VP::getframe,
         &VP::getbackgroundRect, &VP::getforeHead, &VP::getbackground, &VP::getFs, &VP::getNumOfFrames,
         &VP::getforeHeadSignal, &VP::getbackgroundSignal,
+        // videoProcessing : cheeks and nose regions
+        &VP::creatingCheeksAndNoseMatrixFromGreenChannel, &VP::foreHeadRectFromFace, &VP::leftCheekRectFromFace,
+        &VP::rightCheekRectFromFace, &VP::noseRectFromFace, &VP::fillLeftCheekSignal, &VP::fillRightCheekSignal,
+        &VP::fillNoseSignal, &VP::setLeftCheekRect, &VP::setRightCheekRect, &VP::setNoseRect, &VP::getLeftCheekRect,
+        &VP::getRightCheekRect, &VP::getNoseRect, &VP::getLeftCheek, &VP::getRightCheek, &VP::getNose,
+        &VP::getLeftCheekSignal, &VP::getRightCheekSignal, &VP::getNoseSignal,
+        // videoProcessing : heart rate signal (weighted combination of the 4 regions)
+        &VP::buildHeartRateSignal, &VP::setRegionsFromFace, &VP::getHeartRateSignal, &VP::getHeartRateWeights, &VP::getHeartRateReferenceFrequency,
+        // videoProcessing : optical flow tracking (method E, see videoProcessing.hpp)
+        &VP::initOpticalFlowTracking, &VP::isOpticalFlowTracking, &VP::trackOpticalFlow, &VP::trackedRect,
+        &VP::trackedFace,
 
         // dsp.hpp
         &dsp::sinc, &dsp::hamming, &dsp::fir1_bp, &dsp::FIR_filt::set_coeffs, &dsp::FIR_filt::setup_nlms,

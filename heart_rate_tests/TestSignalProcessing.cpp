@@ -335,6 +335,68 @@ namespace heart_rate_tests
             UT_VERIFY(std::fabs(FFTOutput.getFrequencyOfMaxFFT() - 1.2) < 1e-5);
         }
 
+        TEST_METHOD(testGetFrequencyOfMaxFFTHeartRateBand)
+        {
+            const double Fs = 30.0;
+            const unsigned int N = 300;
+
+            // a slow variation (0.2 Hz, e.g. illumination) 3 times stronger than the pulse (1.2 Hz) : the
+            // highest value of the whole spectrum is at 0.2 Hz, but only the heart rate band is searched
+            std::vector<float> drift = makeSine(0.2, Fs, N), pulse = makeSine(1.2, Fs, N);
+            for (unsigned int n = 0; n < N; n++) drift[n] = 3.0f * drift[n] + pulse[n];
+            signalProcessing<float> driftAndPulse(drift, N, Fs), spectrum;
+            driftAndPulse.signalFFT(spectrum);
+            const std::vector<float>& power = spectrum.getSignalSamples();
+            UT_VERIFY(std::distance(power.begin(), std::max_element(power.begin(), power.end())) == 2); // 0.2 Hz
+            UT_VERIFY(std::fabs(spectrum.getFrequencyOfMaxFFT() - 1.2) < 1e-5);
+
+            // another band : 1.2 Hz + a weaker 2.5 Hz, searched in [1.5, 4.5] Hz -> 2.5 Hz
+            std::vector<float> twoSines = makeSine(2.5, Fs, N);
+            for (unsigned int n = 0; n < N; n++) twoSines[n] = 0.5f * twoSines[n] + pulse[n];
+            signalProcessing<float> twoSinesSignal(twoSines, N, Fs), twoSinesSpectrum;
+            twoSinesSignal.signalFFT(twoSinesSpectrum);
+            UT_VERIFY(std::fabs(twoSinesSpectrum.getFrequencyOfMaxFFT() - 1.2) < 1e-5);
+            UT_VERIFY(std::fabs(twoSinesSpectrum.getFrequencyOfMaxFFT(1.5, 4.5) - 2.5) < 1e-5);
+
+            // odd FFT length (e.g. the 301 frames of test.mp4) : bin k is at k x Fs / 301 Hz, not k x Fs / 300
+            signalProcessing<float> odd(makeSine(1.2, Fs, 301), 301, Fs), oddSpectrum;
+            odd.signalFFT(oddSpectrum);
+            UT_VERIFY(oddSpectrum.getFFTSize() == 301);
+            UT_VERIFY(std::fabs(oddSpectrum.getFFTBinFrequency(12) - 12.0 * Fs / 301.0) < 1e-12);
+            UT_VERIFY(std::fabs(oddSpectrum.getFrequencyOfMaxFFT() - 12.0 * Fs / 301.0) < 1e-5);
+
+            // no value of the spectrum in the band (above Fs / 2 = 15 Hz) : error
+            Assert::ExpectException<std::runtime_error>([&] { spectrum.getFrequencyOfMaxFFT(20.0, 25.0); });
+        }
+
+        TEST_METHOD(testGetSNR)
+        {
+            const double Fs = 30.0;
+            const unsigned int N = 300;
+
+            // 1.2 Hz (amplitude 1) + 3.0 Hz (amplitude 0.5) : the power ratio is 1 / 0.25 = 4 at 1.2 Hz, and
+            // 0.25 / 1 at 3.0 Hz (the harmonic windows, 2.4 Hz and 6 Hz, contain nothing)
+            std::vector<float> samples = makeSine(1.2, Fs, N), other = makeSine(3.0, Fs, N);
+            for (unsigned int n = 0; n < N; n++) samples[n] += 0.5f * other[n];
+            signalProcessing<float> signal(samples, N, Fs), spectrum;
+            signal.signalFFT(spectrum);
+            UT_VERIFY(std::fabs(spectrum.getSNR(1.2) - 4.0) < 1e-3);
+            UT_VERIFY(std::fabs(spectrum.getSNR(3.0) - 0.25) < 1e-3);
+
+            // the first harmonic counts as pulse : 1.2 Hz + 2.4 Hz -> no noise at all in the band
+            std::vector<float> withHarmonic = makeSine(1.2, Fs, N), harmonic = makeSine(2.4, Fs, N);
+            for (unsigned int n = 0; n < N; n++) withHarmonic[n] += 0.5f * harmonic[n];
+            signalProcessing<float> harmonicSignal(withHarmonic, N, Fs), harmonicSpectrum;
+            harmonicSignal.signalFFT(harmonicSpectrum);
+            UT_VERIFY(harmonicSpectrum.getSNR(1.2) > 1e6);   // noise power kept >= 1e-12 x band power : finite
+            UT_VERIFY(harmonicSpectrum.getSNR(3.5) < 1e-6);  // nothing at 3.5 Hz
+
+            // no power in the band : 0
+            signalProcessing<float> zeros(std::vector<float>(N, 0.0f), N, Fs), zeroSpectrum;
+            zeros.signalFFT(zeroSpectrum);
+            UT_VERIFY(zeroSpectrum.getSNR(1.2) == 0.0);
+        }
+
         TEST_METHOD(testBandPassFilterInvalidCutOff)
         {
             // Fs = 8 Hz : the high cut-off frequency (4.5 Hz) is above the Nyquist frequency (4 Hz)

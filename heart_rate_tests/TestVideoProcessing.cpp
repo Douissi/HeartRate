@@ -9,6 +9,7 @@
 #include "signalPlot.hpp"
 
 #include <cmath>
+#include <functional>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
@@ -111,30 +112,35 @@ namespace heart_rate_tests
         }
     }
 
-    // Renders, saves and displays the filtered forehead signal and its spectrum.
+    // Renders, saves and displays the filtered signal of a region and its spectrum.
+    //   regionName  : region the signal comes from (e.g. "ForeHead", "LeftCheek") : used in the plot
+    //                 titles, the window titles and the names of the .png files
     //   description : part of the video used (titles of the plots and of the windows)
     //   fileTag     : added to the names of the .png files ("testHeartRate<fileTag>_....png")
     //   startTime   : time of the first sample in the video (s)
     static void plotForeHeadSignalAndFFT(signalProcessing<float>& filtredSig, signalProcessing<float>& FFTfiltredForeHead,
-        const std::string& description, const std::string& fileTag, double startTime)
+        const std::string& description, const std::string& fileTag, double startTime, const std::string& regionName = "ForeHead")
     {
         const cv::Mat signalImage = signal_plot::render(
-            signal_plot::signalPlotData("Forehead green channel after the band-pass filter (test.mp4, " + description + ")",
+            signal_plot::signalPlotData(regionName + " green channel after the band-pass filter (test.mp4, " + description + ")",
                 filtredSig.getSignalSamples(), filtredSig.getFs(), startTime), 900, 320);
         const cv::Mat fftImage = signal_plot::render(
-            signal_plot::spectrumPlotData("FFT of the filtered forehead signal (" + description + ")", FFTfiltredForeHead.getSignalSamples(),
+            signal_plot::spectrumPlotData("FFT of the filtered " + regionName + " signal (" + description + ")", FFTfiltredForeHead.getSignalSamples(),
                 FFTfiltredForeHead.getFs(), FFTfiltredForeHead.getFFTSize(), 6.0, lowFreqCutOff,
                 highFreqCutOff), 900, 320);
 
         saveAndShowPlots({
-            { "Filtered forehead signal (" + description + ")", "testHeartRate" + fileTag + "_filteredForeHeadSignal.png", signalImage, 40, 40 },
-            { "FFT of the filtered forehead signal (" + description + ")", "testHeartRate" + fileTag + "_FFTfilteredForeHead.png", fftImage,
+            { "Filtered " + regionName + " signal (" + description + ")", "testHeartRate" + fileTag + "_filtered" + regionName + "Signal.png", signalImage, 40, 40 },
+            { "FFT of the filtered " + regionName + " signal (" + description + ")", "testHeartRate" + fileTag + "_FFTfiltered" + regionName + ".png", fftImage,
               40, 40 + signalImage.rows + 50 } });
     }
 
     // Renders, saves and displays the filtered signals of all the sliding windows (one image, one plot
     // per window) and their spectra (one image).
-    static void plotSlidingWindows(std::vector<SlidingWindowResult>& results)
+    //   signalName : what the windows contain (titles); fileTag : names of the .png files
+    //   ("testHeartRate<fileTag>_filtered...Signals.png"). The defaults are the forehead sliding window test.
+    static void plotSlidingWindows(std::vector<SlidingWindowResult>& results, const std::string& signalName = "filtered forehead signals",
+        const std::string& fileTag = "Sliding")
     {
         std::vector<cv::Mat> signalPlots, fftPlots;
         for (std::size_t i = 0; i < results.size(); i++)
@@ -151,11 +157,108 @@ namespace heart_rate_tests
         const cv::Mat signals = signal_plot::tile(signalPlots, 3);
         const cv::Mat ffts = signal_plot::tile(fftPlots, 3);
         saveAndShowPlots({
-            { "Sliding windows : filtered forehead signals", "testHeartRateSliding_filteredForeHeadSignals.png", signals, 20, 20 },
-            { "Sliding windows : FFT of the filtered forehead signals", "testHeartRateSliding_FFTfilteredForeHead.png", ffts,
+            { "Sliding windows : " + signalName, "testHeartRate" + fileTag + "_filteredForeHeadSignals.png", signals, 20, 20 },
+            { "Sliding windows : FFT of the " + signalName, "testHeartRate" + fileTag + "_FFTfilteredForeHead.png", ffts,
               20, 20 + signals.rows + 40 } });
     }
 #endif
+
+    // ---------------------------------------------------------------------------------------------
+    // Heart rate from the forehead, the cheeks and the nose with "method E" (see
+    // testHeartRateEstimationFrom<Region>OpticalFlow below) : the face is detected with the Haar cascade
+    // only once, then its position in every following frame is given by optical flow tracking
+    // (videoProcessing::initOpticalFlowTracking / trackOpticalFlow / trackedFace) instead of a new
+    // detection. The regions (videoProcessing::foreHeadRectFromFace, leftCheekRectFromFace,
+    // rightCheekRectFromFace, noseRectFromFace) are computed from that tracked face, and their signals are
+    // the attributes of videoProcessing (foreHeadSignal, leftCheekSignal, rightCheekSignal, noseSignal).
+    // ---------------------------------------------------------------------------------------------
+
+        // Reads the whole video and fills the forehead, left cheek, right cheek and nose signals of videoObj
+        // (one sample per frame each). Same steps as main() for every frame, except that the face rectangle
+        // comes from the optical flow tracking (the Haar cascade is only used until a face is found : the
+        // frames before that, if any, are skipped, as in the other tests). Returns the number of frames read.
+        // onNewSample (optional) is called after each new sample (sliding window test), as in main().
+    static unsigned int fillTrackedRegionSignals(videoProcessing& videoObj, const std::function<void()>& onNewSample = nullptr)
+    {
+        unsigned int nbOfFrames = 0;
+        while (true)
+        {
+            videoObj.capturingFrames();
+            if (videoObj.isFrameEmpty()) break;
+            nbOfFrames++;
+
+            if (!videoObj.isOpticalFlowTracking())
+            {
+                videoObj.detectFacesFromGreenChannelInVideo();
+                if (videoObj.getFaces().empty()) continue; // no face yet : frame skipped
+                videoObj.initOpticalFlowTracking(videoObj.getFaces()[0]); // Haar cascade used once
+            }
+            else
+            {
+                videoObj.trackOpticalFlow(); // every following frame : optical flow only
+            }
+
+            // face of this frame (tracked), and the regions computed from it, as main() does from faces[0]
+            // (face, background, forehead, cheeks and nose rectangles; the background is needed to build the
+            // matrices, its signal is not used here)
+            videoObj.setRegionsFromFace(videoObj.trackedFace());
+
+            videoObj.creatingFaceForeHeadAndBackGroundMatrixFromGreenChannel();
+            videoObj.creatingCheeksAndNoseMatrixFromGreenChannel();
+
+            // one new sample (mean of the green channel of the region) in each signal
+            videoObj.fillforeHeadSignal();
+            videoObj.fillLeftCheekSignal();
+            videoObj.fillRightCheekSignal();
+            videoObj.fillNoseSignal();
+
+            if (onNewSample) onNewSample();
+        }
+        return nbOfFrames;
+    }
+
+    // Same processing (mean removal, band-pass filter, FFT) and the same check as
+    // testHeartRateEstimationFromForeHeadGreenChannel, factorised for the 4 tests below.
+    //   regionName : used in the plot / window titles and in the names of the .png files (see
+    //                plotForeHeadSignalAndFFT) and in the log message
+    static void checkHeartRateOfTrackedRegion(signalProcessing<float>& signal, unsigned int nbOfFrames, const std::string& regionName)
+    {
+        UT_VERIFY(nbOfFrames == TEST_VIDEO_FRAMES);
+        UT_VERIFY(signal.getNbOfSamples() == TEST_VIDEO_FRAMES);
+        UT_VERIFY(signal.getFs() == TEST_VIDEO_FPS);
+
+        // remove the mean value "offset" of the signal
+        signal.removeMeanValue();
+        UT_VERIFY(std::fabs(signal.meanVector()) < 1e-3);
+
+        // band-pass filter [lowFreqCutOff, highFreqCutOff] = [0.5 Hz, 4.5 Hz], as in main()
+        signalProcessing<float> filtredSig;
+        signal.bandPassFilterFunction(lowFreqCutOff, highFreqCutOff, filterOrder, filtredSig);
+        UT_VERIFY(filtredSig.getNbOfSamples() == TEST_VIDEO_FRAMES);
+        UT_VERIFY(filtredSig.getFs() == TEST_VIDEO_FPS);
+
+        // power spectrum of the filtered signal and frequency of its maximum = heart rate
+        signalProcessing<float> FFTfiltred;
+        filtredSig.signalFFT(FFTfiltred, DO_NOT_SAVE_FFT);
+        UT_VERIFY(FFTfiltred.getNbOfSamples() == TEST_VIDEO_FRAMES / 2);
+
+        const float heartRateBpm = std::round(60.0f * FFTfiltred.getFrequencyOfMaxFFT());
+        Logger::WriteMessage((std::wstring(regionName.begin(), regionName.end()) + L" : estimated heart rate "
+            + std::to_wstring(heartRateBpm) + L" bpm\n").c_str());
+
+#if TEST_SHOW_PLOTS
+        plotForeHeadSignalAndFFT(filtredSig, FFTfiltred, "whole video, optical flow tracking", regionName + "OpticalFlow", 0.0, regionName);
+#endif
+
+        // Tracking a region with optical flow (vs. detecting the face in every frame) involves different
+        // floating point computations (goodFeaturesToTrack, Lucas-Kanade) that can differ very slightly
+        // between platforms / OpenCV builds ; a small tolerance (half of the frequency resolution of the
+        // whole video, as in testHeartRateEstimationFromForeHeadGreenChannelTimeWindow) is used instead of
+        // the exact equality of testHeartRateEstimationFromForeHeadGreenChannel, so that such a negligible
+        // difference (not enough to change which FFT bin is the highest) does not make the test fail.
+        const float resolutionBpm = static_cast<float>(60.0 * TEST_VIDEO_FPS / TEST_VIDEO_FRAMES);
+        UT_VERIFY(std::fabs(heartRateBpm - TEST_VIDEO_HEART_RATE_BPM) < resolutionBpm / 2.0f);
+    }
 
     TEST_CLASS(TestVideoProcessing)
     {
@@ -171,6 +274,11 @@ namespace heart_rate_tests
             UT_VERIFY(videoObj.foreHeadSignal.numberOfSamples == 0);
             UT_VERIFY(videoObj.backgroundSignal.Fs == 0.0);
             UT_VERIFY(videoObj.backgroundSignal.numberOfSamples == 0);
+            UT_VERIFY(videoObj.leftCheekSignal.Fs == 0.0 && videoObj.leftCheekSignal.numberOfSamples == 0);
+            UT_VERIFY(videoObj.rightCheekSignal.Fs == 0.0 && videoObj.rightCheekSignal.numberOfSamples == 0);
+            UT_VERIFY(videoObj.noseSignal.Fs == 0.0 && videoObj.noseSignal.numberOfSamples == 0);
+            UT_VERIFY(videoObj.heartRateSignal.Fs == 0.0 && videoObj.heartRateSignal.numberOfSamples == 0);
+            UT_VERIFY(!videoObj.isOpticalFlowTracking());
             UT_VERIFY(videoObj.width == 0);
             UT_VERIFY(videoObj.height == 0);
 
@@ -182,6 +290,10 @@ namespace heart_rate_tests
             UT_VERIFY(videoProcessingObj.foreHeadSignal.numberOfSamples == 0);
             UT_VERIFY(videoProcessingObj.backgroundSignal.Fs == 30.0);
             UT_VERIFY(videoProcessingObj.backgroundSignal.numberOfSamples == 0);
+            UT_VERIFY(videoProcessingObj.leftCheekSignal.Fs == 30.0 && videoProcessingObj.leftCheekSignal.numberOfSamples == 0);
+            UT_VERIFY(videoProcessingObj.rightCheekSignal.Fs == 30.0 && videoProcessingObj.rightCheekSignal.numberOfSamples == 0);
+            UT_VERIFY(videoProcessingObj.noseSignal.Fs == 30.0 && videoProcessingObj.noseSignal.numberOfSamples == 0);
+            UT_VERIFY(videoProcessingObj.heartRateSignal.Fs == 30.0 && videoProcessingObj.heartRateSignal.numberOfSamples == 0);
             UT_VERIFY(videoProcessingObj.width == 528);
             UT_VERIFY(videoProcessingObj.height == 592);
         }
@@ -366,6 +478,188 @@ namespace heart_rate_tests
             UT_VERIFY(foreHeadSignal.getSignalSamples()[1] == 50.0f);
             UT_VERIFY(backgroundSignal.getNbOfSamples() == 1);
             UT_VERIFY(backgroundSignal.getSignalSamples()[0] == 200.0f);
+        }
+
+        TEST_METHOD(testRegionsFromFace)
+        {
+            // 100 x 100 face at (10, 20) : the fractions give whole pixels (each edge is rounded, so the
+            // 20 % high cheeks are 20 pixels high, not 19 as a truncated (0.74 - 0.54) * 100 would give)
+            const Rect faceRect(10, 20, 100, 100);
+            UT_VERIFY(videoProcessing::leftCheekRectFromFace(faceRect) == Rect(10 + 14, 20 + 54, 18, 20));
+            UT_VERIFY(videoProcessing::rightCheekRectFromFace(faceRect) == Rect(10 + 68, 20 + 54, 18, 20));
+            UT_VERIFY(videoProcessing::noseRectFromFace(faceRect) == Rect(10 + 43, 20 + 45, 14, 21));
+            // forehead : main() definition (x + 50, y, width - 70, height / 3.7)
+            UT_VERIFY(videoProcessing::foreHeadRectFromFace(faceRect) == Rect(60, 20, 30, 27));
+
+            // the regions scale with the face : same fractions of a 200 x 200 face
+            const Rect bigFace(0, 0, 200, 200);
+            UT_VERIFY(videoProcessing::leftCheekRectFromFace(bigFace) == Rect(28, 108, 36, 40));
+            UT_VERIFY(videoProcessing::noseRectFromFace(bigFace) == Rect(86, 90, 28, 42));
+        }
+
+        TEST_METHOD(testSetRegionsFromFace)
+        {
+            // all the rectangles of a frame from one face rectangle (test.mp4 : 528 x 592 frames)
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            const Rect faceRect(36, 77, 399, 399);
+            videoObj.setRegionsFromFace(faceRect);
+
+            UT_VERIFY(videoObj.getFaces().size() == 1 && videoObj.getFaces()[0] == faceRect);
+            UT_VERIFY(videoObj.foreHeads.size() == 1 && videoObj.foreHeads[0] == videoProcessing::foreHeadRectFromFace(faceRect));
+            UT_VERIFY(videoObj.foreHeads[0] == Rect(86, 77, 329, 107));
+            UT_VERIFY(videoObj.getLeftCheekRect() == Rect(92, 292, 72, 80));
+            UT_VERIFY(videoObj.getRightCheekRect() == Rect(307, 292, 72, 80));
+            UT_VERIFY(videoObj.getNoseRect() == Rect(208, 257, 55, 83));
+            // background : from the bottom-right corner of the face to the bottom-right corner of the frame
+            UT_VERIFY(videoObj.getbackgroundRect() == Rect(435, 476, TEST_VIDEO_WIDTH - 435, TEST_VIDEO_HEIGHT - 476));
+        }
+
+        TEST_METHOD(testFillCheeksAndNoseSignalsFromGreenChannel)
+        {
+            // synthetic 100 x 100 frame : green = 10 except three blocks (left cheek = 60, right cheek = 120,
+            // nose = 180); blue = 0 and red = 255, so a region read from a wrong channel is detected
+            videoProcessing videoProcessingObj;
+            videoProcessingObj.channels[BLEUE] = cv::Mat(100, 100, CV_8UC1, cv::Scalar(0));
+            videoProcessingObj.channels[GREEN] = cv::Mat(100, 100, CV_8UC1, cv::Scalar(10));
+            videoProcessingObj.channels[GREEN](Rect(5, 50, 20, 20)).setTo(cv::Scalar(60));
+            videoProcessingObj.channels[GREEN](Rect(75, 50, 20, 20)).setTo(cv::Scalar(120));
+            videoProcessingObj.channels[GREEN](Rect(40, 40, 20, 30)).setTo(cv::Scalar(180));
+            videoProcessingObj.channels[RED] = cv::Mat(100, 100, CV_8UC1, cv::Scalar(255));
+
+            videoProcessingObj.setLeftCheekRect(Rect(5, 50, 20, 20));
+            videoProcessingObj.setRightCheekRect(Rect(75, 50, 20, 20));
+            videoProcessingObj.setNoseRect(Rect(40, 40, 20, 30));
+            UT_VERIFY(videoProcessingObj.getLeftCheekRect() == Rect(5, 50, 20, 20));
+            UT_VERIFY(videoProcessingObj.getRightCheekRect() == Rect(75, 50, 20, 20));
+            UT_VERIFY(videoProcessingObj.getNoseRect() == Rect(40, 40, 20, 30));
+
+            videoProcessingObj.creatingCheeksAndNoseMatrixFromGreenChannel();
+            // the matrices have the size of their rectangles
+            UT_VERIFY(videoProcessingObj.getLeftCheek().cols == 20 && videoProcessingObj.getLeftCheek().rows == 20);
+            UT_VERIFY(videoProcessingObj.getRightCheek().cols == 20 && videoProcessingObj.getRightCheek().rows == 20);
+            UT_VERIFY(videoProcessingObj.getNose().cols == 20 && videoProcessingObj.getNose().rows == 30);
+
+            // one sample per call : the mean of the green channel inside each rectangle
+            videoProcessingObj.fillLeftCheekSignal();
+            videoProcessingObj.fillRightCheekSignal();
+            videoProcessingObj.fillNoseSignal();
+            videoProcessingObj.fillNoseSignal();
+
+            UT_VERIFY(videoProcessingObj.getLeftCheekSignal().getNbOfSamples() == 1);
+            UT_VERIFY(videoProcessingObj.getLeftCheekSignal().getSignalSamples()[0] == 60.0f);
+            UT_VERIFY(videoProcessingObj.getRightCheekSignal().getNbOfSamples() == 1);
+            UT_VERIFY(videoProcessingObj.getRightCheekSignal().getSignalSamples()[0] == 120.0f);
+            UT_VERIFY(videoProcessingObj.getNoseSignal().getNbOfSamples() == 2);
+            UT_VERIFY(videoProcessingObj.getNoseSignal().getSignalSamples()[1] == 180.0f);
+            // the forehead / background signals are not affected
+            UT_VERIFY(videoProcessingObj.getforeHeadSignal().getNbOfSamples() == 0);
+            UT_VERIFY(videoProcessingObj.getbackgroundSignal().getNbOfSamples() == 0);
+        }
+
+        TEST_METHOD(testBuildHeartRateSignal)
+        {
+            // synthetic region signals, 10 s at 30 Hz, pulse = 1.2 Hz sine (72 bpm), green level ~ 100 :
+            //   forehead, cheeks : pulse + a small sine at another frequency (each its own)
+            //   nose             : weak pulse, dominated by a 0.8 Hz sine (e.g. a movement)
+            // the nose must get an almost zero weight, and heartRateSignal must pulse at 1.2 Hz
+            const double Fs = 30.0;
+            const unsigned int N = 300;
+            auto sine = [&](double f, unsigned int n) { return std::sin(2.0 * 3.14159265358979323846 * f * n / Fs); };
+            std::vector<float> foreHead(N), leftCheek(N), rightCheek(N), nose(N);
+            for (unsigned int n = 0; n < N; n++)
+            {
+                foreHead[n] = static_cast<float>(100.0 + sine(1.2, n) + 0.3 * sine(2.9, n));
+                leftCheek[n] = static_cast<float>(90.0 + sine(1.2, n) + 0.3 * sine(3.7, n));
+                rightCheek[n] = static_cast<float>(95.0 + sine(1.2, n) + 0.3 * sine(3.3, n));
+                nose[n] = static_cast<float>(110.0 + 0.2 * sine(1.2, n) + sine(0.8, n));
+            }
+            videoProcessing videoObj;
+            videoObj.foreHeadSignal = signalProcessing<float>(foreHead, N, Fs);
+            videoObj.leftCheekSignal = signalProcessing<float>(leftCheek, N, Fs);
+            videoObj.rightCheekSignal = signalProcessing<float>(rightCheek, N, Fs);
+            videoObj.noseSignal = signalProcessing<float>(nose, N, Fs);
+
+            videoObj.buildHeartRateSignal();
+
+            UT_VERIFY(std::fabs(videoObj.getHeartRateReferenceFrequency() - 1.2) < 1e-6);
+            const std::vector<double>& w = videoObj.getHeartRateWeights();
+            UT_VERIFY(w.size() == 4);
+            UT_VERIFY(std::fabs(w[0] + w[1] + w[2] + w[3] - 1.0) < 1e-9);
+            UT_VERIFY(w[3] < 0.01);                               // nose : almost ignored
+            UT_VERIFY(w[0] > 0.3 && w[1] > 0.3 && w[2] > 0.3);    // the 3 clean regions share the rest
+
+            signalProcessing<float>& heartRateSignal = videoObj.getHeartRateSignal();
+            UT_VERIFY(heartRateSignal.getNbOfSamples() == N);
+            UT_VERIFY(heartRateSignal.getFs() == Fs);
+            signalProcessing<float> spectrum;
+            heartRateSignal.signalFFT(spectrum);
+            UT_VERIFY(std::fabs(spectrum.getFrequencyOfMaxFFT() - 1.2) < 1e-5);
+
+            // the region signals are not modified
+            UT_VERIFY(videoObj.getNoseSignal().getSignalSamples() == nose);
+            UT_VERIFY(videoObj.getforeHeadSignal().getSignalSamples() == foreHead);
+        }
+
+        TEST_METHOD(testBuildHeartRateSignalWindow)
+        {
+            // 20 s at 30 Hz : during the first 10 s every region pulses at 2.5 Hz, during the last 10 s at
+            // 1.2 Hz (and the nose is dominated by a 0.8 Hz sine). buildHeartRateSignal(300) only combines the
+            // last 300 samples (as the sliding window analysis of main() does) : 1.2 Hz, 300 samples.
+            const double Fs = 30.0;
+            const unsigned int N = 600, window = 300;
+            auto sine = [&](double f, unsigned int n) { return std::sin(2.0 * 3.14159265358979323846 * f * n / Fs); };
+            std::vector<float> foreHead(N), leftCheek(N), rightCheek(N), nose(N);
+            for (unsigned int n = 0; n < N; n++)
+            {
+                const bool last = n >= N - window;
+                const double pulse = last ? sine(1.2, n) : sine(2.5, n);
+                foreHead[n] = static_cast<float>(100.0 + pulse);
+                leftCheek[n] = static_cast<float>(90.0 + pulse);
+                rightCheek[n] = static_cast<float>(95.0 + pulse);
+                nose[n] = static_cast<float>(110.0 + (last ? 0.2 * pulse + sine(0.8, n) : pulse));
+            }
+            videoProcessing videoObj;
+            videoObj.foreHeadSignal = signalProcessing<float>(foreHead, N, Fs);
+            videoObj.leftCheekSignal = signalProcessing<float>(leftCheek, N, Fs);
+            videoObj.rightCheekSignal = signalProcessing<float>(rightCheek, N, Fs);
+            videoObj.noseSignal = signalProcessing<float>(nose, N, Fs);
+
+            videoObj.buildHeartRateSignal(window);
+            UT_VERIFY(videoObj.getHeartRateSignal().getNbOfSamples() == window);
+            UT_VERIFY(std::fabs(videoObj.getHeartRateReferenceFrequency() - 1.2) < 1e-6);
+            UT_VERIFY(videoObj.getHeartRateWeights()[3] < 0.01); // nose, in this window
+            signalProcessing<float> spectrum;
+            videoObj.getHeartRateSignal().signalFFT(spectrum);
+            UT_VERIFY(std::fabs(spectrum.getFrequencyOfMaxFFT() - 1.2) < 1e-5);
+            UT_VERIFY(videoObj.getforeHeadSignal().getNbOfSamples() == N); // the region signals are not modified
+
+            // the window must hold at least 2 samples, and not more than the signals
+            Assert::ExpectException<std::runtime_error>([&] { videoObj.buildHeartRateSignal(N + 1); });
+            Assert::ExpectException<std::runtime_error>([&] { videoObj.buildHeartRateSignal(1); });
+        }
+
+        TEST_METHOD(testBuildHeartRateSignalEqualRegionsAndErrors)
+        {
+            const double Fs = 30.0;
+            const unsigned int N = 300;
+            std::vector<float> pulse(N);
+            for (unsigned int n = 0; n < N; n++) pulse[n] = static_cast<float>(100.0 + std::sin(2.0 * 3.14159265358979323846 * 1.2 * n / Fs));
+
+            // 4 identical regions : same quality, equal weights
+            videoProcessing videoObj;
+            videoObj.foreHeadSignal = videoObj.leftCheekSignal = videoObj.rightCheekSignal = videoObj.noseSignal =
+                signalProcessing<float>(pulse, N, Fs);
+            videoObj.buildHeartRateSignal();
+            for (double w : videoObj.getHeartRateWeights()) UT_VERIFY(std::fabs(w - 0.25) < 1e-9);
+
+            // the 4 signals must have the same number of samples (at least 2)
+            videoProcessing different;
+            different.foreHeadSignal = different.leftCheekSignal = different.rightCheekSignal = signalProcessing<float>(pulse, N, Fs);
+            different.noseSignal = signalProcessing<float>(std::vector<float>(pulse.begin(), pulse.begin() + 10), 10, Fs);
+            Assert::ExpectException<std::runtime_error>([&] { different.buildHeartRateSignal(); });
+
+            videoProcessing empty; // nothing filled
+            Assert::ExpectException<std::runtime_error>([&] { empty.buildHeartRateSignal(); });
         }
 
         TEST_METHOD(testHeartRateEstimationFromForeHeadGreenChannel)
@@ -639,6 +933,165 @@ namespace heart_rate_tests
                 UT_VERIFY(std::fabs(r.heartRateBpm - TEST_VIDEO_HEART_RATE_BPM) < toleranceBpm);
         }
 
+        // -----------------------------------------------------------------------------------------
+        // Heart rate estimation from regions other than the forehead, tracked with optical flow
+        // (method E, "Haar once + KLT tracking") instead of running the face detector on every frame.
+        // Same whole-video processing as testHeartRateEstimationFromForeHeadGreenChannel (see
+        // fillTrackedRegionSignals / checkHeartRateOfTrackedRegion above) : the signal attribute of the
+        // region (one sample per frame : mean of its green channel), then mean removal, band-pass filter,
+        // FFT, and the frequency of the maximum of the spectrum is the heart rate.
+        // -----------------------------------------------------------------------------------------
+
+        TEST_METHOD(testHeartRateEstimationFromForeHeadOpticalFlow)
+        {
+            // Same region as testHeartRateEstimationFromForeHeadGreenChannel (foreHeadRectFromFace), but
+            // computed in every frame from the tracked face instead of a new Haar detection.
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            videoObj.faceCascadeLoading(FACE_CASCADE_FILE);
+
+            const unsigned int nbOfFrames = fillTrackedRegionSignals(videoObj);
+            checkHeartRateOfTrackedRegion(videoObj.getforeHeadSignal(), nbOfFrames, "ForeHead");
+        }
+
+        TEST_METHOD(testHeartRateEstimationFromLeftCheekOpticalFlow)
+        {
+            // Left cheek of the image (right cheek of the person) : videoProcessing::leftCheekRectFromFace
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            videoObj.faceCascadeLoading(FACE_CASCADE_FILE);
+
+            const unsigned int nbOfFrames = fillTrackedRegionSignals(videoObj);
+            checkHeartRateOfTrackedRegion(videoObj.getLeftCheekSignal(), nbOfFrames, "LeftCheek");
+        }
+
+        TEST_METHOD(testHeartRateEstimationFromRightCheekOpticalFlow)
+        {
+            // Right cheek of the image (left cheek of the person) : videoProcessing::rightCheekRectFromFace
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            videoObj.faceCascadeLoading(FACE_CASCADE_FILE);
+
+            const unsigned int nbOfFrames = fillTrackedRegionSignals(videoObj);
+            checkHeartRateOfTrackedRegion(videoObj.getRightCheekSignal(), nbOfFrames, "RightCheek");
+        }
+
+        TEST_METHOD(testHeartRateEstimationFromNoseOpticalFlow)
+        {
+            // Nose : videoProcessing::noseRectFromFace
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            videoObj.faceCascadeLoading(FACE_CASCADE_FILE);
+
+            const unsigned int nbOfFrames = fillTrackedRegionSignals(videoObj);
+            checkHeartRateOfTrackedRegion(videoObj.getNoseSignal(), nbOfFrames, "Nose");
+        }
+
+        TEST_METHOD(testHeartRateEstimationFromHeartRateSignalOpticalFlow)
+        {
+            // Full processing : the heart rate comes from heartRateSignal, the weighted combination of the
+            // 4 regions, and not from any region alone (the region signals are not processed here).
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            videoObj.faceCascadeLoading(FACE_CASCADE_FILE);
+
+            // 1. extraction of the 4 regions, tracked with optical flow : one sample per frame each
+            const unsigned int nbOfFrames = fillTrackedRegionSignals(videoObj);
+            UT_VERIFY(nbOfFrames == TEST_VIDEO_FRAMES);
+            UT_VERIFY(videoObj.getforeHeadSignal().getNbOfSamples() == TEST_VIDEO_FRAMES);
+            UT_VERIFY(videoObj.getLeftCheekSignal().getNbOfSamples() == TEST_VIDEO_FRAMES);
+            UT_VERIFY(videoObj.getRightCheekSignal().getNbOfSamples() == TEST_VIDEO_FRAMES);
+            UT_VERIFY(videoObj.getNoseSignal().getNbOfSamples() == TEST_VIDEO_FRAMES);
+
+            // 2. construction of heartRateSignal (each region filtered, scaled, weighted by its quality)
+            videoObj.buildHeartRateSignal();
+            signalProcessing<float>& heartRateSignal = videoObj.getHeartRateSignal();
+            UT_VERIFY(heartRateSignal.getNbOfSamples() == TEST_VIDEO_FRAMES);
+            UT_VERIFY(heartRateSignal.getFs() == TEST_VIDEO_FPS);
+
+            const std::vector<double>& weights = videoObj.getHeartRateWeights();
+            UT_VERIFY(weights.size() == videoProcessing::NB_OF_HEART_RATE_REGIONS);
+            double weightSum = 0.0;
+            for (double w : weights)
+            {
+                UT_VERIFY(w >= 0.0 && w <= 1.0);
+                weightSum += w;
+            }
+            UT_VERIFY(std::fabs(weightSum - 1.0) < 1e-9);
+            std::ostringstream msg;
+            msg << std::fixed << std::setprecision(3) << "heartRateSignal : reference frequency "
+                << videoObj.getHeartRateReferenceFrequency() << " Hz, weights : forehead " << weights[0] << ", left cheek "
+                << weights[1] << ", right cheek " << weights[2] << ", nose " << weights[3] << "\n";
+            Logger::WriteMessage(msg.str().c_str());
+
+            // 3. heart rate of heartRateSignal (already band-pass filtered : directly its spectrum)
+            signalProcessing<float> FFTheartRateSignal;
+            heartRateSignal.signalFFT(FFTheartRateSignal, DO_NOT_SAVE_FFT);
+            UT_VERIFY(FFTheartRateSignal.getNbOfSamples() == TEST_VIDEO_FRAMES / 2);
+            const float heartRateBpm = std::round(60.0f * FFTheartRateSignal.getFrequencyOfMaxFFT());
+            Logger::WriteMessage((L"heartRateSignal : estimated heart rate " + std::to_wstring(heartRateBpm) + L" bpm\n").c_str());
+
+#if TEST_SHOW_PLOTS
+            plotForeHeadSignalAndFFT(heartRateSignal, FFTheartRateSignal, "whole video, weighted sum of the 4 regions",
+                "CombinedOpticalFlow", 0.0, "HeartRate");
+#endif
+            // same criterion as the region tests : within half a frequency step of the heart rate of the video
+            const float resolutionBpm = static_cast<float>(60.0 * TEST_VIDEO_FPS / TEST_VIDEO_FRAMES);
+            UT_VERIFY(std::fabs(heartRateBpm - TEST_VIDEO_HEART_RATE_BPM) < resolutionBpm / 2.0f);
+        }
+
+        TEST_METHOD(testHeartRateEstimationFromHeartRateSignalSlidingWindow)
+        {
+            // Sliding window mode of main() : the 4 regions are tracked and filled frame by frame; as soon as
+            // they hold TEST_SLIDING_WINDOW_LENGTH_S of signal, and then every TEST_SLIDING_WINDOW_STEP_S, their
+            // last samples (the window) are combined into heartRateSignal (buildHeartRateSignal(windowLength) :
+            // the weights are computed for this window only), whose zero padded spectrum gives the heart rate.
+            videoProcessing videoObj(TEST_VIDEO_FILE);
+            videoObj.faceCascadeLoading(FACE_CASCADE_FILE);
+
+            const double Fs = videoObj.getFs();
+            const unsigned int windowLength = static_cast<unsigned int>(std::lround(TEST_SLIDING_WINDOW_LENGTH_S * Fs)); // 135 samples
+            const unsigned int step = static_cast<unsigned int>(std::lround(TEST_SLIDING_WINDOW_STEP_S * Fs));          // 30 samples
+
+            std::vector<SlidingWindowResult> results;
+            auto processWindowIfComplete = [&]()
+                {
+                    const unsigned int nbOfSamples = videoObj.getforeHeadSignal().getNbOfSamples();
+                    if (nbOfSamples < windowLength || (nbOfSamples - windowLength) % step != 0) return;
+
+                    SlidingWindowResult result;
+                    result.startTime = (nbOfSamples - windowLength) / Fs;
+                    result.endTime = nbOfSamples / Fs;
+                    videoObj.buildHeartRateSignal(windowLength);
+                    result.filtredSig = videoObj.getHeartRateSignal(); // already band-pass filtered
+                    result.filtredSig.signalFFT(result.FFTfiltredSig, DO_NOT_SAVE_FFT, " ", TEST_SLIDING_WINDOW_FFT_LENGTH);
+                    result.heartRateBpm = std::round(60.0f * result.FFTfiltredSig.getFrequencyOfMaxFFT());
+
+                    const std::vector<double>& w = videoObj.getHeartRateWeights();
+                    UT_VERIFY(w.size() == videoProcessing::NB_OF_HEART_RATE_REGIONS);
+                    UT_VERIFY(std::fabs(w[0] + w[1] + w[2] + w[3] - 1.0) < 1e-9);
+
+                    std::ostringstream msg;
+                    msg << "Window " << results.size() + 1 << " : " << std::fixed << std::setprecision(1) << result.startTime
+                        << " s - " << result.endTime << " s -> heart rate " << std::setprecision(0) << result.heartRateBpm
+                        << " bpm (weights " << std::setprecision(2) << w[0] << " " << w[1] << " " << w[2] << " " << w[3] << ")\n";
+                    Logger::WriteMessage(msg.str().c_str());
+                    results.push_back(result);
+                };
+
+            const unsigned int nbOfFrames = fillTrackedRegionSignals(videoObj, processWindowIfComplete);
+            UT_VERIFY(nbOfFrames == TEST_VIDEO_FRAMES);
+
+            // every complete window has been processed : (301 - 135) / 30 + 1 = 6 windows
+            UT_VERIFY(results.size() == (nbOfFrames - windowLength) / step + 1);
+            for (SlidingWindowResult& r : results)
+                UT_VERIFY(r.filtredSig.getNbOfSamples() == windowLength);
+
+#if TEST_SHOW_PLOTS
+            plotSlidingWindows(results, "heartRateSignal (4 regions combined)", "SlidingHeartRateSignal"); // before the check
+#endif
+            // same criterion as testHeartRateEstimationFromForeHeadGreenChannelSlidingWindow : half of the
+            // frequency resolution of a window (60 / 4.5 s / 2 = 6.7 bpm)
+            const float toleranceBpm = static_cast<float>(0.5 * 60.0 * Fs / windowLength);
+            for (const SlidingWindowResult& r : results)
+                UT_VERIFY(std::fabs(r.heartRateBpm - TEST_VIDEO_HEART_RATE_BPM) < toleranceBpm);
+        }
+
         TEST_METHOD(testMeanFrameValue)
         {
             cv::Mat uniform(20, 30, CV_8UC1, cv::Scalar(42));
@@ -680,7 +1133,8 @@ namespace heart_rate_tests
         }
         TEST_METHOD(testDisplayFrame)
         {
-            // displayFrame draws the 3 rectangles on the frames, then show it in the window "Frame"
+            // displayFrame draws the rectangles (face, forehead, background, and the cheeks / nose when they
+            // are set) on the frame, then show it in the window "Frame"
             // (a window is opened : on Linux without display, run the tests with QT_QPA_PLATFORM=offscreen)
             videoProcessing videoProcessingObj;
             videoProcessingObj.frame = cv::Mat(100, 100, CV_8UC3, cv::Scalar(0, 0, 0));
@@ -695,6 +1149,17 @@ namespace heart_rate_tests
             UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(15, 20) == white); // forehead, top-left corner
             UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(95, 95) == white); // background, bottom-right corner
             UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(40, 40) == black); // inside the face, on no border
+            UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(0, 0) == black);   // cheeks / nose not set : not drawn
+
+            // with the cheeks and the nose set, they are drawn too
+            videoProcessingObj.setLeftCheekRect(Rect(15, 40, 10, 10));
+            videoProcessingObj.setRightCheekRect(Rect(50, 40, 10, 10));
+            videoProcessingObj.setNoseRect(Rect(30, 20, 8, 8));
+            videoProcessingObj.displayFrame();
+            UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(40, 15) == white); // left cheek, top-left corner
+            UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(40, 50) == white); // right cheek, top-left corner
+            UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(20, 30) == white); // nose, top-left corner
+            UT_VERIFY(videoProcessingObj.frame.at<cv::Vec3b>(40, 40) == black); // still on no border
         }
     };
 
