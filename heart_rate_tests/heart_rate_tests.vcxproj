@@ -136,6 +136,9 @@
     <None Include="..\data\test.mp4">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>
+    <None Include="..\data\test2.mp4">
+      <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
+    </None>
     <None Include="..\data\haarcascade_frontalface_alt2.xml">
       <HeartRateCopyToOutput>true</HeartRateCopyToOutput>
     </None>

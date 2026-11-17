@@ -69,6 +69,9 @@
     <None Include="..\data\test.mp4">
       <Filter>Test Data</Filter>
     </None>
+    <None Include="..\data\test2.mp4">
+      <Filter>Test Data</Filter>
+    </None>
     <None Include="..\data\haarcascade_frontalface_alt2.xml">
       <Filter>Test Data</Filter>
     </None>
